@@ -237,3 +237,22 @@ main .join-card .j-go{margin-top:auto;color:var(--gold2);font-size:12px;font-wei
 }
 @media(prefers-reduced-motion:reduce){.js8 .rv{opacity:1;transform:none;transition:none}.benefit,.program-card,.join-card{transition:none}}
 main a.join-card,main a.join-card:hover{color:var(--text);text-decoration:none}
+
+/* ===== Module Match/Differs ===== */
+.def-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px}
+.def{padding:24px 22px;background:var(--panel);border:1px solid var(--line-soft);border-top:3px solid var(--gold-fill)}
+.def h3{margin:0 0 8px;font-size:18px}.def p{margin:0;font-size:14px;color:var(--text-soft);line-height:1.75}
+.mod-fig{margin:0 0 18px}.mod-fig img{display:block;width:100%;height:auto;border:1px solid rgba(var(--gold-rgb),.35)}
+.fig-pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:6px}.fig-pair .mod-fig{margin:0 0 14px}
+.seq-list{margin-top:18px}
+.seq-n{display:inline-grid;place-items:center;flex:none;width:30px;height:30px;margin-right:14px;background:var(--gold-fill);color:var(--on-gold);font-family:var(--serif);font-weight:700}
+.seq-list summary{display:flex;align-items:center}
+.seq-list details p{margin:10px 0 0}
+.verse{margin:16px 0 4px;padding:4px 0 4px 18px;border-left:3px solid var(--gold-fill)}
+.verse p{margin:0;font-family:var(--serif);font-style:italic;color:var(--text)}
+.verse cite{display:block;margin-top:6px;font-size:12px;font-style:normal;letter-spacing:.06em;color:var(--gold)}
+@media(max-width:800px){.def-grid,.fig-pair{grid-template-columns:1fr}}
+.site-nav a,.header-actions .button{white-space:nowrap}
+@media(min-width:951px){.site-nav a{padding:11px 9px;font-size:12.5px}}
+@media(min-width:951px) and (max-width:1180px){.header-actions .button-small{display:none}}
+.seq-list summary span:nth-child(2){flex:1;text-align:left}

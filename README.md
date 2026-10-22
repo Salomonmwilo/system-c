@@ -89,3 +89,6 @@ Corrections d'accessibilité issues de l'audit, corroborées par la base UX du s
 
 ## Déploiement Netlify
 Publish directory : `public` — aucune commande de build (voir `netlify.toml`).
+
+## Version 9
+- Nouvelle section `#module` : « Match/Differs, huit séquences, zéro promesse » (définitions du trading et de Deriv, 3 illustrations FR/EN, 8 séquences dépliables, versets, avertissement de risque).
