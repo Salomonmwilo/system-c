@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Access denied" %}{% endblock %}
+{% block page_title %}{% translate "Access denied" %}{% endblock %}
+{% block body %}{% if user.is_authenticated %}{{ block.super }}{% else %}<main class="container py-5" id="main"><h1 class="h3">{% translate "Access denied" %}</h1><p><a href="{% url 'core:login' %}">{% translate "Sign in" %}</a></p></main>{% endif %}{% endblock %}
+{% block content %}
+<div class="sc-card"><div class="sc-empty"><i class="bi bi-shield-lock" aria-hidden="true"></i>
+<p class="mb-1 fw-semibold">{% translate "You do not have permission to perform this action." %}</p>
+<p class="mb-0"><a href="{% url 'core:dashboard' %}">{% translate "Back to the dashboard" %}</a></p></div></div>
+{% endblock %}

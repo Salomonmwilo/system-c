@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% block title %}{% translate "Sign in" %}{% endblock %}
+{% block body %}
+<div class="sc-auth">
+  <aside class="sc-auth-aside">
+    <div class="d-flex align-items-center gap-3">
+      <img src="{% static 'img/logo-mark.png' %}" alt="" width="52" height="52" class="rounded-circle">
+      <div><strong class="sc-auth-name">SYSTEM-C</strong><small class="sc-auth-sub">Platform</small></div>
+    </div>
+    <div>
+      <h1>{% translate "Think clearly." %} <em>{% translate "Act with discipline." %}</em></h1>
+      <p class="sc-auth-lead">{% translate "Administrative platform for affiliates, robot users and learning programmes. No gain is promised; nothing here controls a robot." %}</p>
+    </div>
+    <p class="sc-motto mb-0" lang="la">Solus cum plenitudine, inopi est alia</p>
+  </aside>
+  <main class="sc-auth-main" id="main" tabindex="-1">
+    <div class="sc-auth-card">
+      <div class="d-lg-none text-center mb-4">
+        <img src="{% static 'img/logo-mark.png' %}" alt="" width="56" height="56" class="rounded-circle mb-2">
+        <p class="sc-serif fs-5 mb-0">SYSTEM-C Platform</p>
+      </div>
+      <div class="sc-card">
+        <div class="sc-card-body p-4">
+          <h2 class="h4 mb-1">{% translate "Sign in" %}</h2>
+          <p class="text-body-secondary small mb-4">{% translate "Access is reserved for members of an organization." %}</p>
+          {% include "includes/messages.html" %}
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">{% for error in form.non_field_errors %}{{ error }}{% endfor %}</div>
+          {% endif %}
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
+            {% include "includes/field.html" with f=form.email %}
+            {% include "includes/field.html" with f=form.password %}
+            <button type="submit" class="btn btn-primary w-100 py-2">{% translate "Sign in" %}</button>
+          </form>
+        </div>
+      </div>
+      <form method="post" action="{% url 'core:switch_language' %}" class="sc-lang text-center mt-3" aria-label="{% translate 'Language' %}">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        {% for code, name in available_languages %}
+          <button type="submit" name="language" value="{{ code }}" lang="{{ code }}" class="btn btn-sm {% if LANGUAGE_CODE == code %}btn-dark{% else %}btn-outline-secondary{% endif %}" aria-pressed="{% if LANGUAGE_CODE == code %}true{% else %}false{% endif %}">{{ name }}</button>
+        {% endfor %}
+      </form>
+    </div>
+  </main>
+</div>
+{% endblock %}

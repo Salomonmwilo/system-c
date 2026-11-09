@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Roles" %}{% endblock %}
+{% block page_title %}{% translate "Members and roles" %}{% endblock %}
+{% block content %}
+<div class="row"><div class="col-lg-7">
+<div class="sc-card"><div class="sc-card-body">
+  <h1 class="h4">{{ member.full_name }}</h1>
+  <p class="text-body-secondary small">{{ member.email }}</p>
+  <div class="sc-banner sc-banner-info mb-3"><i class="bi bi-info-circle" aria-hidden="true"></i><div>{% translate "Only the CRM administrator role can declare a real account. Removing every role removes access to this organization." %}</div></div>
+  {% include "includes/form_errors.html" %}
+  <form method="post" novalidate>{% csrf_token %}
+    {% for f in form %}{% include "includes/field.html" %}{% endfor %}
+    <button class="btn btn-primary" type="submit">{% translate "Save" %}</button>
+    <a class="btn btn-link" href="{% url 'core:members' %}">{% translate "Cancel" %}</a>
+  </form>
+</div></div></div></div>
+{% endblock %}

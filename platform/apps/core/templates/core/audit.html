@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Audit log" %}{% endblock %}
+{% block page_title %}{% translate "Audit log" %}{% endblock %}
+{% block content %}
+<h1 class="h3">{% translate "Audit log" %}</h1>
+<p class="text-body-secondary">{% translate "Append-only record of administrative actions. It never contains notes, passwords or tokens." %}</p>
+<div class="sc-card"><div class="table-responsive">
+<table class="table sc-table">
+  <thead><tr><th scope="col">{% translate "Date" %}</th><th scope="col">{% translate "Person" %}</th><th scope="col">{% translate "Action" %}</th><th scope="col">{% translate "Details" %}</th></tr></thead>
+  <tbody>
+  {% for entry in page %}
+    <tr>
+      <td class="text-nowrap">{{ entry.created_at|date:"SHORT_DATETIME_FORMAT" }}</td>
+      <td>{{ entry.actor|default:"—" }}</td>
+      <td><code>{{ entry.action }}</code></td>
+      <td class="small">{% for key, value in entry.summary.items %}<span class="me-2"><span class="text-body-secondary">{{ key }}</span>: {{ value }}</span>{% endfor %}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="4" class="sc-empty">{% translate "No entry yet." %}</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div></div>
+{% include "includes/pagination.html" %}
+{% endblock %}

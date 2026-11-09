@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "No organization" %}{% endblock %}
+{% block page_title %}{% translate "No organization" %}{% endblock %}
+{% block content %}
+<div class="sc-card"><div class="sc-empty"><i class="bi bi-building-slash" aria-hidden="true"></i>
+<p class="mb-1 fw-semibold">{% translate "Your account is not a member of any active organization." %}</p>
+<p class="mb-0">{% translate "Ask an organization administrator to give you a role." %}</p></div></div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Members and roles" %}{% endblock %}
+{% block page_title %}{% translate "Members and roles" %}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+  <h1 class="h3 mb-0">{% translate "Members and roles" %}</h1>
+  <a class="btn btn-primary" href="{% url 'core:member_create' %}"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>{% translate "Add a member" %}</a>
+</div>
+<div class="sc-card"><div class="table-responsive">
+<table class="table sc-table">
+  <thead><tr><th scope="col">{% translate "Name" %}</th><th scope="col">{% translate "Email address" %}</th><th scope="col">{% translate "Roles" %}</th><th scope="col"><span class="visually-hidden">{% translate "Actions" %}</span></th></tr></thead>
+  <tbody>
+  {% for person in people %}
+    <tr>
+      <td>{{ person.user.full_name }}{% if not person.user.is_active %} <span class="sc-badge sc-badge-neutral">{% translate "Inactive" %}</span>{% endif %}</td>
+      <td>{{ person.user.email }}</td>
+      <td>{% for role in person.roles %}<span class="sc-badge sc-badge-neutral me-1 mb-1">{{ role }}</span>{% endfor %}</td>
+      <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{% url 'core:member_roles' person.user.pk %}">{% translate "Roles" %}</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table></div></div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Dashboard" %}{% endblock %}
+{% block page_title %}{% translate "Dashboard" %}{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-2">
+  <div>
+    <h1 class="h3 mb-1">{% blocktranslate with name=user.get_short_name %}Hello, {{ name }}{% endblocktranslate %}</h1>
+    <p class="text-body-secondary mb-0">{% blocktranslate with org=current_organization.name %}Overview of {{ org }}. All figures come from the platform records.{% endblocktranslate %}</p>
+  </div>
+</div>
+{% for section in sections %}
+  {% include section.template with data=section.context %}
+{% empty %}
+  <div class="sc-card mt-4"><div class="sc-empty"><i class="bi bi-grid" aria-hidden="true"></i>{% translate "No module is available for your roles yet." %}</div></div>
+{% endfor %}
+{% endblock %}

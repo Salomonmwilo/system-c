@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Add a member" %}{% endblock %}
+{% block page_title %}{% translate "Add a member" %}{% endblock %}
+{% block content %}
+<div class="row"><div class="col-lg-7">
+<div class="sc-card"><div class="sc-card-body">
+  <h1 class="h4">{% translate "Add a member" %}</h1>
+  <p class="text-body-secondary small">{% translate "Robot users do not need an account. Create accounts only for people who must sign in." %}</p>
+  {% include "includes/form_errors.html" %}
+  <form method="post" novalidate>{% csrf_token %}
+    {% for f in form %}{% include "includes/field.html" %}{% endfor %}
+    <button class="btn btn-primary" type="submit">{% translate "Create the account" %}</button>
+    <a class="btn btn-link" href="{% url 'core:members' %}">{% translate "Cancel" %}</a>
+  </form>
+</div></div></div></div>
+{% endblock %}
