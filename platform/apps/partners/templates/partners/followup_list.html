@@ -24,11 +24,11 @@
       <td class="text-end">{% if can_followup %}
         <form method="post" action="{% url 'partners:followup_close' fu.pk %}" class="d-inline-flex gap-1">{% csrf_token %}<input type="hidden" name="return_to" value="list">
           <button class="btn btn-sm btn-outline-primary" name="status" value="done">{% translate "Mark done" %}</button>
-          <button class="btn btn-sm btn-outline-secondary" name="status" value="cancelled">{% translate "Cancel" %}</button>
+          <button class="btn btn-sm btn-outline-secondary" name="status" value="cancelled" data-confirm="{% translate 'Cancel this follow-up?' %}">{% translate "Cancel the follow-up" %}</button>
         </form>{% endif %}</td>
     </tr>
   {% empty %}
-    <tr><td colspan="5"><div class="sc-empty"><i class="bi bi-calendar-check" aria-hidden="true"></i>{% translate "No open follow-up." %}</div></td></tr>
+    <tr><td colspan="5"><div class="sc-empty"><i class="bi bi-calendar-check" aria-hidden="true"></i>{% translate "No open follow-up. Follow-ups are scheduled from an affiliate's record." %}<br><a class="btn btn-sm btn-outline-primary" href="{% url 'partners:affiliate_list' %}">{% translate "Open the affiliates" %}</a></div></td></tr>
   {% endfor %}
   </tbody>
 </table></div></div>

@@ -329,3 +329,54 @@ class LanguageTests(TestCase):
         self.assertTrue((po.with_suffix(".mo")).exists())
         with translation.override("fr"):
             self.assertEqual(translation.gettext("Robot users"), "Utilisateurs de robots")
+
+
+class DesignRevisionTests(TestCase):
+    """Garde-fous issus de l'audit d'ergonomie (docs/platform/DESIGN_AUDIT.md)."""
+
+    def setUp(self):
+        self.org = make_org()
+        self.admin = make_user(self.org, Role.CRM_ADMIN, Role.ORG_ADMIN)
+        login(self.client, self.admin, self.org)
+
+    def test_dashboard_ledger_lists_actions_first_by_urgency(self):
+        from django.utils import timezone
+
+        from apps.partners import services as partner_services
+
+        affiliate = partner_services.create_affiliate(organization=self.org, actor=self.admin, data={"display_name": "Relance"})
+        partner_services.create_followup(affiliate=affiliate, actor=self.admin, title="x",
+                                         due_on=timezone.localdate() - timezone.timedelta(days=2))
+        response = self.client.get(reverse("core:dashboard"))
+        priorities = response.context["priorities"]
+        self.assertEqual(priorities[0]["count"], 1)
+        self.assertTrue(priorities[0]["urgent"])
+        self.assertEqual(priorities[0]["rank"], 10)
+        counts = [item["count"] for item in priorities]
+        self.assertEqual(counts, sorted(counts, key=lambda c: c == 0))
+        self.assertContains(response, "À traiter")
+        self.assertContains(response, "Relance à effectuer aujourd")
+
+    def test_irreversible_actions_ask_for_confirmation(self):
+        base = Path(settings.BASE_DIR)
+        expected = {
+            "apps/bots/templates/bots/version_form.html": "bots:version_delete",
+            "apps/bots/templates/bots/botuser_detail.html": "'disable'",
+            "apps/bots/templates/bots/version_detail.html": "bots:declaration_correct",
+            "apps/partners/templates/partners/affiliate_detail.html": 'value="archive"',
+        }
+        for path, marker in expected.items():
+            text = (base / path).read_text(encoding="utf-8")
+            line = next(line for line in text.splitlines() if marker in line)
+            self.assertIn("data-confirm=", line, path)
+        script = (base / "static/js/systemc.js").read_text(encoding="utf-8")
+        self.assertIn("window.confirm", script)
+
+    def test_fonts_are_local_and_licensed(self):
+        base = Path(settings.BASE_DIR) / "static"
+        css = (base / "css/systemc.css").read_text(encoding="utf-8")
+        for url in re.findall(r'url\("([^"]+)"\)', css):
+            self.assertFalse(url.startswith(("http:", "https:", "//")), url)
+            self.assertTrue((base / "css" / url).resolve().exists(), url)
+        self.assertTrue((base / "vendor/fonts/LICENSE-IBM-Plex-Sans.txt").exists())
+        self.assertTrue((base / "vendor/fonts/LICENSE-Source-Serif-4.txt").exists())

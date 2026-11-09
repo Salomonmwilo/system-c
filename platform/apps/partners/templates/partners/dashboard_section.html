@@ -1,38 +1,9 @@
 {% load i18n %}
-<h2 class="sc-section-title"><i class="bi bi-people" aria-hidden="true"></i>{% translate "Affiliates" %}</h2>
-<div class="row g-3">
-  <div class="col-6 col-md-4 col-xl"><div class="sc-stat">
-    <div class="sc-stat-label">{% translate "Total affiliates" %}</div>
-    <div class="sc-stat-value">{{ data.total }}</div>
-    <div class="sc-stat-hint">{% blocktranslate count n=data.prospects %}including {{ n }} prospect{% plural %}including {{ n }} prospects{% endblocktranslate %}</div>
-    <a class="stretched-link" href="{% url 'partners:affiliate_list' %}"><span class="visually-hidden">{% translate "View affiliates" %}</span></a>
-  </div></div>
-  <div class="col-6 col-md-4 col-xl"><div class="sc-stat">
-    <div class="sc-stat-label">{% translate "Active affiliates" %}</div>
-    <div class="sc-stat-value">{{ data.active }}</div>
-    <a class="stretched-link" href="{% url 'partners:affiliate_list' %}?status=active"><span class="visually-hidden">{% translate "View active affiliates" %}</span></a>
-  </div></div>
-  <div class="col-6 col-md-4 col-xl"><div class="sc-stat {% if data.registration_pending %}sc-stat-warn{% endif %}">
-    <div class="sc-stat-label">{% translate "Pending registrations" %}</div>
-    <div class="sc-stat-value">{{ data.registration_pending }}</div>
-    <div class="sc-stat-hint">{% translate "Deriv account not yet created" %}</div>
-  </div></div>
-  <div class="col-6 col-md-4 col-xl"><div class="sc-stat {% if data.verification_pending %}sc-stat-warn{% endif %}">
-    <div class="sc-stat-label">{% translate "Pending verifications" %}</div>
-    <div class="sc-stat-value">{{ data.verification_pending }}</div>
-    <div class="sc-stat-hint">{% translate "Account created, verification not finished" %}</div>
-  </div></div>
-  <div class="col-12 col-md-4 col-xl"><div class="sc-stat {% if data.followups_due %}sc-stat-alert{% endif %}">
-    <div class="sc-stat-label">{% translate "Follow-ups to do" %}</div>
-    <div class="sc-stat-value">{{ data.followups_due }}</div>
-    <div class="sc-stat-hint">{% blocktranslate count n=data.followups_open %}due today or overdue · {{ n }} open in total{% plural %}due today or overdue · {{ n }} open in total{% endblocktranslate %}</div>
-    {% if data.can_view_followups %}<a class="stretched-link" href="{% url 'partners:followup_list' %}"><span class="visually-hidden">{% translate "View follow-ups" %}</span></a>{% endif %}
-  </div></div>
-</div>
-<div class="sc-card mt-3"><div class="sc-card-body py-2">
-  <ul class="list-inline mb-0 small">
-    <li class="list-inline-item me-3 py-1"><i class="bi bi-telephone text-body-secondary me-1" aria-hidden="true"></i><a href="{% url 'partners:affiliate_list' %}?alert=contact_stale">{% blocktranslate with days=data.thresholds.contact_stale_days count n=data.alerts.contact_stale %}{{ n }} affiliate without contact for {{ days }} days{% plural %}{{ n }} affiliates without contact for {{ days }} days{% endblocktranslate %}</a></li>
-    <li class="list-inline-item me-3 py-1"><i class="bi bi-hourglass text-body-secondary me-1" aria-hidden="true"></i><a href="{% url 'partners:affiliate_list' %}?alert=registration_stuck">{% blocktranslate with days=data.thresholds.registration_stuck_days count n=data.alerts.registration_stuck %}{{ n }} registration unfinished for {{ days }} days{% plural %}{{ n }} registrations unfinished for {{ days }} days{% endblocktranslate %}</a></li>
-    <li class="list-inline-item py-1"><i class="bi bi-shield-exclamation text-body-secondary me-1" aria-hidden="true"></i><a href="{% url 'partners:affiliate_list' %}?alert=verification_stuck">{% blocktranslate with days=data.thresholds.verification_stuck_days count n=data.alerts.verification_stuck %}{{ n }} verification unfinished for {{ days }} days{% plural %}{{ n }} verifications unfinished for {{ days }} days{% endblocktranslate %}</a></li>
-  </ul>
-</div></div>
+<h2 class="sc-section-title">{% translate "Affiliates" %}</h2>
+<dl class="sc-summary">
+  <div><dt>{% translate "Total affiliates" %}</dt><dd><a href="{% url 'partners:affiliate_list' %}">{{ data.total }}</a><span class="sc-note">{% blocktranslate count n=data.prospects %}including {{ n }} prospect{% plural %}including {{ n }} prospects{% endblocktranslate %}</span></dd></div>
+  <div><dt>{% translate "Active affiliates" %}</dt><dd><a href="{% url 'partners:affiliate_list' %}?status=active">{{ data.active }}</a></dd></div>
+  <div><dt>{% translate "Pending registrations" %}</dt><dd>{{ data.registration_pending }}<span class="sc-note">{% translate "Deriv account not yet created" %}</span></dd></div>
+  <div><dt>{% translate "Pending verifications" %}</dt><dd>{{ data.verification_pending }}<span class="sc-note">{% translate "Account created, verification not finished" %}</span></dd></div>
+  <div><dt>{% translate "Open follow-ups" %}</dt><dd>{% if data.can_view_followups %}<a href="{% url 'partners:followup_list' %}">{{ data.followups_open }}</a>{% else %}{{ data.followups_open }}{% endif %}</dd></div>
+</dl>

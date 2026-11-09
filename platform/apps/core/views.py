@@ -10,6 +10,7 @@ from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views import View
@@ -129,7 +130,14 @@ class DashboardView(OrgPermissionRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["sections"] = dashboard_sections(self.request)
+        sections = dashboard_sections(self.request)
+        priorities = [item for section in sections for item in section.get("priorities", [])]
+        # Registre « À traiter » : d'abord ce qui demande une action, par ordre d'urgence.
+        priorities.sort(key=lambda item: (item["count"] == 0, not item.get("urgent"), item["rank"]))
+        context["sections"] = sections
+        context["priorities"] = priorities
+        context["pending_total"] = sum(item["count"] for item in priorities)
+        context["today"] = timezone.localdate()
         context["thresholds"] = OrganizationSettings.for_organization(self.request.organization)
         return context
 

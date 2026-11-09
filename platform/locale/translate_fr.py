@@ -54,7 +54,7 @@ T = {
     "No filter": "Aucun filtre",
     "Configuration to apply": "Configuration à appliquer",
     "Change request pending": "Demande de modification en attente",
-    "Configuration to review": "Configuration à revalider",
+    "Configuration to review": ("Configuration à revalider", "Configurations à revalider"),
     "Demo": "Démo",
     "Real": "Réel",
     "Use a three-letter ISO currency code, for example USD.": "Utilisez un code de devise ISO à trois lettres, par exemple USD.",
@@ -530,6 +530,51 @@ T = {
     "Administration": "Administration",
     "Administrative records only. No connection to the VPS.": "Fiches administratives uniquement. Aucune connexion au VPS.",
     "%(n)s course": ("%(n)s cours", "%(n)s cours"),
+    # Révision du design (audit DESIGN_AUDIT.md)
+    "Configuration to apply on the VPS": ("Configuration à appliquer sur le VPS", "Configurations à appliquer sur le VPS"),
+    "Robot users waiting for their first applied configuration": "Utilisateurs de robots en attente d'une première configuration appliquée",
+    "See the robot users": "Voir les utilisateurs de robots",
+    "Change waiting to be applied": ("Modification en attente d'application", "Modifications en attente d'application"),
+    "%(n)s waiting for more than %(days)s days": (
+        "%(n)s en attente depuis plus de %(days)s jours",
+        "%(n)s en attente depuis plus de %(days)s jours",
+    ),
+    "None beyond the alert threshold": "Aucune au-delà du seuil d'alerte",
+    "Declared applied more than %(days)s days ago": "Déclarées appliquées il y a plus de %(days)s jours",
+    "Disable this robot record? No configuration can be validated until it is reactivated.":
+        "Désactiver cette fiche robot ? Aucune configuration ne pourra être validée avant sa réactivation.",
+    "%(date)s, by %(person)s": "le %(date)s, par %(person)s",
+    "excluding disabled records": "hors fiches désactivées",
+    "Declared on a real account": "Déclarés sur un compte réel",
+    "Record a correction? The original declaration stays in the history.":
+        "Enregistrer une correction ? La déclaration d'origine reste dans l'historique.",
+    "Delete this draft? This cannot be undone.": "Supprimer ce brouillon ? Cette action est définitive.",
+    "Hello %(name)s. Here is what needs your attention, then the overall figures. Everything comes from the platform records.":
+        "Bonjour %(name)s. Voici ce qui demande votre attention, puis les chiffres d'ensemble. Tout provient des fiches de la plateforme.",
+    "To handle": "À traiter",
+    "Situation on %(date)s": "Situation au %(date)s",
+    "Nothing pending.": "Rien en attente.",
+    "Follow-up to do today": ("Relance à effectuer aujourd'hui", "Relances à effectuer aujourd'hui"),
+    "%(n)s overdue": ("%(n)s en retard", "%(n)s en retard"),
+    "None overdue": "Aucune en retard",
+    "Open the follow-ups": "Ouvrir les relances",
+    "Verification stalled": ("Vérification bloquée", "Vérifications bloquées"),
+    "No progress for %(days)s days or more": "Sans progression depuis %(days)s jours ou plus",
+    "See the affiliates": "Voir les affiliés",
+    "Registration stalled": ("Inscription bloquée", "Inscriptions bloquées"),
+    "Deriv account not created after %(days)s days": "Compte Deriv non créé après %(days)s jours",
+    "Affiliate without recent contact": ("Affilié sans contact récent", "Affiliés sans contact récent"),
+    "No contact for %(days)s days or more": "Aucun contact depuis %(days)s jours ou plus",
+    "Archive this affiliate? The record and its history are kept and can be restored.":
+        "Archiver cet affilié ? La fiche et son historique sont conservés et peuvent être restaurés.",
+    "Cancel this follow-up?": "Annuler cette relance ?",
+    "Cancel the follow-up": "Annuler la relance",
+    "Open follow-ups": "Relances ouvertes",
+    "No open follow-up. Follow-ups are scheduled from an affiliate's record.":
+        "Aucune relance ouverte. Les relances se planifient depuis la fiche d'un affilié.",
+    "Open the affiliates": "Ouvrir les affiliés",
+    "Deactivate this link? It will no longer be offered on new records.":
+        "Désactiver ce lien ? Il ne sera plus proposé sur les nouvelles fiches.",
 }
 
 

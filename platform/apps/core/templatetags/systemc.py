@@ -69,3 +69,12 @@ def plain_decimal(value) -> str:
 
 
 register.filter("plain_decimal", plain_decimal)
+
+
+@register.filter
+def decimal_display(value) -> str:
+    """Décimal pour l'affichage, avec le séparateur de la langue active (0,35 en français)."""
+    from django.utils.formats import get_format
+
+    text = plain_decimal(value)
+    return text.replace(".", get_format("DECIMAL_SEPARATOR")) if text else text

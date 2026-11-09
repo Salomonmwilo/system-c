@@ -1,34 +1,9 @@
 {% load i18n %}
-<h2 class="sc-section-title"><i class="bi bi-cpu" aria-hidden="true"></i>{% translate "Robot users" %} <span class="sc-declared fw-normal ms-1">{% translate "declared statuses, not checked on the VPS" %}</span></h2>
-<div class="row g-3">
-  <div class="col-6 col-md-3"><div class="sc-stat">
-    <div class="sc-stat-label">{% translate "Robot users" %}</div>
-    <div class="sc-stat-value">{{ data.total }}</div>
-    <div class="sc-stat-hint">{% blocktranslate count n=data.real %}{{ n }} declared on a real account{% plural %}{{ n }} declared on a real account{% endblocktranslate %}</div>
-    <a class="stretched-link" href="{% url 'bots:botuser_list' %}"><span class="visually-hidden">{% translate "View robot users" %}</span></a>
-  </div></div>
-  <div class="col-6 col-md-3"><div class="sc-stat {% if data.to_apply %}sc-stat-warn{% endif %}">
-    <div class="sc-stat-label">{% translate "Configurations to apply" %}</div>
-    <div class="sc-stat-value">{{ data.to_apply }}</div>
-    <div class="sc-stat-hint">{% translate "Status “To configure”" %}</div>
-    <a class="stretched-link" href="{% url 'bots:botuser_list' %}?alert=to_apply"><span class="visually-hidden">{% translate "View configurations to apply" %}</span></a>
-  </div></div>
-  <div class="col-6 col-md-3"><div class="sc-stat {% if data.modification_requested %}sc-stat-warn{% endif %}">
-    <div class="sc-stat-label">{% translate "Pending changes" %}</div>
-    <div class="sc-stat-value">{{ data.modification_requested }}</div>
-    <div class="sc-stat-hint">{% translate "Status “Change requested”" %}</div>
-    <a class="stretched-link" href="{% url 'bots:botuser_list' %}?status=modification_requested"><span class="visually-hidden">{% translate "View pending changes" %}</span></a>
-  </div></div>
-  <div class="col-6 col-md-3"><div class="sc-stat">
-    <div class="sc-stat-label">{% translate "Configuration applied" %}</div>
-    <div class="sc-stat-value">{{ data.applied }}</div>
-    <div class="sc-stat-hint">{% blocktranslate with p=data.paused d=data.disabled %}{{ p }} paused · {{ d }} disabled{% endblocktranslate %}</div>
-    <a class="stretched-link" href="{% url 'bots:botuser_list' %}?status=applied"><span class="visually-hidden">{% translate "View applied configurations" %}</span></a>
-  </div></div>
-</div>
-<div class="sc-card mt-3"><div class="sc-card-body py-2">
-  <ul class="list-inline mb-0 small">
-    <li class="list-inline-item me-3 py-1"><i class="bi bi-arrow-repeat text-body-secondary me-1" aria-hidden="true"></i><a href="{% url 'bots:botuser_list' %}?alert=modification_pending">{% blocktranslate with days=data.thresholds.modification_pending_days count n=data.alerts.modification_pending %}{{ n }} change request pending for more than {{ days }} days{% plural %}{{ n }} change requests pending for more than {{ days }} days{% endblocktranslate %}</a></li>
-    <li class="list-inline-item py-1"><i class="bi bi-calendar2-week text-body-secondary me-1" aria-hidden="true"></i><a href="{% url 'bots:botuser_list' %}?alert=configuration_review">{% blocktranslate with days=data.thresholds.configuration_review_days count n=data.alerts.configuration_review %}{{ n }} configuration declared more than {{ days }} days ago (to review){% plural %}{{ n }} configurations declared more than {{ days }} days ago (to review){% endblocktranslate %}</a></li>
-  </ul>
-</div></div>
+<h2 class="sc-section-title">{% translate "Robot users" %} <span class="sc-declared">{% translate "declared statuses, not checked on the VPS" %}</span></h2>
+<dl class="sc-summary">
+  <div><dt>{% translate "Robot users" %}</dt><dd><a href="{% url 'bots:botuser_list' %}">{{ data.total }}</a><span class="sc-note">{% translate "excluding disabled records" %}</span></dd></div>
+  <div><dt>{% translate "Configuration applied" %}</dt><dd><a href="{% url 'bots:botuser_list' %}?status=applied">{{ data.applied }}</a></dd></div>
+  <div><dt>{% translate "Declared on a real account" %}</dt><dd><a href="{% url 'bots:botuser_list' %}?account_type=real">{{ data.real }}</a></dd></div>
+  <div><dt>{% translate "Paused" %}</dt><dd><a href="{% url 'bots:botuser_list' %}?status=paused">{{ data.paused }}</a></dd></div>
+  <div><dt>{% translate "Disabled" %}</dt><dd><a href="{% url 'bots:botuser_list' %}?status=disabled">{{ data.disabled }}</a></dd></div>
+</dl>

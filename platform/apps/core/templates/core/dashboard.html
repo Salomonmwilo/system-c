@@ -1,14 +1,36 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block title %}{% translate "Dashboard" %}{% endblock %}
-{% block page_title %}{% translate "Dashboard" %}{% endblock %}
+{% block page_title %}{{ current_organization.name }}{% endblock %}
 {% block content %}
-<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-2">
+<div class="sc-page-head">
   <div>
-    <h1 class="h3 mb-1">{% blocktranslate with name=user.get_short_name %}Hello, {{ name }}{% endblocktranslate %}</h1>
-    <p class="text-body-secondary mb-0">{% blocktranslate with org=current_organization.name %}Overview of {{ org }}. All figures come from the platform records.{% endblocktranslate %}</p>
+    <h1>{% translate "Dashboard" %}</h1>
+    <p class="sc-lead">{% blocktranslate with name=user.get_short_name %}Hello {{ name }}. Here is what needs your attention, then the overall figures. Everything comes from the platform records.{% endblocktranslate %}</p>
   </div>
 </div>
+
+{% if priorities %}
+<section class="sc-ledger" aria-labelledby="todo-title">
+  <div class="sc-ledger-head">
+    <h2 id="todo-title">{% translate "To handle" %}</h2>
+    <span class="sc-declared">{% blocktranslate with date=today|date:"DATE_FORMAT" %}Situation on {{ date }}{% endblocktranslate %}</span>
+  </div>
+  <ol>
+    {% for item in priorities %}
+    <li class="{% if item.count == 0 %}is-clear{% elif item.urgent %}is-urgent{% endif %}">
+      <span class="sc-count" aria-hidden="true">{{ item.count }}</span>
+      <span>
+        <span class="sc-what"><span class="visually-hidden">{{ item.count }} </span>{{ item.label }}</span>
+        <span class="sc-why">{% if item.count == 0 %}{% translate "Nothing pending." %}{% else %}{{ item.hint }}{% endif %}</span>
+      </span>
+      {% if item.count %}<a class="btn btn-sm {% if item.urgent %}btn-primary{% else %}btn-outline-primary{% endif %} sc-act" href="{{ item.url }}">{{ item.action }}</a>{% else %}<span class="sc-act"></span>{% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+{% endif %}
+
 {% for section in sections %}
   {% include section.template with data=section.context %}
 {% empty %}

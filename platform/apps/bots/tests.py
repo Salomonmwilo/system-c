@@ -422,7 +422,7 @@ class FullFlowViewTests(BotsTestCase):
         self.assertEqual(bot.status, BotStatus.APPLIED)
         detail = self.client.get(reverse("bots:botuser_detail", args=[bot.pk]))
         self.assertContains(detail, "OVER/UNDER")
-        self.assertContains(detail, "0.5")
+        self.assertContains(detail, "0,5")  # séparateur décimal français
         self.assertContains(self.client.get(reverse("partners:affiliate_detail", args=[affiliate.pk])), "Ouvrir la fiche robot")
 
     def test_one_robot_record_per_affiliate(self):

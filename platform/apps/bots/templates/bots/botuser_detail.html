@@ -46,24 +46,30 @@
         {% if bot_user.override != "none" %}<p class="small mb-2">{% blocktranslate with reason=bot_user.override_reason %}Current reason: {{ reason }}{% endblocktranslate %}</p>{% endif %}
         <p class="small text-body-secondary">{% translate "Administrative status only: stop or restart the service on the VPS with your usual commands." %}</p>
         {% if bot_user.override == "none" and can_pause %}
-        <form method="post" action="{% url 'bots:botuser_override' bot_user.pk 'pause' %}" class="mb-2" novalidate>{% csrf_token %}
-          {% include "includes/field.html" with f=reason_form.reason %}
-          <button class="btn btn-sm btn-outline-secondary" type="submit"><i class="bi bi-pause-circle me-1" aria-hidden="true"></i>{% translate "Pause" %}</button>
-        </form>
+        <details class="sc-details"><summary>{% translate "Pause" %}</summary>
+          <form method="post" action="{% url 'bots:botuser_override' bot_user.pk 'pause' %}" novalidate>{% csrf_token %}
+            {% include "includes/field.html" with f=reason_form.reason %}
+            <button class="btn btn-sm btn-outline-secondary" type="submit"><i class="bi bi-pause-circle me-1" aria-hidden="true"></i>{% translate "Pause" %}</button>
+          </form>
+        </details>
         {% endif %}
         {% if bot_user.override != "disabled" and can_disable %}
-        <form method="post" action="{% url 'bots:botuser_override' bot_user.pk 'disable' %}" class="mb-2" novalidate>{% csrf_token %}
-          <label class="form-label small" for="disable-reason">{% translate "Reason for disabling" %}</label>
-          <input class="form-control form-control-sm mb-2" id="disable-reason" name="reason" maxlength="300" required>
-          <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-slash-circle me-1" aria-hidden="true"></i>{% translate "Disable" %}</button>
-        </form>
+        <details class="sc-details"><summary>{% translate "Disable" %}</summary>
+          <form method="post" action="{% url 'bots:botuser_override' bot_user.pk 'disable' %}" novalidate data-confirm="{% translate 'Disable this robot record? No configuration can be validated until it is reactivated.' %}">{% csrf_token %}
+            <label class="form-label" for="disable-reason">{% translate "Reason for disabling" %}</label>
+            <input class="form-control form-control-sm mb-2" id="disable-reason" name="reason" maxlength="300" required>
+            <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-slash-circle me-1" aria-hidden="true"></i>{% translate "Disable" %}</button>
+          </form>
+        </details>
         {% endif %}
         {% if bot_user.override != "none" and can_disable %}
-        <form method="post" action="{% url 'bots:botuser_override' bot_user.pk 'reactivate' %}" novalidate>{% csrf_token %}
-          <label class="form-label small" for="reactivate-reason">{% translate "Reason for reactivating" %}</label>
-          <input class="form-control form-control-sm mb-2" id="reactivate-reason" name="reason" maxlength="300" required>
-          <button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-play-circle me-1" aria-hidden="true"></i>{% translate "Reactivate" %}</button>
-        </form>
+        <details class="sc-details" open><summary>{% translate "Reactivate" %}</summary>
+          <form method="post" action="{% url 'bots:botuser_override' bot_user.pk 'reactivate' %}" novalidate>{% csrf_token %}
+            <label class="form-label" for="reactivate-reason">{% translate "Reason for reactivating" %}</label>
+            <input class="form-control form-control-sm mb-2" id="reactivate-reason" name="reason" maxlength="300" required>
+            <button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-play-circle me-1" aria-hidden="true"></i>{% translate "Reactivate" %}</button>
+          </form>
+        </details>
         {% endif %}
       </div>
     </div>
@@ -71,7 +77,7 @@
 
     {% if status_events %}
     <div class="sc-card mb-3"><div class="sc-card-header"><h2>{% translate "Status history" %}</h2></div><div class="sc-card-body">
-      <ul class="sc-timeline">{% for e in status_events %}<li><div class="sc-meta">{{ e.created_at|date:"SHORT_DATETIME_FORMAT" }} · {{ e.actor }}</div><div>{{ e.get_from_override_display }} → <strong>{{ e.get_to_override_display }}</strong> — {{ e.reason }}</div></li>{% endfor %}</ul>
+      <ul class="sc-timeline">{% for e in status_events %}<li><div class="sc-meta">{% blocktranslate with date=e.created_at|date:"SHORT_DATETIME_FORMAT" person=e.actor %}{{ date }}, by {{ person }}{% endblocktranslate %}</div><div>{{ e.get_from_override_display }} → <strong>{{ e.get_to_override_display }}</strong> — {{ e.reason }}</div></li>{% endfor %}</ul>
     </div></div>
     {% endif %}
   </div>
@@ -100,12 +106,12 @@
           <dl class="sc-dl mb-3">
             <dt>{% translate "Robot" %}</dt><dd>{{ latest.get_robot_type_display }}</dd>
             <dt>{% translate "Reference capital" %}</dt><dd>{{ latest.reference_capital }} {{ latest.currency }}</dd>
-            <dt>{% translate "Validated" %}</dt><dd>{{ latest.validated_at|date:"SHORT_DATETIME_FORMAT" }} · {{ latest.validated_by }}</dd>
+            <dt>{% translate "Validated" %}</dt><dd>{% blocktranslate with date=latest.validated_at|date:"SHORT_DATETIME_FORMAT" person=latest.validated_by %}{{ date }}, by {{ person }}{% endblocktranslate %}</dd>
             <dt>{% translate "Applied on the VPS" %}</dt><dd>{% if applied_declaration and applied_declaration.version_id == latest.pk %}{% blocktranslate with date=applied_declaration.applied_on|date:"SHORT_DATE_FORMAT" %}Declared applied on {{ date }}{% endblocktranslate %}{% else %}<span class="sc-badge sc-badge-wait">{% translate "Not declared yet" %}</span>{% endif %}</dd>
           </dl>
           {% if latest.parameters.all %}
           <div class="table-responsive"><table class="table sc-table table-sm"><thead><tr><th scope="col">{% translate "Parameter" %}</th><th scope="col">{% translate "Value" %}</th></tr></thead>
-            <tbody>{% for p in latest.parameters.all %}<tr><td><code>{{ p.key }}</code></td><td>{{ p.value|plain_decimal }} {{ p.unit }}</td></tr>{% endfor %}</tbody></table></div>
+            <tbody>{% for p in latest.parameters.all %}<tr><td><code>{{ p.key }}</code></td><td>{{ p.value|decimal_display }} {{ p.unit }}</td></tr>{% endfor %}</tbody></table></div>
           {% endif %}
           {% if can_declare and bot_user.status != "applied" and not applied_declaration.version_id == latest.pk %}
             {% if latest.account_type != "real" or can_real %}
@@ -134,7 +140,7 @@
             <td>{% if v.state == "draft" %}<span class="sc-badge sc-badge-neutral">{% translate "Draft" %}</span>{% else %}<span class="sc-badge sc-badge-ok"><i class="bi bi-lock" aria-hidden="true"></i>{% translate "Validated" %}</span>{% endif %}</td>
             <td>{% include "includes/account_type.html" with account_type=v.account_type %}</td>
             <td class="text-nowrap">{% if v.reference_capital is not None %}{{ v.reference_capital }} {{ v.currency }}{% else %}—{% endif %}</td>
-            <td class="d-none d-md-table-cell small">{{ v.created_at|date:"SHORT_DATE_FORMAT" }} · {{ v.created_by }}</td>
+            <td class="d-none d-md-table-cell small">{% blocktranslate with date=v.created_at|date:"SHORT_DATE_FORMAT" person=v.created_by %}{{ date }}, by {{ person }}{% endblocktranslate %}</td>
             <td class="small">{% for d in v.declarations.all %}{% if d.kind == "applied" %}<div>{{ d.applied_on|date:"SHORT_DATE_FORMAT" }}{% if d.correction %} <span class="sc-badge sc-badge-stop">{% translate "corrected" %}</span>{% endif %}</div>{% endif %}{% empty %}—{% endfor %}</td>
           </tr>
         {% empty %}

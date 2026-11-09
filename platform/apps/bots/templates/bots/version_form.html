@@ -31,7 +31,7 @@
     <a class="btn btn-link" href="{% url 'bots:botuser_detail' version.bot_user_id %}">{% translate "Back" %}</a>
   </div>
 </form>
-<form method="post" action="{% url 'bots:version_delete' version.pk %}" class="mt-4">{% csrf_token %}
+<form method="post" action="{% url 'bots:version_delete' version.pk %}" class="mt-4" data-confirm="{% translate 'Delete this draft? This cannot be undone.' %}">{% csrf_token %}
   <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash me-1" aria-hidden="true"></i>{% translate "Delete this draft" %}</button>
 </form>
 {% endblock %}

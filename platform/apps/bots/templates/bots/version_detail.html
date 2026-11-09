@@ -27,8 +27,8 @@
       <dt>{% translate "Robot" %}</dt><dd>{{ version.get_robot_type_display }}</dd>
       <dt>{% translate "Account type" %}</dt><dd>{{ version.get_account_type_display }}</dd>
       <dt>{% translate "Reference capital" %}</dt><dd>{% if version.reference_capital is not None %}{{ version.reference_capital }} {{ version.currency }}{% else %}—{% endif %}</dd>
-      <dt>{% translate "Created" %}</dt><dd>{{ version.created_at|date:"SHORT_DATETIME_FORMAT" }} · {{ version.created_by }}</dd>
-      <dt>{% translate "Validated" %}</dt><dd>{% if version.validated_at %}{{ version.validated_at|date:"SHORT_DATETIME_FORMAT" }} · {{ version.validated_by }}{% else %}—{% endif %}</dd>
+      <dt>{% translate "Created" %}</dt><dd>{% blocktranslate with date=version.created_at|date:"SHORT_DATETIME_FORMAT" person=version.created_by %}{{ date }}, by {{ person }}{% endblocktranslate %}</dd>
+      <dt>{% translate "Validated" %}</dt><dd>{% if version.validated_at %}{% blocktranslate with date=version.validated_at|date:"SHORT_DATETIME_FORMAT" person=version.validated_by %}{{ date }}, by {{ person }}{% endblocktranslate %}{% else %}—{% endif %}</dd>
       <dt>{% translate "Note" %}</dt><dd>{{ version.admin_note|linebreaksbr|default:"—" }}</dd>
     </dl></div></div>
     {% if version.real_confirmed_at %}
@@ -44,7 +44,7 @@
   <div class="col-lg-7">
     <div class="sc-card mb-3"><div class="sc-card-header"><h2>{% translate "Parameters" %}</h2></div>
       <div class="table-responsive"><table class="table sc-table"><thead><tr><th scope="col">{% translate "Parameter" %}</th><th scope="col">{% translate "Value" %}</th><th scope="col">{% translate "Verification" %}</th></tr></thead>
-      <tbody>{% for p, d in parameters %}<tr><td><code>{{ p.key }}</code></td><td>{{ p.value|plain_decimal }} {{ p.unit }}</td><td>{% if d.verified %}<span class="sc-badge sc-badge-ok">{% translate "Verified" %}</span>{% else %}<span class="sc-badge sc-badge-wait">{% translate "To verify" %}</span>{% endif %}</td></tr>
+      <tbody>{% for p, d in parameters %}<tr><td><code>{{ p.key }}</code></td><td>{{ p.value|decimal_display }} {{ p.unit }}</td><td>{% if d.verified %}<span class="sc-badge sc-badge-ok">{% translate "Verified" %}</span>{% else %}<span class="sc-badge sc-badge-wait">{% translate "To verify" %}</span>{% endif %}</td></tr>
       {% empty %}<tr><td colspan="3"><div class="sc-empty py-3">{% translate "No parameter entered." %}</div></td></tr>{% endfor %}</tbody></table></div>
     </div>
     {% if version.state == "validated" %}
@@ -53,12 +53,12 @@
       <div class="sc-card-body">
         {% if declarations %}
         <ul class="sc-timeline mb-3">{% for d in declarations %}<li>
-          <div class="sc-meta">{{ d.recorded_at|date:"SHORT_DATETIME_FORMAT" }} · {{ d.recorded_by }}</div>
+          <div class="sc-meta">{% blocktranslate with date=d.recorded_at|date:"SHORT_DATETIME_FORMAT" person=d.recorded_by %}{{ date }}, by {{ person }}{% endblocktranslate %}</div>
           {% if d.kind == "applied" %}
             <div><strong>{% blocktranslate with date=d.applied_on|date:"SHORT_DATE_FORMAT" %}Declared applied on {{ date }}{% endblocktranslate %}</strong>{% if d.note %} — {{ d.note }}{% endif %}</div>
             {% if can_correct and not d.correction %}{% if not version.is_real or can_real %}
-            <details class="mt-1"><summary class="small">{% translate "Correct this declaration" %}</summary>
-              <form method="post" action="{% url 'bots:declaration_correct' d.pk %}" class="mt-2" novalidate>{% csrf_token %}
+            <details class="sc-details mt-2"><summary>{% translate "Correct this declaration" %}</summary>
+              <form method="post" action="{% url 'bots:declaration_correct' d.pk %}" class="mt-2" novalidate data-confirm="{% translate 'Record a correction? The original declaration stays in the history.' %}">{% csrf_token %}
                 <label class="form-label small" for="reason-{{ d.pk }}">{% translate "Reason" %}</label>
                 <input class="form-control form-control-sm mb-2" id="reason-{{ d.pk }}" name="reason" maxlength="300" required>
                 <button class="btn btn-sm btn-outline-danger" type="submit">{% translate "Record the correction" %}</button>

@@ -8,17 +8,16 @@
   <h1 class="h3 mb-0">{% translate "Affiliates" %}</h1>
   {% if can_add %}<a class="btn btn-primary" href="{% url 'partners:affiliate_create' %}"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>{% translate "Add an affiliate" %}</a>{% endif %}
 </div>
-<form method="get" class="sc-card mb-3" role="search" aria-label="{% translate 'Filter affiliates' %}">
+<form method="get" class="sc-card sc-filter mb-3" role="search" aria-label="{% translate 'Filter affiliates' %}">
   <div class="sc-card-body row g-2 align-items-end">
     <div class="col-12 col-md-4 col-xl-3"><label class="form-label small" for="{{ filter_form.q.id_for_label }}">{{ filter_form.q.label }}</label>{{ filter_form.q }}</div>
     <div class="col-6 col-md-4 col-xl-2"><label class="form-label small" for="{{ filter_form.status.id_for_label }}">{{ filter_form.status.label }}</label>{{ filter_form.status }}</div>
     <div class="col-6 col-md-4 col-xl-2"><label class="form-label small" for="{{ filter_form.registration.id_for_label }}">{{ filter_form.registration.label }}</label>{{ filter_form.registration }}</div>
     <div class="col-6 col-md-4 col-xl-2"><label class="form-label small" for="{{ filter_form.verification.id_for_label }}">{{ filter_form.verification.label }}</label>{{ filter_form.verification }}</div>
     <div class="col-6 col-md-4 col-xl-2"><label class="form-label small" for="{{ filter_form.alert.id_for_label }}">{{ filter_form.alert.label }}</label>{{ filter_form.alert }}</div>
-    <div class="col-12 col-md-4 col-xl-1 d-flex gap-2 align-items-center flex-wrap">
-      <div class="form-check">{{ filter_form.archived }}<label class="form-check-label small" for="{{ filter_form.archived.id_for_label }}">{{ filter_form.archived.label }}</label></div>
+    <div class="col-12 d-flex gap-3 align-items-center flex-wrap">
+      <div class="form-check">{{ filter_form.archived }}<label class="form-check-label small" for="{{ filter_form.archived.id_for_label }}">{{ filter_form.archived.label }}</label></div><button class="btn btn-sm btn-dark" type="submit"><i class="bi bi-funnel me-1" aria-hidden="true"></i>{% translate "Filter" %}</button><a class="btn btn-sm btn-link" href="{% url 'partners:affiliate_list' %}">{% translate "Reset" %}</a>
     </div>
-    <div class="col-12 d-flex gap-2"><button class="btn btn-sm btn-dark" type="submit"><i class="bi bi-funnel me-1" aria-hidden="true"></i>{% translate "Filter" %}</button><a class="btn btn-sm btn-link" href="{% url 'partners:affiliate_list' %}">{% translate "Reset" %}</a></div>
   </div>
 </form>
 <div class="sc-card"><div class="table-responsive">
@@ -44,7 +43,7 @@
       <td class="d-none d-xl-table-cell small">{{ a.assigned_to|default:"—" }}</td>
     </tr>
   {% empty %}
-    <tr><td colspan="7"><div class="sc-empty"><i class="bi bi-people" aria-hidden="true"></i>{% translate "No affiliate matches these criteria." %}</div></td></tr>
+    <tr><td colspan="7"><div class="sc-empty"><i class="bi bi-people" aria-hidden="true"></i>{% translate "No affiliate matches these criteria." %}{% if can_add %}<br><a class="btn btn-sm btn-primary" href="{% url 'partners:affiliate_create' %}">{% translate "Add an affiliate" %}</a>{% endif %}</div></td></tr>
   {% endfor %}
   </tbody>
 </table></div></div>

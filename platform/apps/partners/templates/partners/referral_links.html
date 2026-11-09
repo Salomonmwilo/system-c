@@ -11,7 +11,7 @@
       <tbody>{% for link in links %}<tr>
         <td>{{ link.label }}</td><td class="small text-break">{{ link.url }}</td>
         <td>{% if link.is_active %}<span class="sc-badge sc-badge-ok">{% translate "Active" %}</span>{% else %}<span class="sc-badge sc-badge-neutral">{% translate "Inactive" %}</span>{% endif %}</td>
-        <td class="text-end"><form method="post" action="{% url 'partners:referral_link_toggle' link.pk %}">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary">{% if link.is_active %}{% translate "Deactivate" %}{% else %}{% translate "Activate" %}{% endif %}</button></form></td>
+        <td class="text-end"><form method="post" action="{% url 'partners:referral_link_toggle' link.pk %}"{% if link.is_active %} data-confirm="{% translate 'Deactivate this link? It will no longer be offered on new records.' %}"{% endif %}>{% csrf_token %}<button class="btn btn-sm btn-outline-secondary">{% if link.is_active %}{% translate "Deactivate" %}{% else %}{% translate "Activate" %}{% endif %}</button></form></td>
       </tr>{% empty %}<tr><td colspan="4"><div class="sc-empty">{% translate "No referral link yet." %}</div></td></tr>{% endfor %}</tbody>
     </table></div></div>
   </div>
