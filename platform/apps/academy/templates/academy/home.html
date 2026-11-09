@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Academy" %}{% endblock %}
+{% block page_title %}{% translate "Academy" %}{% endblock %}
+{% block content %}
+<h1 class="h3">{% translate "Academy" %}</h1>
+<div class="sc-banner sc-banner-info mb-3"><i class="bi bi-cone-striped" aria-hidden="true"></i><div>{% translate "Module in preparation. The data structure (programmes, courses, lessons, enrolments) is in place; the learner experience will come in a later phase." %}</div></div>
+<div class="sc-card"><div class="sc-card-body">
+  {% for program in programs %}
+    <h2 class="h5">{{ program.title }}</h2>
+    <p class="small text-body-secondary">{% blocktranslate count n=program.courses.count %}{{ n }} course{% plural %}{{ n }} courses{% endblocktranslate %}</p>
+  {% empty %}
+    <div class="sc-empty"><i class="bi bi-mortarboard" aria-hidden="true"></i>{% translate "No programme yet." %}</div>
+  {% endfor %}
+</div></div>
+{% endblock %}
