@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load i18n systemc %}
+{% block title %}{% translate "Follow-ups" %}{% endblock %}
+{% block page_title %}{% translate "Follow-ups" %}{% endblock %}
+{% block content %}
+{% org_perm "partners.manage_followups" as can_followup %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+  <h1 class="h3 mb-0">{% translate "Follow-ups to do" %}</h1>
+  <div class="btn-group btn-group-sm" role="group" aria-label="{% translate 'Scope' %}">
+    <a class="btn {% if scope != 'mine' %}btn-dark{% else %}btn-outline-secondary{% endif %}" href="?scope=all" {% if scope != 'mine' %}aria-current="true"{% endif %}>{% translate "All" %}</a>
+    <a class="btn {% if scope == 'mine' %}btn-dark{% else %}btn-outline-secondary{% endif %}" href="?scope=mine" {% if scope == 'mine' %}aria-current="true"{% endif %}>{% translate "Assigned to me" %}</a>
+  </div>
+</div>
+<div class="sc-card"><div class="table-responsive">
+<table class="table sc-table">
+  <thead><tr><th scope="col">{% translate "Due date" %}</th><th scope="col">{% translate "Action" %}</th><th scope="col">{% translate "Affiliate" %}</th><th scope="col" class="d-none d-md-table-cell">{% translate "Assigned to" %}</th><th scope="col"><span class="visually-hidden">{% translate "Actions" %}</span></th></tr></thead>
+  <tbody>
+  {% for fu in page %}
+    <tr>
+      <td class="text-nowrap">{{ fu.due_on|date:"SHORT_DATE_FORMAT" }} {% if fu.is_overdue %}<span class="sc-badge sc-badge-stop">{% translate "Overdue" %}</span>{% endif %}</td>
+      <td>{{ fu.title }}</td>
+      <td><a href="{% url 'partners:affiliate_detail' fu.affiliate_id %}">{{ fu.affiliate.display_name }}</a></td>
+      <td class="d-none d-md-table-cell">{{ fu.assigned_to|default:"—" }}</td>
+      <td class="text-end">{% if can_followup %}
+        <form method="post" action="{% url 'partners:followup_close' fu.pk %}" class="d-inline-flex gap-1">{% csrf_token %}<input type="hidden" name="return_to" value="list">
+          <button class="btn btn-sm btn-outline-primary" name="status" value="done">{% translate "Mark done" %}</button>
+          <button class="btn btn-sm btn-outline-secondary" name="status" value="cancelled">{% translate "Cancel" %}</button>
+        </form>{% endif %}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="5"><div class="sc-empty"><i class="bi bi-calendar-check" aria-hidden="true"></i>{% translate "No open follow-up." %}</div></td></tr>
+  {% endfor %}
+  </tbody>
+</table></div></div>
+{% include "includes/pagination.html" %}
+{% endblock %}

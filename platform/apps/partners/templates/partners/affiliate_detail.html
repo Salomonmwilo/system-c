@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% load i18n systemc %}
+{% block title %}{{ affiliate.display_name }}{% endblock %}
+{% block page_title %}{% translate "Affiliate record" %}{% endblock %}
+{% block content %}
+{% org_perm "partners.view_pii" as can_pii %}{% org_perm "partners.change_affiliate" as can_change %}{% org_perm "partners.update_tracks" as can_track %}
+{% org_perm "partners.add_interaction" as can_interact %}{% org_perm "partners.manage_followups" as can_followup %}{% org_perm "partners.archive_affiliate" as can_archive %}
+<nav aria-label="{% translate 'Breadcrumb' %}"><ol class="breadcrumb small"><li class="breadcrumb-item"><a href="{% url 'partners:affiliate_list' %}">{% translate "Affiliates" %}</a></li><li class="breadcrumb-item active" aria-current="page">{{ affiliate.display_name }}</li></ol></nav>
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+  <div>
+    <h1 class="h3 mb-1">{{ affiliate.display_name }}</h1>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <span class="sc-badge sc-badge-neutral">{{ affiliate.get_status_display }}</span>
+      {% if affiliate.archived_at %}<span class="sc-badge sc-badge-stop">{% translate "Archived" %}</span>{% endif %}
+      <span class="small text-body-secondary">{% translate "Last contact" %} : {{ affiliate.last_contact_at|date:"SHORT_DATETIME_FORMAT"|default:_("none recorded") }}</span>
+    </div>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    {% if can_change %}<a class="btn btn-outline-primary" href="{% url 'partners:affiliate_update' affiliate.pk %}"><i class="bi bi-pencil me-1" aria-hidden="true"></i>{% translate "Edit" %}</a>{% endif %}
+    {% if can_archive %}
+      <form method="post" action="{% url 'partners:affiliate_archive' affiliate.pk %}">{% csrf_token %}
+        {% if affiliate.archived_at %}<button class="btn btn-outline-secondary" name="action" value="restore">{% translate "Restore" %}</button>
+        {% else %}<button class="btn btn-outline-secondary" name="action" value="archive">{% translate "Archive" %}</button>{% endif %}
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-xl-4">
+    <div class="sc-card mb-3">
+      <div class="sc-card-header"><h2>{% translate "Contact details" %}</h2></div>
+      <div class="sc-card-body">
+        <dl class="sc-dl">
+          <dt>{% translate "Email address" %}</dt><dd>{% if can_pii %}{{ affiliate.email|default:"—" }}{% else %}{{ affiliate.email|mask_email|default:"—" }}{% endif %}</dd>
+          <dt>{% translate "Phone" %}</dt><dd>{% if can_pii %}{{ affiliate.phone|default:"—" }}{% else %}{{ affiliate.phone|mask_text|default:"—" }}{% endif %}</dd>
+          <dt>{% translate "Country" %}</dt><dd>{{ affiliate.country|default:"—" }}</dd>
+          <dt>{% translate "Language" %}</dt><dd>{{ affiliate.get_preferred_language_display }}</dd>
+          <dt>{% translate "Referral link" %}</dt><dd>{{ affiliate.referral_link|default:"—" }}</dd>
+          <dt>{% translate "Assigned to" %}</dt><dd>{{ affiliate.assigned_to|default:"—" }}</dd>
+          <dt>{% translate "Created" %}</dt><dd>{{ affiliate.created_at|date:"SHORT_DATE_FORMAT" }}</dd>
+        </dl>
+      </div>
+    </div>
+    {% for panel in panels %}{% include panel.template with data=panel.context %}{% endfor %}
+  </div>
+
+  <div class="col-xl-8">
+    <div class="sc-card mb-3">
+      <div class="sc-card-header"><h2>{% translate "Deriv registration and verification" %}</h2><span class="sc-declared">{% translate "Declared statuses, never checked automatically with Deriv." %}</span></div>
+      <div class="sc-card-body">
+        <div class="row g-3">
+          {% for t in tracks %}
+          <div class="col-md-4">
+            <div class="border rounded-3 p-3 h-100">
+              <div class="small text-body-secondary text-uppercase fw-semibold">{{ t.label }}</div>
+              <div class="my-2">{% include "partners/track_badge.html" with value=t.raw label=t.value %}</div>
+              <div class="small text-body-secondary">{% if t.date %}{% blocktranslate with date=t.date|date:"SHORT_DATE_FORMAT" %}Since {{ date }}{% endblocktranslate %}{% else %}{% translate "No date recorded" %}{% endif %}</div>
+              {% if can_track and not affiliate.archived_at %}
+              <details class="mt-2">
+                <summary class="small">{% translate "Record a step" %}</summary>
+                <form method="post" action="{% url 'partners:affiliate_track' affiliate.pk t.key %}" class="mt-2" novalidate>{% csrf_token %}
+                  {% include "includes/field.html" with f=t.form.value %}
+                  {% include "includes/field.html" with f=t.form.declared_on %}
+                  {% include "includes/field.html" with f=t.form.source %}
+                  {% include "includes/field.html" with f=t.form.note %}
+                  <button class="btn btn-sm btn-primary" type="submit">{% translate "Record" %}</button>
+                </form>
+              </details>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% if track_events %}
+        <h3 class="h6 mt-4">{% translate "Step history" %}</h3>
+        <div class="table-responsive"><table class="table sc-table table-sm">
+          <thead><tr><th scope="col">{% translate "Date" %}</th><th scope="col">{% translate "Step" %}</th><th scope="col">{% translate "Change" %}</th><th scope="col">{% translate "Source" %}</th><th scope="col">{% translate "Note" %}</th><th scope="col">{% translate "Recorded by" %}</th></tr></thead>
+          <tbody>{% for e in track_events %}<tr>
+            <td class="text-nowrap">{{ e.declared_on|date:"SHORT_DATE_FORMAT" }}</td><td>{{ e.get_track_display }}</td>
+            <td class="small">{{ e.previous_label }} <i class="bi bi-arrow-right" aria-hidden="true"></i><span class="visually-hidden">→</span> <strong>{{ e.value_label }}</strong></td>
+            <td class="small">{{ e.get_source_display }}</td><td class="small">{{ e.note|default:"—" }}</td><td class="small">{{ e.recorded_by }}</td>
+          </tr>{% endfor %}</tbody>
+        </table></div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="sc-card mb-3">
+      <div class="sc-card-header"><h2>{% translate "Follow-ups" %}</h2></div>
+      <div class="sc-card-body">
+        {% if followups %}
+        <ul class="list-unstyled mb-3">
+          {% for fu in followups %}
+          <li class="d-flex flex-wrap justify-content-between align-items-center gap-2 py-2 border-bottom">
+            <div>
+              <span class="fw-semibold">{{ fu.title }}</span>
+              {% if fu.status == "open" %}{% if fu.is_overdue %}<span class="sc-badge sc-badge-stop ms-1">{% translate "Overdue" %}</span>{% else %}<span class="sc-badge sc-badge-wait ms-1">{{ fu.get_status_display }}</span>{% endif %}{% else %}<span class="sc-badge sc-badge-neutral ms-1">{{ fu.get_status_display }}</span>{% endif %}
+              <div class="small text-body-secondary">{% blocktranslate with date=fu.due_on|date:"SHORT_DATE_FORMAT" %}Due {{ date }}{% endblocktranslate %}{% if fu.assigned_to %} · {{ fu.assigned_to }}{% endif %}{% if fu.note %} · {{ fu.note }}{% endif %}</div>
+            </div>
+            {% if can_followup and fu.status == "open" %}
+            <form method="post" action="{% url 'partners:followup_close' fu.pk %}" class="d-flex gap-1">{% csrf_token %}
+              <button class="btn btn-sm btn-outline-primary" name="status" value="done">{% translate "Mark done" %}</button>
+              <button class="btn btn-sm btn-outline-secondary" name="status" value="cancelled">{% translate "Cancel" %}</button>
+            </form>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}<p class="text-body-secondary small">{% translate "No follow-up scheduled." %}</p>{% endif %}
+        {% if can_followup and not affiliate.archived_at %}
+        <details><summary class="small fw-semibold">{% translate "Schedule a follow-up" %}</summary>
+          <form method="post" action="{% url 'partners:followup_create' affiliate.pk %}" class="row mt-2" novalidate>{% csrf_token %}
+            <div class="col-md-6">{% include "includes/field.html" with f=followup_form.title %}</div>
+            <div class="col-md-3">{% include "includes/field.html" with f=followup_form.due_on %}</div>
+            <div class="col-md-3">{% include "includes/field.html" with f=followup_form.assigned_to %}</div>
+            <div class="col-12">{% include "includes/field.html" with f=followup_form.note %}</div>
+            <div class="col-12"><button class="btn btn-primary btn-sm" type="submit">{% translate "Schedule" %}</button></div>
+          </form>
+        </details>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="sc-card">
+      <div class="sc-card-header"><h2>{% translate "Interactions and notes" %}</h2></div>
+      <div class="sc-card-body">
+        {% if can_interact and not affiliate.archived_at %}
+        <details class="mb-3"><summary class="small fw-semibold">{% translate "Add an interaction or a note" %}</summary>
+          <form method="post" action="{% url 'partners:interaction_create' affiliate.pk %}" class="row mt-2" novalidate>{% csrf_token %}
+            <div class="col-md-6">{% include "includes/field.html" with f=interaction_form.kind %}</div>
+            <div class="col-md-6">{% include "includes/field.html" with f=interaction_form.occurred_at %}</div>
+            <div class="col-12">{% include "includes/field.html" with f=interaction_form.summary %}</div>
+            <div class="col-12"><button class="btn btn-primary btn-sm" type="submit">{% translate "Add" %}</button></div>
+          </form>
+        </details>
+        {% endif %}
+        {% if interactions %}
+        <ul class="sc-timeline">
+          {% for i in interactions %}
+          <li><div class="sc-meta"><span class="fw-semibold text-body">{{ i.get_kind_display }}</span> · {{ i.occurred_at|date:"SHORT_DATETIME_FORMAT" }} · {{ i.author }}</div><div class="mt-1">{{ i.summary|linebreaksbr }}</div></li>
+          {% endfor %}
+        </ul>
+        {% else %}<p class="text-body-secondary small mb-0">{% translate "No interaction recorded yet." %}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

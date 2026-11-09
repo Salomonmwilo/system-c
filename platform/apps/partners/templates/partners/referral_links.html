@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Referral links" %}{% endblock %}
+{% block page_title %}{% translate "Referral links" %}{% endblock %}
+{% block content %}
+<h1 class="h3">{% translate "Referral links" %}</h1>
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="sc-card"><div class="table-responsive"><table class="table sc-table">
+      <thead><tr><th scope="col">{% translate "Label" %}</th><th scope="col">{% translate "Link" %}</th><th scope="col">{% translate "Status" %}</th><th scope="col"><span class="visually-hidden">{% translate "Actions" %}</span></th></tr></thead>
+      <tbody>{% for link in links %}<tr>
+        <td>{{ link.label }}</td><td class="small text-break">{{ link.url }}</td>
+        <td>{% if link.is_active %}<span class="sc-badge sc-badge-ok">{% translate "Active" %}</span>{% else %}<span class="sc-badge sc-badge-neutral">{% translate "Inactive" %}</span>{% endif %}</td>
+        <td class="text-end"><form method="post" action="{% url 'partners:referral_link_toggle' link.pk %}">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary">{% if link.is_active %}{% translate "Deactivate" %}{% else %}{% translate "Activate" %}{% endif %}</button></form></td>
+      </tr>{% empty %}<tr><td colspan="4"><div class="sc-empty">{% translate "No referral link yet." %}</div></td></tr>{% endfor %}</tbody>
+    </table></div></div>
+  </div>
+  <div class="col-lg-5">
+    <div class="sc-card"><div class="sc-card-body">
+      <h2 class="h5">{% translate "Add a link" %}</h2>
+      {% include "includes/form_errors.html" %}
+      <form method="post" novalidate>{% csrf_token %}{% for f in form %}{% include "includes/field.html" %}{% endfor %}
+        <button class="btn btn-primary" type="submit">{% translate "Save" %}</button></form>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

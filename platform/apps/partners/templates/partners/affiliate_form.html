@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% if affiliate %}{% translate "Edit affiliate" %}{% else %}{% translate "Add an affiliate" %}{% endif %}{% endblock %}
+{% block page_title %}{% translate "Affiliates" %}{% endblock %}
+{% block content %}
+<div class="row"><div class="col-lg-8 col-xl-7">
+<div class="sc-card"><div class="sc-card-body">
+  <h1 class="h4">{% if affiliate %}{% blocktranslate with name=affiliate.display_name %}Edit {{ name }}{% endblocktranslate %}{% else %}{% translate "Add an affiliate" %}{% endif %}</h1>
+  <p class="text-body-secondary small">{% translate "Do not record identity documents. The registration and verification steps are entered on the affiliate's record." %}</p>
+  {% include "includes/form_errors.html" %}
+  <form method="post" novalidate>{% csrf_token %}
+    <div class="row">
+      <div class="col-md-12">{% include "includes/field.html" with f=form.display_name %}</div>
+      <div class="col-md-6">{% include "includes/field.html" with f=form.email %}</div>
+      <div class="col-md-6">{% include "includes/field.html" with f=form.phone %}</div>
+      <div class="col-md-4">{% include "includes/field.html" with f=form.country %}</div>
+      <div class="col-md-4">{% include "includes/field.html" with f=form.preferred_language %}</div>
+      <div class="col-md-4">{% include "includes/field.html" with f=form.status %}</div>
+      <div class="col-md-6">{% include "includes/field.html" with f=form.referral_link %}</div>
+      <div class="col-md-6">{% include "includes/field.html" with f=form.assigned_to %}</div>
+    </div>
+    <button class="btn btn-primary" type="submit">{% translate "Save" %}</button>
+    <a class="btn btn-link" href="{% if affiliate %}{% url 'partners:affiliate_detail' affiliate.pk %}{% else %}{% url 'partners:affiliate_list' %}{% endif %}">{% translate "Cancel" %}</a>
+  </form>
+</div></div></div></div>
+{% endblock %}
