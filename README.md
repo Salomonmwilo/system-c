@@ -1,3 +1,5 @@
+> **Produit actif : SYSTEM-C Platform, dans le dossier [`platform/`](platform/README.md).** Le site vitrine décrit ci-dessous (`public/`) est conservé pour mémoire et n'est plus maintenu.
+
 # System-C — site vitrine
 
 Site statique responsive bilingue (français / anglais), conçu pour un déploiement sur Netlify.

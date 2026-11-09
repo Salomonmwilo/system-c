@@ -6,6 +6,7 @@ Historique :
 - Révision 1 (2026-11-09) : plateforme SaaS à trois modules.
 - **Révision 2 (2026-11-09) : BOT MANAGEMENT redéfini comme CRM administratif.** Le module ne contrôle plus les robots. Il n'y a ni agent sur le VPS, ni API de contrôle, ni commande distante, ni synchronisation de trades, ni stockage de tokens. Les sections touchées sont signalées par **[rév. 2]**.
 - **Révision 3 (2026-11-09) : décisions de conception validées** (propriété des affiliés, comptes de robots, liste blanche, mode réel, alertes, sécurité). Détail dans `BOT_CRM_SPEC.md`, qui fait foi pour le CRM. Les sections modifiées sont marquées **[rév. 3]**.
+- **Révision 4 (2026-11-09) : implémentation du MVP** dans `platform/` (Django 5.2 LTS, PostgreSQL, gabarits Django, Bootstrap à la demande du responsable). État, choix par défaut et limites : `MVP_REPORT.md`.
 
 Documents remplacés : `PROPOSED_ARCHITECTURE.md`, `MIGRATION_PLAN.md`, `IMPLEMENTATION_ROADMAP.md` (voir §10). `CURRENT_STATE.md` et `GAP_ANALYSIS.md` restent valables comme inventaire.
 
