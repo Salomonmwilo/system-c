@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load i18n systemc %}
+{% block title %}{{ affiliate.display_name }} · {% translate "Robot" %}{% endblock %}
+{% block page_title %}{% translate "Robot record" %}{% endblock %}
+{% block content %}
+{% org_perm "bots.change_botuser" as can_change %}{% org_perm "bots.prepare_version" as can_prepare %}{% org_perm "bots.manage_real" as can_real %}
+{% org_perm "bots.pause" as can_pause %}{% org_perm "bots.disable" as can_disable %}{% org_perm "bots.declare_applied" as can_declare %}
+<nav aria-label="{% translate 'Breadcrumb' %}"><ol class="breadcrumb small"><li class="breadcrumb-item"><a href="{% url 'bots:botuser_list' %}">{% translate "Robot users" %}</a></li><li class="breadcrumb-item active" aria-current="page">{{ affiliate.display_name }}</li></ol></nav>
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+  <div>
+    <h1 class="h3 mb-1">{{ affiliate.display_name }}</h1>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      {% include "includes/bot_status.html" with status=bot_user.status label=bot_user.get_status_display %}
+      {% include "includes/account_type.html" with account_type=bot_user.current_account_type %}
+      <span class="sc-declared">{% translate "Declared by an administrator, not checked on the VPS." %}</span>
+    </div>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    {% if can_view_affiliate %}<a class="btn btn-outline-secondary" href="{% url 'partners:affiliate_detail' affiliate.pk %}"><i class="bi bi-person me-1" aria-hidden="true"></i>{% translate "Affiliate record" %}</a>{% endif %}
+    {% if can_change %}<a class="btn btn-outline-primary" href="{% url 'bots:botuser_update' bot_user.pk %}"><i class="bi bi-pencil me-1" aria-hidden="true"></i>{% translate "Edit" %}</a>{% endif %}
+  </div>
+</div>
+
+{% if bot_user.current_account_type == "real" %}
+<div class="sc-banner sc-banner-real mb-3"><i class="bi bi-exclamation-octagon" aria-hidden="true"></i><div>{% translate "The latest validated configuration is declared for a REAL account. Only a CRM administrator can change, validate or declare it." %}</div></div>
+{% endif %}
+
+<div class="row g-3">
+  <div class="col-xl-4">
+    <div class="sc-card mb-3">
+      <div class="sc-card-header"><h2>{% translate "Administrative record" %}</h2></div>
+      <div class="sc-card-body"><dl class="sc-dl">
+        <dt>{% translate "Wants a robot" %}</dt><dd>{% if bot_user.wants_bot %}{% translate "Yes" %}{% else %}{% translate "No" %}{% endif %}</dd>
+        <dt>{% translate "Robot" %}</dt><dd>{{ bot_user.get_robot_type_display|default:_("Not chosen yet") }}</dd>
+        <dt>{% translate "VPS user label" %}</dt><dd>{% if bot_user.vps_label %}<code>{{ bot_user.vps_label }}</code>{% else %}—{% endif %}</dd>
+        <dt>{% translate "Last declared application" %}</dt><dd>{{ bot_user.last_applied_on|date:"SHORT_DATE_FORMAT"|default:"—" }}</dd>
+        <dt>{% translate "Waiting since" %}</dt><dd>{{ bot_user.pending_since|date:"SHORT_DATE_FORMAT"|default:"—" }}</dd>
+        <dt>{% translate "Note" %}</dt><dd>{{ bot_user.admin_note|linebreaksbr|default:"—" }}</dd>
+      </dl></div>
+    </div>
+
+    {% if can_pause or can_disable %}
+    <div class="sc-card mb-3">
+      <div class="sc-card-header"><h2>{% translate "Pause or disable" %}</h2></div>
+      <div class="sc-card-body">
+        {% if bot_user.override != "none" %}<p class="small mb-2">{% blocktranslate with reason=bot_user.override_reason %}Current reason: {{ reason }}{% endblocktranslate %}</p>{% endif %}
+        <p class="small text-body-secondary">{% translate "Administrative status only: stop or restart the service on the VPS with your usual commands." %}</p>
+        {% if bot_user.override == "none" and can_pause %}
+        <form method="post" action="{% url 'bots:botuser_override' bot_user.pk 'pause' %}" class="mb-2" novalidate>{% csrf_token %}
+          {% include "includes/field.html" with f=reason_form.reason %}
+          <button class="btn btn-sm btn-outline-secondary" type="submit"><i class="bi bi-pause-circle me-1" aria-hidden="true"></i>{% translate "Pause" %}</button>
+        </form>
+        {% endif %}
+        {% if bot_user.override != "disabled" and can_disable %}
+        <form method="post" action="{% url 'bots:botuser_override' bot_user.pk 'disable' %}" class="mb-2" novalidate>{% csrf_token %}
+          <label class="form-label small" for="disable-reason">{% translate "Reason for disabling" %}</label>
+          <input class="form-control form-control-sm mb-2" id="disable-reason" name="reason" maxlength="300" required>
+          <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-slash-circle me-1" aria-hidden="true"></i>{% translate "Disable" %}</button>
+        </form>
+        {% endif %}
+        {% if bot_user.override != "none" and can_disable %}
+        <form method="post" action="{% url 'bots:botuser_override' bot_user.pk 'reactivate' %}" novalidate>{% csrf_token %}
+          <label class="form-label small" for="reactivate-reason">{% translate "Reason for reactivating" %}</label>
+          <input class="form-control form-control-sm mb-2" id="reactivate-reason" name="reason" maxlength="300" required>
+          <button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-play-circle me-1" aria-hidden="true"></i>{% translate "Reactivate" %}</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if status_events %}
+    <div class="sc-card mb-3"><div class="sc-card-header"><h2>{% translate "Status history" %}</h2></div><div class="sc-card-body">
+      <ul class="sc-timeline">{% for e in status_events %}<li><div class="sc-meta">{{ e.created_at|date:"SHORT_DATETIME_FORMAT" }} · {{ e.actor }}</div><div>{{ e.get_from_override_display }} → <strong>{{ e.get_to_override_display }}</strong> — {{ e.reason }}</div></li>{% endfor %}</ul>
+    </div></div>
+    {% endif %}
+  </div>
+
+  <div class="col-xl-8">
+    <div class="sc-card mb-3">
+      <div class="sc-card-header">
+        <h2>{% translate "Configuration" %}</h2>
+        {% if can_prepare and bot_user.override != "disabled" %}
+          {% if draft %}
+            <a class="btn btn-sm btn-primary" href="{% url 'bots:version_edit' draft.pk %}"><i class="bi bi-pencil-square me-1" aria-hidden="true"></i>{% blocktranslate with n=draft.number %}Continue draft v{{ n }}{% endblocktranslate %}</a>
+          {% elif bot_user.robot_type %}
+            {% if latest.account_type != "real" or can_real %}
+            <form method="post" action="{% url 'bots:version_start' bot_user.pk %}">{% csrf_token %}<button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% if latest %}{% translate "Prepare a change" %}{% else %}{% translate "Prepare the first configuration" %}{% endif %}</button></form>
+            {% endif %}
+          {% endif %}
+        {% endif %}
+      </div>
+      <div class="sc-card-body">
+        {% if not bot_user.robot_type %}<p class="small text-body-secondary">{% translate "Choose a robot type (DIFFERS or OVER/UNDER) before preparing a configuration." %}</p>{% endif %}
+        {% if latest %}
+          <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center mb-2">
+            <div><span class="fw-semibold">{% blocktranslate with n=latest.number %}Latest validated version: v{{ n }}{% endblocktranslate %}</span> {% include "includes/account_type.html" with account_type=latest.account_type %}</div>
+            <a class="small" href="{% url 'bots:version_detail' latest.pk %}">{% translate "View details" %}</a>
+          </div>
+          <dl class="sc-dl mb-3">
+            <dt>{% translate "Robot" %}</dt><dd>{{ latest.get_robot_type_display }}</dd>
+            <dt>{% translate "Reference capital" %}</dt><dd>{{ latest.reference_capital }} {{ latest.currency }}</dd>
+            <dt>{% translate "Validated" %}</dt><dd>{{ latest.validated_at|date:"SHORT_DATETIME_FORMAT" }} · {{ latest.validated_by }}</dd>
+            <dt>{% translate "Applied on the VPS" %}</dt><dd>{% if applied_declaration and applied_declaration.version_id == latest.pk %}{% blocktranslate with date=applied_declaration.applied_on|date:"SHORT_DATE_FORMAT" %}Declared applied on {{ date }}{% endblocktranslate %}{% else %}<span class="sc-badge sc-badge-wait">{% translate "Not declared yet" %}</span>{% endif %}</dd>
+          </dl>
+          {% if latest.parameters.all %}
+          <div class="table-responsive"><table class="table sc-table table-sm"><thead><tr><th scope="col">{% translate "Parameter" %}</th><th scope="col">{% translate "Value" %}</th></tr></thead>
+            <tbody>{% for p in latest.parameters.all %}<tr><td><code>{{ p.key }}</code></td><td>{{ p.value|plain_decimal }} {{ p.unit }}</td></tr>{% endfor %}</tbody></table></div>
+          {% endif %}
+          {% if can_declare and bot_user.status != "applied" and not applied_declaration.version_id == latest.pk %}
+            {% if latest.account_type != "real" or can_real %}
+            <form method="post" action="{% url 'bots:version_declare_applied' latest.pk %}" class="border rounded-3 p-3 mt-3" novalidate>{% csrf_token %}
+              <h3 class="h6">{% translate "Declare this version applied on the VPS" %}</h3>
+              <p class="small text-body-secondary">{% translate "Do this after applying the settings on the VPS with your usual scripts. The platform does not check it." %}</p>
+              <div class="row"><div class="col-md-4">{% include "includes/field.html" with f=declare_form.applied_on %}</div><div class="col-md-8">{% include "includes/field.html" with f=declare_form.note %}</div></div>
+              <button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-check2-circle me-1" aria-hidden="true"></i>{% translate "Declare applied" %}</button>
+            </form>
+            {% endif %}
+          {% endif %}
+        {% elif bot_user.robot_type %}
+          <div class="sc-empty py-3"><i class="bi bi-sliders" aria-hidden="true"></i>{% translate "No validated configuration yet." %}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="sc-card">
+      <div class="sc-card-header"><h2>{% translate "Version history" %}</h2></div>
+      <div class="table-responsive"><table class="table sc-table">
+        <thead><tr><th scope="col">{% translate "Version" %}</th><th scope="col">{% translate "State" %}</th><th scope="col">{% translate "Account" %}</th><th scope="col">{% translate "Capital" %}</th><th scope="col" class="d-none d-md-table-cell">{% translate "Created" %}</th><th scope="col">{% translate "Declared applied" %}</th></tr></thead>
+        <tbody>
+        {% for v in versions %}
+          <tr>
+            <td><a class="fw-semibold" href="{% url 'bots:version_detail' v.pk %}">v{{ v.number }}</a></td>
+            <td>{% if v.state == "draft" %}<span class="sc-badge sc-badge-neutral">{% translate "Draft" %}</span>{% else %}<span class="sc-badge sc-badge-ok"><i class="bi bi-lock" aria-hidden="true"></i>{% translate "Validated" %}</span>{% endif %}</td>
+            <td>{% include "includes/account_type.html" with account_type=v.account_type %}</td>
+            <td class="text-nowrap">{% if v.reference_capital is not None %}{{ v.reference_capital }} {{ v.currency }}{% else %}—{% endif %}</td>
+            <td class="d-none d-md-table-cell small">{{ v.created_at|date:"SHORT_DATE_FORMAT" }} · {{ v.created_by }}</td>
+            <td class="small">{% for d in v.declarations.all %}{% if d.kind == "applied" %}<div>{{ d.applied_on|date:"SHORT_DATE_FORMAT" }}{% if d.correction %} <span class="sc-badge sc-badge-stop">{% translate "corrected" %}</span>{% endif %}</div>{% endif %}{% empty %}—{% endfor %}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6"><div class="sc-empty py-3">{% translate "No version yet." %}</div></td></tr>
+        {% endfor %}
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

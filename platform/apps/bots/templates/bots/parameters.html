@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load i18n systemc %}
+{% block title %}{% translate "Allowed parameters" %}{% endblock %}
+{% block page_title %}{% translate "Allowed parameters" %}{% endblock %}
+{% block content %}
+<h1 class="h3">{% translate "Allowed parameters" %}</h1>
+<div class="sc-banner sc-banner-info mb-3"><i class="bi bi-shield-check" aria-hidden="true"></i><div>
+  {% translate "Closed list of non-secret, numeric parameters. No key can be added here, and there is no field for tokens or passwords." %}
+  {% translate "Until a parameter has been checked on the real files of the robot, it stays marked “to verify”. Untick “used by this robot” for keys the robot does not read." %}
+</div></div>
+<ul class="nav nav-pills mb-3">
+  {% for code, label in robots %}<li class="nav-item"><a class="nav-link {% if code == robot %}active bg-dark{% endif %}" href="?robot={{ code }}" {% if code == robot %}aria-current="page"{% endif %}>{{ label }}</a></li>{% endfor %}
+</ul>
+<form method="post" novalidate>{% csrf_token %}
+  <input type="hidden" name="robot" value="{{ robot }}">
+  {{ formset.management_form }}
+  {% if formset.non_form_errors %}<div class="alert alert-danger">{{ formset.non_form_errors }}</div>{% endif %}
+  <div class="sc-card"><div class="table-responsive"><table class="table sc-table">
+    <thead><tr><th scope="col">{% translate "Parameter" %}</th><th scope="col">{% translate "Used" %}</th><th scope="col">{% translate "Verified" %}</th><th scope="col">{% translate "Unit" %}</th><th scope="col">{% translate "Minimum" %}</th><th scope="col">{% translate "Maximum" %}</th><th scope="col">{% translate "Verification reference" %}</th></tr></thead>
+    <tbody>
+    {% for form in formset %}
+      <tr>
+        <th scope="row"><code>{{ form.instance.key }}</code>{{ form.id }}</th>
+        <td><label class="visually-hidden" for="{{ form.enabled.id_for_label }}">{% translate "Used" %} {{ form.instance.key }}</label>{{ form.enabled }}</td>
+        <td><label class="visually-hidden" for="{{ form.verified.id_for_label }}">{% translate "Verified" %} {{ form.instance.key }}</label>{{ form.verified }}</td>
+        <td><label class="visually-hidden" for="{{ form.unit.id_for_label }}">{% translate "Unit" %}</label>{{ form.unit }}</td>
+        <td><label class="visually-hidden" for="{{ form.min_value.id_for_label }}">{% translate "Minimum" %}</label>{{ form.min_value }}</td>
+        <td><label class="visually-hidden" for="{{ form.max_value.id_for_label }}">{% translate "Maximum" %}</label>{{ form.max_value }}{% for e in form.max_value.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}</td>
+        <td><label class="visually-hidden" for="{{ form.verification_reference.id_for_label }}">{% translate "Verification reference" %}</label>{{ form.verification_reference }}{% for e in form.verification_reference.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div></div>
+  <button class="btn btn-primary mt-3" type="submit">{% translate "Save" %}</button>
+</form>
+{% endblock %}

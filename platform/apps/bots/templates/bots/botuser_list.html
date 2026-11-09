@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load i18n systemc %}
+{% block title %}{% translate "Robot users" %}{% endblock %}
+{% block page_title %}{% translate "Robot users" %}{% endblock %}
+{% block content %}
+{% org_perm "bots.add_botuser" as can_add %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+  <h1 class="h3 mb-0">{% translate "Robot users" %}</h1>
+  {% if can_add %}<a class="btn btn-primary" href="{% url 'bots:botuser_create' %}"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% translate "Associate a robot" %}</a>{% endif %}
+</div>
+<div class="sc-banner sc-banner-info mb-3"><i class="bi bi-info-circle" aria-hidden="true"></i><div>{% translate "Administrative register only. The platform never connects to the VPS: statuses are what an administrator declared." %}</div></div>
+<form method="get" class="sc-card mb-3" role="search" aria-label="{% translate 'Filter robot users' %}">
+  <div class="sc-card-body row g-2 align-items-end">
+    {% for f in filter_form %}<div class="col-6 col-md-4 col-xl"><label class="form-label small" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</div>{% endfor %}
+    <div class="col-12 d-flex gap-2"><button class="btn btn-sm btn-dark" type="submit"><i class="bi bi-funnel me-1" aria-hidden="true"></i>{% translate "Filter" %}</button><a class="btn btn-sm btn-link" href="{% url 'bots:botuser_list' %}">{% translate "Reset" %}</a></div>
+  </div>
+</form>
+<div class="sc-card"><div class="table-responsive">
+<table class="table sc-table">
+  <thead><tr>
+    <th scope="col">{% translate "Affiliate" %}</th><th scope="col">{% translate "Robot" %}</th><th scope="col">{% translate "Account" %}</th>
+    <th scope="col">{% translate "Declared status" %}</th><th scope="col" class="d-none d-md-table-cell">{% translate "Last declared application" %}</th>
+    <th scope="col" class="d-none d-lg-table-cell">{% translate "Wants a robot" %}</th>
+  </tr></thead>
+  <tbody>
+  {% for b in page %}
+    <tr>
+      <td><a class="fw-semibold" href="{% url 'bots:botuser_detail' b.pk %}">{{ b.affiliate.display_name }}</a>{% if b.vps_label %}<div class="small text-body-secondary"><code>{{ b.vps_label }}</code></div>{% endif %}</td>
+      <td>{{ b.get_robot_type_display|default:"—" }}</td>
+      <td>{% include "includes/account_type.html" with account_type=b.current_account_type %}</td>
+      <td>{% include "includes/bot_status.html" with status=b.status label=b.get_status_display %}</td>
+      <td class="d-none d-md-table-cell small">{{ b.last_applied_on|date:"SHORT_DATE_FORMAT"|default:"—" }}</td>
+      <td class="d-none d-lg-table-cell small">{% if b.wants_bot %}{% translate "Yes" %}{% else %}{% translate "No" %}{% endif %}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="6"><div class="sc-empty"><i class="bi bi-cpu" aria-hidden="true"></i>{% translate "No robot user matches these criteria." %}</div></td></tr>
+  {% endfor %}
+  </tbody>
+</table></div></div>
+{% include "includes/pagination.html" %}
+{% endblock %}

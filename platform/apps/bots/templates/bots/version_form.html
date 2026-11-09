@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% blocktranslate with n=version.number %}Draft v{{ n }}{% endblocktranslate %}{% endblock %}
+{% block page_title %}{% translate "Configuration draft" %}{% endblock %}
+{% block content %}
+<nav aria-label="{% translate 'Breadcrumb' %}"><ol class="breadcrumb small"><li class="breadcrumb-item"><a href="{% url 'bots:botuser_list' %}">{% translate "Robot users" %}</a></li><li class="breadcrumb-item"><a href="{% url 'bots:botuser_detail' version.bot_user_id %}">{{ version.bot_user.affiliate.display_name }}</a></li><li class="breadcrumb-item active" aria-current="page">{% blocktranslate with n=version.number %}Draft v{{ n }}{% endblocktranslate %}</li></ol></nav>
+<h1 class="h3">{% blocktranslate with n=version.number robot=version.get_robot_type_display %}Draft v{{ n }} · {{ robot }}{% endblocktranslate %}</h1>
+<div class="sc-banner sc-banner-info mb-3"><i class="bi bi-lock" aria-hidden="true"></i><div>{% translate "Once validated, this version can no longer be changed: any change creates a new version. Only numeric, non-secret parameters from the allowed list can be entered." %}</div></div>
+{% include "includes/form_errors.html" %}
+<form method="post" novalidate>{% csrf_token %}
+  <div class="row g-3">
+    <div class="col-lg-5">
+      <div class="sc-card"><div class="sc-card-header"><h2>{% translate "Declaration" %}</h2></div><div class="sc-card-body">
+        {% include "includes/field.html" with f=form.account_type %}
+        <div class="row"><div class="col-7">{% include "includes/field.html" with f=form.reference_capital %}</div><div class="col-5">{% include "includes/field.html" with f=form.currency %}</div></div>
+        {% include "includes/field.html" with f=form.admin_note %}
+      </div></div>
+    </div>
+    <div class="col-lg-7">
+      <div class="sc-card"><div class="sc-card-header"><h2>{% translate "Allowed parameters" %}</h2><span class="sc-declared">{% translate "Leave empty the parameters this robot does not use." %}</span></div><div class="sc-card-body">
+        <div class="row">
+          {% for f in form.parameter_fields %}<div class="col-sm-6">{% include "includes/field.html" %}</div>
+          {% empty %}<p class="text-body-secondary small">{% translate "No parameter is enabled for this robot. A CRM administrator can enable them in “Allowed parameters”." %}</p>{% endfor %}
+        </div>
+      </div></div>
+    </div>
+  </div>
+  <div class="d-flex flex-wrap gap-2 mt-3">
+    <button class="btn btn-outline-primary" type="submit" name="next" value="detail">{% translate "Save the draft" %}</button>
+    <button class="btn btn-primary" type="submit" name="next" value="validate"><i class="bi bi-lock me-1" aria-hidden="true"></i>{% translate "Save and review for validation" %}</button>
+    <a class="btn btn-link" href="{% url 'bots:botuser_detail' version.bot_user_id %}">{% translate "Back" %}</a>
+  </div>
+</form>
+<form method="post" action="{% url 'bots:version_delete' version.pk %}" class="mt-4">{% csrf_token %}
+  <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash me-1" aria-hidden="true"></i>{% translate "Delete this draft" %}</button>
+</form>
+{% endblock %}

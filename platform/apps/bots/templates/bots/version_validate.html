@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n systemc %}
+{% block title %}{% translate "Validate the version" %}{% endblock %}
+{% block page_title %}{% translate "Validate the version" %}{% endblock %}
+{% block content %}
+<nav aria-label="{% translate 'Breadcrumb' %}"><ol class="breadcrumb small"><li class="breadcrumb-item"><a href="{% url 'bots:botuser_detail' bot_user.pk %}">{{ bot_user.affiliate.display_name }}</a></li><li class="breadcrumb-item active" aria-current="page">{% translate "Validation" %}</li></ol></nav>
+<div class="row"><div class="col-lg-8">
+<div class="sc-card"><div class="sc-card-body">
+  <h1 class="h4">{% blocktranslate with n=version.number robot=version.get_robot_type_display %}Validate version v{{ n }} · {{ robot }}{% endblocktranslate %}</h1>
+  <p>{% translate "After validation this version is locked. Any later change will create a new version." %}</p>
+  <dl class="sc-dl mb-3">
+    <dt>{% translate "Account type" %}</dt><dd>{% include "includes/account_type.html" with account_type=version.account_type %}</dd>
+    <dt>{% translate "Reference capital" %}</dt><dd>{% if version.reference_capital is not None %}{{ version.reference_capital }} {{ version.currency }}{% else %}<span class="text-danger">{% translate "Missing: edit the draft first." %}</span>{% endif %}</dd>
+    <dt>{% translate "Parameters" %}</dt><dd>{% for p in parameters %}<code class="me-2">{{ p.key }}={{ p.value|plain_decimal }}</code>{% empty %}—{% endfor %}</dd>
+  </dl>
+  <form method="post" novalidate>{% csrf_token %}
+    {% if real_form %}
+      <div class="sc-banner sc-banner-real mb-3"><i class="bi bi-exclamation-octagon" aria-hidden="true"></i><div><strong>{% translate "Real account declaration" %}</strong><br>{{ wording }}</div></div>
+      {% include "includes/form_errors.html" with form=real_form %}
+      {% include "includes/field.html" with f=real_form.confirmed %}
+      <div class="row"><div class="col-md-5">{% include "includes/field.html" with f=real_form.declared_on %}</div><div class="col-md-7">{% include "includes/field.html" with f=real_form.note %}</div></div>
+    {% endif %}
+    <button class="btn btn-primary" type="submit"><i class="bi bi-lock me-1" aria-hidden="true"></i>{% translate "Validate and lock" %}</button>
+    <a class="btn btn-link" href="{% url 'bots:version_edit' version.pk %}">{% translate "Back to the draft" %}</a>
+  </form>
+</div></div></div></div>
+{% endblock %}

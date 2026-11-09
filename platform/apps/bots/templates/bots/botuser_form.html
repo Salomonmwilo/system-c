@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% if creating %}{% translate "Associate a robot" %}{% else %}{% translate "Edit the robot record" %}{% endif %}{% endblock %}
+{% block page_title %}{% translate "Robot users" %}{% endblock %}
+{% block content %}
+<div class="row"><div class="col-lg-8 col-xl-7">
+<div class="sc-card"><div class="sc-card-body">
+  <h1 class="h4">{% if creating %}{% translate "Associate a robot with an affiliate" %}{% else %}{% blocktranslate with name=bot_user.affiliate.display_name %}Robot record of {{ name }}{% endblocktranslate %}{% endif %}</h1>
+  <div class="sc-banner sc-banner-info my-3"><i class="bi bi-shield-check" aria-hidden="true"></i><div>{% translate "Robot users are administrative records without a sign-in account. Never record a Deriv token, a password or an API key: there is no field for them." %}</div></div>
+  {% include "includes/form_errors.html" %}
+  <form method="post" novalidate>{% csrf_token %}
+    {% for f in form %}{% include "includes/field.html" %}{% endfor %}
+    {% if creating and not form.affiliate.field.queryset.exists %}<p class="small text-body-secondary">{% translate "Every active affiliate already has a robot record, or there is no affiliate yet." %}</p>{% endif %}
+    <button class="btn btn-primary" type="submit">{% translate "Save" %}</button>
+    <a class="btn btn-link" href="{% if bot_user %}{% url 'bots:botuser_detail' bot_user.pk %}{% else %}{% url 'bots:botuser_list' %}{% endif %}">{% translate "Cancel" %}</a>
+  </form>
+</div></div></div></div>
+{% endblock %}

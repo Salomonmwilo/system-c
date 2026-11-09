@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load i18n systemc %}
+{% block title %}v{{ version.number }} · {{ bot_user.affiliate.display_name }}{% endblock %}
+{% block page_title %}{% translate "Configuration version" %}{% endblock %}
+{% block content %}
+{% org_perm "bots.prepare_version" as can_prepare %}{% org_perm "bots.validate_version" as can_validate %}{% org_perm "bots.manage_real" as can_real %}
+{% org_perm "bots.declare_applied" as can_declare %}{% org_perm "bots.correct_declaration" as can_correct %}
+<nav aria-label="{% translate 'Breadcrumb' %}"><ol class="breadcrumb small"><li class="breadcrumb-item"><a href="{% url 'bots:botuser_list' %}">{% translate "Robot users" %}</a></li><li class="breadcrumb-item"><a href="{% url 'bots:botuser_detail' bot_user.pk %}">{{ bot_user.affiliate.display_name }}</a></li><li class="breadcrumb-item active" aria-current="page">v{{ version.number }}</li></ol></nav>
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+  <div>
+    <h1 class="h3 mb-1">{% blocktranslate with n=version.number robot=version.get_robot_type_display %}Version v{{ n }} · {{ robot }}{% endblocktranslate %}</h1>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      {% if version.state == "draft" %}<span class="sc-badge sc-badge-neutral">{% translate "Draft" %}</span>{% else %}<span class="sc-badge sc-badge-ok"><i class="bi bi-lock" aria-hidden="true"></i>{% translate "Validated · immutable" %}</span>{% endif %}
+      {% include "includes/account_type.html" with account_type=version.account_type %}
+    </div>
+  </div>
+  {% if version.state == "draft" and can_prepare %}{% if not version.is_real or can_real %}
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-primary" href="{% url 'bots:version_edit' version.pk %}">{% translate "Edit the draft" %}</a>
+    {% if can_validate %}<a class="btn btn-primary" href="{% url 'bots:version_validate' version.pk %}"><i class="bi bi-lock me-1" aria-hidden="true"></i>{% translate "Validate" %}</a>{% endif %}
+  </div>
+  {% endif %}{% endif %}
+</div>
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="sc-card mb-3"><div class="sc-card-header"><h2>{% translate "Declaration" %}</h2></div><div class="sc-card-body"><dl class="sc-dl">
+      <dt>{% translate "Robot" %}</dt><dd>{{ version.get_robot_type_display }}</dd>
+      <dt>{% translate "Account type" %}</dt><dd>{{ version.get_account_type_display }}</dd>
+      <dt>{% translate "Reference capital" %}</dt><dd>{% if version.reference_capital is not None %}{{ version.reference_capital }} {{ version.currency }}{% else %}—{% endif %}</dd>
+      <dt>{% translate "Created" %}</dt><dd>{{ version.created_at|date:"SHORT_DATETIME_FORMAT" }} · {{ version.created_by }}</dd>
+      <dt>{% translate "Validated" %}</dt><dd>{% if version.validated_at %}{{ version.validated_at|date:"SHORT_DATETIME_FORMAT" }} · {{ version.validated_by }}{% else %}—{% endif %}</dd>
+      <dt>{% translate "Note" %}</dt><dd>{{ version.admin_note|linebreaksbr|default:"—" }}</dd>
+    </dl></div></div>
+    {% if version.real_confirmed_at %}
+    <div class="sc-card mb-3"><div class="sc-card-header"><h2>{% translate "Real account declaration" %}</h2></div><div class="sc-card-body"><dl class="sc-dl">
+      <dt>{% translate "Declared by" %}</dt><dd>{{ version.real_confirmed_by }}</dd>
+      <dt>{% translate "Declaration date" %}</dt><dd>{{ version.real_declared_on|date:"SHORT_DATE_FORMAT" }}</dd>
+      <dt>{% translate "Confirmed" %}</dt><dd>{{ version.real_confirmed_at|date:"SHORT_DATETIME_FORMAT" }}</dd>
+      <dt>{% translate "Note" %}</dt><dd>{{ version.real_declaration_note }}</dd>
+      <dt>{% translate "Wording accepted" %}</dt><dd class="small">{{ version.real_confirmation_wording }}</dd>
+    </dl></div></div>
+    {% endif %}
+  </div>
+  <div class="col-lg-7">
+    <div class="sc-card mb-3"><div class="sc-card-header"><h2>{% translate "Parameters" %}</h2></div>
+      <div class="table-responsive"><table class="table sc-table"><thead><tr><th scope="col">{% translate "Parameter" %}</th><th scope="col">{% translate "Value" %}</th><th scope="col">{% translate "Verification" %}</th></tr></thead>
+      <tbody>{% for p, d in parameters %}<tr><td><code>{{ p.key }}</code></td><td>{{ p.value|plain_decimal }} {{ p.unit }}</td><td>{% if d.verified %}<span class="sc-badge sc-badge-ok">{% translate "Verified" %}</span>{% else %}<span class="sc-badge sc-badge-wait">{% translate "To verify" %}</span>{% endif %}</td></tr>
+      {% empty %}<tr><td colspan="3"><div class="sc-empty py-3">{% translate "No parameter entered." %}</div></td></tr>{% endfor %}</tbody></table></div>
+    </div>
+    {% if version.state == "validated" %}
+    <div class="sc-card">
+      <div class="sc-card-header"><h2>{% translate "Application on the VPS (declared)" %}</h2></div>
+      <div class="sc-card-body">
+        {% if declarations %}
+        <ul class="sc-timeline mb-3">{% for d in declarations %}<li>
+          <div class="sc-meta">{{ d.recorded_at|date:"SHORT_DATETIME_FORMAT" }} · {{ d.recorded_by }}</div>
+          {% if d.kind == "applied" %}
+            <div><strong>{% blocktranslate with date=d.applied_on|date:"SHORT_DATE_FORMAT" %}Declared applied on {{ date }}{% endblocktranslate %}</strong>{% if d.note %} — {{ d.note }}{% endif %}</div>
+            {% if can_correct and not d.correction %}{% if not version.is_real or can_real %}
+            <details class="mt-1"><summary class="small">{% translate "Correct this declaration" %}</summary>
+              <form method="post" action="{% url 'bots:declaration_correct' d.pk %}" class="mt-2" novalidate>{% csrf_token %}
+                <label class="form-label small" for="reason-{{ d.pk }}">{% translate "Reason" %}</label>
+                <input class="form-control form-control-sm mb-2" id="reason-{{ d.pk }}" name="reason" maxlength="300" required>
+                <button class="btn btn-sm btn-outline-danger" type="submit">{% translate "Record the correction" %}</button>
+              </form></details>
+            {% endif %}{% endif %}
+          {% else %}
+            <div><span class="sc-badge sc-badge-stop">{% translate "Correction" %}</span> {{ d.note }}</div>
+          {% endif %}
+        </li>{% endfor %}</ul>
+        {% else %}<p class="small text-body-secondary">{% translate "Not declared applied yet." %}</p>{% endif %}
+        {% if is_latest and not already_applied and can_declare %}{% if not version.is_real or can_real %}
+        <form method="post" action="{% url 'bots:version_declare_applied' version.pk %}" class="border rounded-3 p-3" novalidate>{% csrf_token %}
+          <h3 class="h6">{% translate "Declare this version applied on the VPS" %}</h3>
+          <div class="row"><div class="col-md-5">{% include "includes/field.html" with f=declare_form.applied_on %}</div><div class="col-md-7">{% include "includes/field.html" with f=declare_form.note %}</div></div>
+          <button class="btn btn-primary btn-sm" type="submit">{% translate "Declare applied" %}</button>
+        </form>
+        {% endif %}{% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
