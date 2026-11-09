@@ -14,8 +14,11 @@
 - Lancer `python manage.py test` (dans `platform/`) avant chaque commit.
 
 ## Design
-- Pour tout travail d'interface, utiliser les skills du projet :
-  - `frontend-design` pour la direction visuelle ;
-  - `frontend-design-audit` pour auditer puis corriger l'ergonomie.
+- Pour tout travail d'interface, utiliser les skills du projet, dans cet ordre :
+  1. `ui-ux-pro-max` : consulter sa base (profil produit « CRM », « Banking », règles d'ergonomie) avant de décider ;
+  2. `frontend-design` : direction visuelle et plan de jetons ;
+  3. `unslop` : passes de polissage (espacement, couleur, icônes, texte, typographie, mise en page, détails, mouvement) ;
+  4. `frontend-design-audit` : audit d'ergonomie final et corrections.
+- Direction retenue (passe `unslop`) : exact, posé, solennel ; univers du registre et du sceau. La signature est le filet d'or de `.sc-declared` : il ne sert qu'aux informations déclarées, non vérifiées.
 - Identité imposée par le responsable : **noir et or, sobre et institutionnel**. Les jetons de design sont en tête de `platform/static/css/systemc.css`.
 - Provenance et revue des skills : `.claude/skills/SOURCES.md`.
