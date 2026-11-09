@@ -1,5 +1,7 @@
 > **Document remplacé (2026-11-09).** Cette version supposait une vitrine à préserver. L'orientation actuelle est décrite dans `NEW_PROJECT_DIRECTION.md`. Contenu conservé comme historique.
 
+> **Amendement rév. 2 (2026-11-09).** Les étapes M-17 (agent VPS) et M-18 (configuration applicative par l'agent) sont **retirées**. BOT MANAGEMENT devient un CRM administratif : voir `NEW_PROJECT_DIRECTION.md` §6.4 et §9 (phases 4 et 5). Aucune étape de migration ne concerne le VPS.
+
 # SYSTEM-C — Plan de migration
 
 Objectif : faire évoluer le projet vers SYSTEM-C Platform **sans casser la vitrine actuelle**, en gardant chaque étape réversible.

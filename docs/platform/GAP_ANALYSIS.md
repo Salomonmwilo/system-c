@@ -1,4 +1,6 @@
 # SYSTEM-C — Analyse des écarts (vision SYSTEM-C Platform)
+> **Amendement rév. 2 (2026-11-09).** Le §2.3 (BOT MANAGEMENT) décrivait un agent, des commandes et une intégration technique. Ces lignes sont **retirées** : le module est un CRM administratif (`NEW_PROJECT_DIRECTION.md` §6.4). Les écarts restants sont la gestion des affiliés, des configurations déclarées, des interventions et des tâches.
+
 
 Compare l'existant décrit dans `CURRENT_STATE.md` à la vision produit : trois modules (ACADEMY, PARTNERS, BOT MANAGEMENT) et les objectifs techniques transverses.
 

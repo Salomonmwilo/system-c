@@ -1,8 +1,12 @@
 # SYSTEM-C Platform — Nouvelle orientation et architecture cible
 
-Statut : **proposition à approuver**. Aucun code n'est écrit à ce stade. Aucun fichier existant n'est supprimé ni modifié.
+Statut : **révision 2 — proposition à approuver**. Aucun code n'est écrit à ce stade. Aucun fichier existant n'est supprimé ni modifié.
 
-Ce document remplace l'orientation « site vitrine » des documents `PROPOSED_ARCHITECTURE.md`, `MIGRATION_PLAN.md` et `IMPLEMENTATION_ROADMAP.md` (voir §10). `CURRENT_STATE.md` et `GAP_ANALYSIS.md` restent valables comme inventaire et diagnostic.
+Historique :
+- Révision 1 (2026-11-09) : plateforme SaaS à trois modules.
+- **Révision 2 (2026-11-09) : BOT MANAGEMENT redéfini comme CRM administratif.** Le module ne contrôle plus les robots. Il n'y a ni agent sur le VPS, ni API de contrôle, ni commande distante, ni synchronisation de trades, ni stockage de tokens. Les sections touchées sont signalées par **[rév. 2]**.
+
+Documents remplacés : `PROPOSED_ARCHITECTURE.md`, `MIGRATION_PLAN.md`, `IMPLEMENTATION_ROADMAP.md` (voir §10). `CURRENT_STATE.md` et `GAP_ANALYSIS.md` restent valables comme inventaire.
 
 ---
 
@@ -10,20 +14,50 @@ Ce document remplace l'orientation « site vitrine » des documents `PROPOSED_AR
 
 **SYSTEM-C Platform** est une plateforme SaaS multi-utilisateurs et multi-organisations, en français et en anglais, composée de trois modules fonctionnellement indépendants qui partagent l'identité, les profils, les permissions et les services communs.
 
-| Module | Mission | Utilisateurs principaux |
+| Module | Mission | Nature |
 |---|---|---|
-| **ACADEMY** | Formation autonome : programmes, cours, leçons, exercices, évaluations, progression | Apprenants, instructeurs, responsables pédagogiques |
-| **PARTNERS** | Gestion des personnes orientées par les liens de parrainage, suivi des prospects, des affiliations, de la vérification et des relances | Gestionnaires de partenaires, conseillers, responsables d'affiliation |
-| **BOT MANAGEMENT** | Gestion des utilisateurs de robots Deriv et de leurs instances, séparation démo/réel, supervision, rapports, communication sécurisée avec le VPS | Opérateurs, superviseurs, responsables des risques, utilisateurs de robots (accès limité) |
+| **ACADEMY** | Formation autonome : programmes, cours, leçons, exercices, évaluations, progression | Pédagogique |
+| **PARTNERS** | Personnes orientées par les liens de parrainage, prospects, liens d'affiliation, suivi d'inscription et de vérification, relances | Commerciale et administrative |
+| **BOT MANAGEMENT** **[rév. 2]** | **CRM administratif** des affiliés et des utilisateurs de robots : type de robot attribué, capital de référence, réglages déclarés, historique des configurations, interventions, tâches et rappels | Administrative, **sans contrôle technique** |
+
+### 1.1 Rôle de BOT MANAGEMENT **[rév. 2]**
+
+BOT MANAGEMENT ne commande, ne surveille et ne lit aucun robot. Il sert à l'administrateur pour :
+
+1. Enregistrer et gérer les affiliés Deriv et leur parcours d'inscription et de vérification.
+2. Enregistrer si un affilié souhaite utiliser un robot.
+3. Lui attribuer un type de robot : **DIFFERS** ou **OVER/UNDER**.
+4. Enregistrer le capital de référence et les réglages qui lui sont attribués.
+5. Conserver l'historique des configurations **déclarées comme appliquées**.
+6. Enregistrer les dates des interventions et les notes de suivi.
+7. Gérer les tâches, rappels et actions en attente.
+8. Visualiser rapidement l'état de chaque affilié et de chaque utilisateur de robot.
+
+### 1.2 Responsabilités du VPS **[rév. 2]**
+
+Le VPS Ubuntu existant reste **entièrement indépendant** de la plateforme. L'administrateur continue, avec ses scripts et commandes existants :
+
+- créer les utilisateurs des robots ;
+- configurer les fichiers `reglages.env` ;
+- gérer les tokens Deriv ;
+- démarrer et arrêter les services systemd ;
+- modifier les paramètres techniques ;
+- consulter les journaux et rapports ;
+- gérer les opérations de trading.
+
+**La plateforme ne lit, n'écrit et ne vérifie rien sur le VPS.**
+
+### 1.3 Règle de fonctionnement **[rév. 2]**
+
+Quand une configuration est appliquée sur le VPS, l'administrateur **met à jour la fiche correspondante** dans la plateforme. La plateforme conserve donc un **registre administratif** de ce qui a été déclaré comme appliqué. Elle ne prétend jamais connaître l'état réel du VPS : chaque statut affiché porte la mention « déclaré par l'administrateur, non vérifié », et la date de la dernière déclaration.
 
 Principes directeurs :
 1. **Sécurité par défaut** : refus par défaut, moindre privilège, aucune donnée sensible inutile.
-2. **Pédagogie et transparence** : aucune promesse de gain, avertissements de risque visibles, distinction claire entre démo et réel.
-3. **Bilingue dès le départ** : toute interface, tout message, tout contenu éditable existe en FR et EN.
-4. **Multi-organisation dès le départ** : chaque donnée appartient à une organisation ; aucune requête ne peut lire hors de son périmètre.
-5. **Modularité sans microservices** : des modules séparés dans un même déploiement, jusqu'à ce qu'une contrainte réelle justifie de les séparer.
-
-Un point de cadrage à trancher : SYSTEM-C Platform est un outil de **formation et d'exploitation**, pas un service de conseil financier ni un intermédiaire. Le produit ne doit jamais passer d'ordres sur des comptes réels pour le compte de tiers sans cadre réglementaire validé (voir §8).
+2. **Transparence** : aucune promesse de gain, avertissements de risque visibles, distinction claire entre ce qui est déclaré et ce qui est vérifié.
+3. **Bilingue dès le départ** : toute interface et tout contenu éditable existent en FR et EN.
+4. **Multi-organisation dès le départ** : chaque donnée appartient à une organisation.
+5. **Modularité sans microservices** : des modules séparés dans un même déploiement.
+6. **Ne pas en faire plus que nécessaire** : pas de fonctionnalité technique tant qu'un besoin administratif ne l'exige pas.
 
 ---
 
@@ -33,59 +67,55 @@ Réutiliser signifie : récupérer la **donnée ou la décision** (texte validé
 
 ### 2.1 Identité et branding
 
-| Élément | Source | Usage dans la plateforme | Décision |
+| Élément | Source | Usage | Décision |
 |---|---|---|---|
 | Nom et slogan | `index.html` (en-tête, pied), `script.js` (`heroTitle`, `metaTitle`) | Nom du produit, « Penser juste. Agir avec discipline. » | Réutiliser (à confirmer pour la plateforme) |
 | Devise latine validée | `script.js` (`footerSlogan`) : « Solus cum plenitudine, inopi est alia » | Pied de page des pages publiques | Réutiliser (validée par le responsable) |
-| Logo | `public/logo-mark.png` (32 Ko, source 480×279) | En-tête, favicon, icône d'application | Réutiliser, **mais** demander une version vectorielle et haute résolution avant les écrans imprimés ou les rapports |
-| Icônes et favicons | `favicon-32.png`, `favicon-192.png`, `apple-touch-icon.png` | Favicons de la plateforme | Réutiliser |
-| Palette noir et or | `styles.css` : `--bg #09090a`, `--gold #d7b46a`, `--gold2 #f0d79b`, `--text #f5f1e8`, et les variantes du mode clair | Tokens de design system | Réutiliser les **valeurs**, les reformuler en tokens du nouveau framework |
-| Typographie | Georgia (titres), police système (texte) | Idem | Réutiliser, à valider pour les données tabulaires |
-| Image de partage | `public/og-image.png` | Aperçus de liens publics uniquement | Réutiliser pour les pages publiques |
+| Logo | `public/logo-mark.png` (source 480×279) | En-tête, favicon, icône | Réutiliser ; demander une version vectorielle avant les documents imprimés |
+| Favicons | `favicon-32.png`, `favicon-192.png`, `apple-touch-icon.png` | Plateforme | Réutiliser |
+| Palette noir et or | `styles.css` : `--bg #09090a`, `--gold #d7b46a`, `--gold2 #f0d79b`, `--text #f5f1e8` et variantes claires | Tokens de design | Réutiliser les **valeurs** |
+| Typographie | Georgia (titres), police système (texte) | Idem | Réutiliser, à valider pour les tableaux de bord |
+| Image de partage | `public/og-image.png` | Pages publiques | Réutiliser |
 
 ### 2.2 Textes institutionnels et mission
 
 | Élément | Source | Décision |
 |---|---|---|
-| Mission et « Penser juste » | `script.js` (`aboutTitle`, `founderP1`, `founderP2`) | Réutiliser comme base, réécrire en vue de la plateforme |
-| Principes « pas de promesses » | `script.js` (`trans1Title` à `trans4Title`) | **Réutiliser tels quels** : ce sont des engagements de transparence |
-| Mention d'indépendance | `footerDisclaimer` : « Site de présentation indépendant. Deriv est une marque distincte. » | Réutiliser, adapté en « Plateforme éducative indépendante. Deriv est une marque distincte. » |
-| Avertissement de risque officiel | `index.html` ligne 248 (texte anglais, Deriv Affiliates Terms, section 1.10) | **Réutiliser verbatim** en anglais, et traduction française séparée clairement marquée « non officielle ; la version anglaise fait foi » |
-| Pages de confidentialité | Textes existants | **À réécrire**, ils décrivent une absence de collecte qui ne sera plus vraie (voir §7.4) |
+| Principes « pas de promesses » | `script.js` (`trans1Title` à `trans4Title`) | **Réutiliser tels quels** |
+| Mention d'indépendance | `footerDisclaimer` | Adapter : « Plateforme éducative et administrative indépendante. Deriv est une marque distincte. » |
+| Avertissement de risque officiel | `index.html` (texte anglais, Deriv Affiliates Terms, section 1.10) | **Réutiliser verbatim** en anglais ; traduction française séparée, marquée « non officielle ; la version anglaise fait foi » |
+| Politique de confidentialité | — | **À réécrire** : la plateforme collecte des données de prospects, d'affiliés et d'utilisateurs de robots |
 
 ### 2.3 Traductions FR et EN
 
-- Environ **219 clés** par langue existent dans `script.js` (lignes 1-33). Elles sont en parité (vérifiée). **Réutilisation sélective** : seules les clés qui décrivent les textes institutionnels, les modules pédagogiques et les avertissements sont reprises. Les clés propres au site vitrine (menu, thème, animations, libellés de navigation de la landing) ne sont pas réutilisées.
-- Les traductions doivent être sorties du JavaScript et placées dans les catalogues du framework (voir §5.4), avec un contrôle de parité FR/EN en CI.
+- Environ 219 clés par langue existent dans `script.js`, en parité vérifiée. **Réutilisation sélective** : seuls les textes institutionnels, pédagogiques et d'avertissement sont repris. Les clés du site vitrine (menu, thème, animations) ne le sont pas.
+- Les traductions sortent du JavaScript et entrent dans les catalogues du framework, avec contrôle de parité en CI.
 
 ### 2.4 Contenus pédagogiques
 
 | Élément | Source | Réutilisation |
 |---|---|---|
-| Huit séquences Match/Differs (titres, objectifs, exercices, FR et EN) | `script.js` (`seq1Title`… `seq8Ex`) | **Premier contenu d'ACADEMY**, à importer comme données et à relire par un responsable pédagogique |
-| Six compétences (budget, risque, journal, etc.) | `b1Title`… `b6Desc` | Réutilisable comme objectifs de programme |
-| Définitions « trading » et « Deriv » | `defTradingDesc`, `defDerivDesc` | Réutilisable, à valider |
-| Versets (Louis Segond, King James) | `verse1`… `verse8` | Réutilisable **si** la source est conforme : vérifier les droits de la traduction Louis Segond avant publication. La King James est dans le domaine public. |
-| Parcours en quatre modules (diagramme) | `public/images/module-parcours-*.png` | Réutilisable comme illustration |
-| Illustrations digits et proba (FR/EN) | `public/images/module-digits-*`, `module-proba-*` | Réutilisable |
-| FAQ et guide Deriv en cinq étapes | `script.js` (`step1Title`…, `faqQ*`) | **À réviser** : contenu daté, dépend de l'interface Deriv, et plusieurs réponses doivent être réécrites |
+| Huit séquences Match/Differs (titres, objectifs, exercices, FR et EN) | `script.js` (`seq1Title`… `seq8Ex`) | **Premier contenu d'ACADEMY**, après relecture pédagogique |
+| Six compétences | `b1Title`… `b6Desc` | Objectifs de programme |
+| Définitions « trading » et « Deriv » | `defTradingDesc`, `defDerivDesc` | À valider |
+| Versets (Louis Segond, King James) | `verse1`… `verse8` | Vérifier les droits de la traduction Louis Segond avant publication ; la King James est dans le domaine public |
+| Illustrations (parcours, digits, proba) | `public/images/module-*` | Réutilisables |
+| FAQ et guide Deriv en cinq étapes | `script.js` (`step*`, `faq*`) | **À réviser** : contenu daté, dépend de l'interface Deriv |
 
 ### 2.5 Logique métier réutilisable comme données
 
-La pré-évaluation (`buildResult`, `script.js` lignes 87-114) contient des règles métier utiles : âge minimum, pays autorisé, document accepté, fonds non essentiels, compréhension du risque. Ces règles sont **réutilisées comme données** : un référentiel de critères d'onboarding (§6.3), versionné, avec ses textes FR/EN. Le code JavaScript qui les évalue n'est pas réutilisé ; la logique est réimplémentée côté serveur, où elle peut être auditée et tracée.
+Les règles de pré-évaluation (âge minimum, pays autorisé, document accepté, fonds non essentiels, compréhension du risque) sont reprises **comme référentiel versionné**, pas comme code. Elles servent à ACADEMY (admissibilité) et à PARTNERS (onboarding). Le code JavaScript qui les évaluait n'est pas réutilisé.
 
 ### 2.6 Documentation
 
-- Les cinq documents de `docs/platform/` sont conservés comme historique de l'audit.
+- Les documents de `docs/platform/` sont conservés comme historique de l'audit.
 - `CURRENT_STATE.md` reste la référence de l'inventaire.
-- `GAP_ANALYSIS.md` reste valable, notamment §6 (conformité) et §8 (informations manquantes).
 
-### 2.7 Composants et fonctions réellement réutilisables
+### 2.7 Idées de conception réutilisables
 
-Peu de code est réutilisable tel quel, et ce n'est pas un problème. Les seuls éléments à reprendre sont des **idées de conception** :
-- le système de tokens CSS (variables, deux thèmes) ;
-- la logique d'accessibilité documentée : focus géré après une erreur, `aria-describedby` par question, cibles de 44 px, mention « s'ouvre dans un nouvel onglet », respect de `prefers-reduced-motion` ;
-- la politique d'en-têtes de sécurité dans `netlify.toml` (CSP stricte, `frame-ancestors 'none'`, `Referrer-Policy`, `Permissions-Policy`), à réappliquer dans la configuration de l'application.
+- Tokens CSS (variables, deux thèmes).
+- Accessibilité : focus géré après une erreur, `aria-describedby` par champ, cibles de 44 px, mention « s'ouvre dans un nouvel onglet », respect de `prefers-reduced-motion`.
+- Politique d'en-têtes de sécurité de l'ancien `netlify.toml` (CSP stricte, `frame-ancestors 'none'`, `Referrer-Policy`, `Permissions-Policy`), à réappliquer à l'application.
 
 ---
 
@@ -94,18 +124,18 @@ Peu de code est réutilisable tel quel, et ce n'est pas un problème. Les seuls 
 | Élément | Raison | Action |
 |---|---|---|
 | Site vitrine comme produit à maintenir | Hors objectif | Ignorer ; ne pas modifier |
-| `netlify.toml`, configuration de publication Netlify | Hors objectif | Ignorer ; conserver le fichier |
-| `.github/workflows/pages.yml` (GitHub Pages) | Hors objectif | Ignorer ; conserver le fichier |
-| `public/script.js` comme code applicatif | Mélange données, logique et UI ; non modulaire ; non testable | Ne pas réutiliser le code. Extraire seulement les données (§2.3, §2.4) |
-| `public/styles.css` comme base de l'interface | Conçu pour une page unique | Ne pas réutiliser les règles ; réutiliser les tokens (§2.1) |
-| Formulaire d'éligibilité en HTML | Logique client, réponses non enregistrées | Remplacer par un parcours serveur auditable (§6.3) |
-| Lien d'affiliation codé en dur | Doit devenir une donnée gérée | Migrer vers le registre de liens (§6.2) |
-| Groupe WhatsApp comme canal d'inscription | Canal non contrôlé pour des données personnelles | **À décider** : retirer de la plateforme, ou le cadrer (§8) |
-| Affirmation « carte d'électeur RDC acceptée » | Témoignages non vérifiés, pouvant induire en erreur sur une vérification de compte | **Ne pas réutiliser comme fait.** Remplacer par une source officielle Deriv ou une mention « à confirmer auprès de Deriv » |
-| Promesse « rien n'est stocké sur un serveur » | Fausse pour la plateforme | Abandonner ; réécrire la politique de confidentialité |
-| Mentions « Approbation Deriv en cours » et « Cohorte Alpha » | Statut éphémère | Ne pas réutiliser |
-| `docs/platform/PROPOSED_ARCHITECTURE.md`, `MIGRATION_PLAN.md`, `IMPLEMENTATION_ROADMAP.md` | Orientés vitrine | Marqués « remplacés » (§10) |
-| Historique des versions du README (v3 à v9) | Décrit le site vitrine | Conserver, sans en faire la documentation du produit |
+| `netlify.toml`, `.github/workflows/pages.yml` | Hors objectif | Ignorer ; conserver les fichiers |
+| `public/script.js` et `public/styles.css` comme base applicative | Non modulaires ; conçus pour une page | Ne pas réutiliser le code ; extraire seulement les données et tokens |
+| Formulaire d'éligibilité en HTML | Logique client, réponses non enregistrées | Remplacer par un parcours serveur auditable |
+| Lien d'affiliation codé en dur | Doit devenir une donnée gérée | Migrer vers le registre de liens |
+| Canal WhatsApp comme canal d'inscription | Canal non contrôlé pour des données personnelles | **À décider** (§11) |
+| Affirmation « carte d'électeur RDC acceptée » | Témoignages non vérifiés | **Ne pas réutiliser comme fait** |
+| Promesse « rien n'est stocké » | Fausse pour la plateforme | Réécrire |
+| **Agent Python sur le VPS** **[rév. 2]** | Hors périmètre | **Retiré** |
+| **API de contrôle des robots, commandes distantes** **[rév. 2]** | Hors périmètre | **Retiré** |
+| **Synchronisation automatique des trades et des soldes** **[rév. 2]** | Hors périmètre ; données financières inutiles | **Retiré** |
+| **Stockage des tokens Deriv, même haché** **[rév. 2]** | Hors périmètre ; risque inutile | **Retiré** (§7.4) |
+| Documents `PROPOSED_ARCHITECTURE.md`, `MIGRATION_PLAN.md`, `IMPLEMENTATION_ROADMAP.md` | Orientés vitrine ou agent | Marqués « remplacés » (§10) |
 
 ---
 
@@ -113,157 +143,131 @@ Peu de code est réutilisable tel quel, et ce n'est pas un problème. Les seuls 
 
 ### 4.1 Choix structurant : un monolithe modulaire
 
-Recommandation : **une seule application backend, découpée en modules Django (ou framework équivalent) à frontières strictes**, avec une base PostgreSQL partagée et, pour le VPS, un agent séparé.
+Une seule application backend découpée en modules à frontières strictes, avec une base PostgreSQL partagée. **Aucun composant ne tourne sur le VPS.** Le VPS est un système séparé que l'administrateur utilise seul.
 
-Pourquoi pas des microservices : trois modules, une équipe réduite, des besoins transactionnels communs (permissions, audit, profils). Les microservices ajouteraient des coûts de réseau, d'authentification inter-services, et de cohérence des données, sans bénéfice immédiat.
+Pourquoi pas des microservices : trois modules, équipe réduite, besoins transactionnels communs. Pourquoi pas une SPA : le rendu serveur simplifie la sécurité des sessions et réduit le code client.
 
-Pourquoi pas une SPA séparée : le référencement public de certaines pages reste utile, la sécurité des sessions est plus simple côté serveur, et le rendu serveur réduit la surface de code JavaScript.
-
-### 4.2 Schéma
+### 4.2 Schéma **[rév. 2]**
 
 ```
-   Navigateur (FR/EN)
+   Administrateur, opérateurs, partenaires, apprenants (FR/EN)
         │  HTTPS, cookies de session HttpOnly
         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  SYSTEM-C Platform (application web, un seul déploiement)       │
-│                                                                 │
-│  ┌──────────────── core (partagé) ───────────────────────────┐  │
-│  │ identité · profils · organisations · rôles · permissions  │  │
-│  │ audit · consentements · notifications · i18n · fichiers   │  │
-│  └────────────▲────────────────▲────────────────▲────────────┘  │
-│   API interne │   API interne  │   API interne  │               │
-│  ┌────────────┴───┐ ┌──────────┴─────┐ ┌────────┴───────────┐   │
-│  │   academy      │ │   partners     │ │   bots             │   │
-│  │ programmes     │ │ liens          │ │ utilisateurs bots  │   │
-│  │ cours, leçons  │ │ prospects      │ │ instances          │   │
-│  │ exercices      │ │ onboarding     │ │ environnements     │   │
-│  │ progression    │ │ relances       │ │ supervision        │   │
-│  └────────────────┘ └────────────────┘ │ incidents, rapports│   │
-│                                        └────────┬───────────┘   │
-└─────────────────────────────────────────────────┼───────────────┘
-                 │                                 │ HTTPS sortant,
-                 ▼                                 │ requêtes signées
-        ┌─────────────────┐                        │ (HMAC + nonce)
-        │ PostgreSQL      │                        ▼
-        │ (réseau privé)  │          ┌────────────────────────────┐
-        └─────────────────┘          │ Agent sur VPS Ubuntu       │
-                                     │ lit les bots, publie état  │
-        ┌─────────────────┐          │ et rapports ; ne reçoit    │
-        │ Stockage objet  │          │ aucun ordre de trading     │
-        │ (rapports, pièces│         └──────────────┬─────────────┘
-        │ jointes chiffrées)│                       │ fichiers / API locale
-        └─────────────────┘                          ▼
-                                     ┌────────────────────────────┐
-                                     │ Bots Python (Differs,      │
-                                     │ Over/Under), API Deriv     │
-                                     └────────────────────────────┘
+┌───────────────────────────────────────────────────────────────┐
+│  SYSTEM-C Platform (une application)                          │
+│                                                               │
+│  ┌──────────────── core (partagé) ─────────────────────────┐  │
+│  │ identité · profils · organisations · rôles · permissions │  │
+│  │ audit · consentements · tâches · notifications · i18n   │  │
+│  └───────▲──────────────────▲──────────────────▲───────────┘  │
+│  ┌───────┴───────┐  ┌───────┴────────┐  ┌──────┴────────────┐  │
+│  │   academy     │  │   partners     │  │   bots (CRM)      │  │
+│  │ programmes    │  │ liens          │  │ utilisateurs bots │  │
+│  │ leçons        │  │ prospects      │  │ type, capital     │  │
+│  │ exercices     │  │ affiliés*      │  │ réglages déclarés │  │
+│  │ progression   │  │ onboarding     │  │ historique        │  │
+│  │               │  │ relances       │  │ interventions     │  │
+│  └───────────────┘  └────────────────┘  └───────────────────┘  │
+└───────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+                     ┌─────────────────┐       ┌────────────────────────────┐
+                     │ PostgreSQL      │       │ Stockage objet (exports,   │
+                     │ (réseau privé)  │       │ pièces non sensibles)      │
+                     └─────────────────┘       └────────────────────────────┘
+
+   ┊ Aucune connexion automatique ┊
+   ┊                             ┊
+   VPS Ubuntu (indépendant)  ◄── l'administrateur applique les configurations
+   bots Python, reglages.env,      et MET À JOUR LA FICHE à la main dans la
+   tokens, systemd, journaux       plateforme (registre déclaratif)
+
+   * « affiliés » : entité possédée par partners ou bots — voir §4.3
 ```
 
-### 4.3 Règle de séparation des modules
+### 4.3 Propriété de la fiche affilié **[rév. 2]** — décision à prendre
 
-- Chaque module a son **propre espace de noms** (`academy.*`, `partners.*`, `bots.*`), ses modèles, ses services, ses routes, ses gabarits et ses tests.
-- Un module **n'importe jamais les modèles d'un autre module**. Il passe par son interface de service (fonctions publiques) ou par un événement de domaine.
-- Vérification automatique en CI (règle d'import, par exemple `import-linter`).
-- Le lien entre modules se fait par **identifiants**, pas par clés étrangères croisées. Exemple : une personne « prospect » devient « étudiant » via un événement `partners.lead_enrolled` consommé par `academy`.
-- Chaque module peut être désactivé par configuration d'organisation, sans casser les autres.
+La demande initiale donne aux deux modules PARTNERS et BOT MANAGEMENT la gestion des affiliés et de leur parcours d'inscription et de vérification. Il faut éviter deux fiches pour une même personne.
 
-### 4.4 Organisation et multi-tenancy
+**Recommandation** : une seule entité **Affilié** dans `partners`, qui possède l'identité, le lien de parrainage, le parcours d'inscription et de vérification. `bots` **référence** l'affilié par son identifiant et ajoute ses propres données (robot, capital, configurations, interventions). BOT MANAGEMENT affiche donc une vue complète de l'affilié sans dupliquer les données.
 
-- **Organisation** = frontière de données (tenant). Le premier tenant est SYSTEM-C lui-même.
-- Toute table métier porte `organization_id`. Aucune requête métier ne s'exécute sans contexte d'organisation résolu côté serveur.
-- Une personne peut appartenir à plusieurs organisations avec des rôles différents (`membership`).
-- Les **administrateurs de plateforme** sont distincts : ils ont un rôle global, auditable, avec double authentification obligatoire.
-- Isolation renforcée en phase de durcissement par les **politiques de ligne PostgreSQL** (RLS), en plus des contrôles applicatifs.
+Alternative : `bots` possède l'affilié, et `partners` ne gère que les prospects jusqu'à leur inscription. Plus simple à expliquer à l'administrateur, mais la vue « parrainage » doit alors lire le module bots.
 
-### 4.5 Identité, profils et permissions
+Dans les deux cas, un **prospect** (PARTNERS, avant inscription) devient un **affilié** à la conversion. Un seul événement de domaine porte cette transition.
 
-Un seul modèle d'identité pour tous les modules :
+### 4.4 Règle de séparation des modules
 
-- `person` : identité de la personne (nom affiché, langue préférée, fuseau horaire, pays de résidence déclaré, statut de vérification de l'âge).
-- `user` : compte de connexion, lié à une `person` (un compte peut exister sans être connectable, par exemple pour un utilisateur de bot géré par un opérateur).
-- `membership` : appartenance à une organisation avec un ou plusieurs `role`.
-- `role` et `permission` : définis par module (`academy.enroll`, `partners.lead.read`, `bots.instance.read_real`, etc.).
-- Politique centralisée : une seule fonction d'autorisation appelée par chaque service, **refus par défaut**, avec test automatique qui échoue si une route n'a pas de permission déclarée.
+- Chaque module a ses propres modèles, services, routes, gabarits et tests.
+- Un module n'importe jamais les modèles d'un autre : il passe par ses fonctions publiques ou par un événement.
+- Vérification automatique en CI (règles d'import).
+- Liens entre modules par identifiants.
+- Chaque module peut être désactivé par organisation.
 
-Rôles de départ proposés (à valider) :
+### 4.5 Organisation et multi-tenancy
 
-| Rôle | Portée | Modules |
+- **Organisation** = frontière de données. Le premier tenant est SYSTEM-C.
+- Toute table métier porte `organization_id`. Aucune requête métier sans contexte d'organisation résolu côté serveur.
+- Une personne peut appartenir à plusieurs organisations avec des rôles différents.
+- Les **administrateurs de plateforme** ont un rôle global, journalisé, avec double authentification.
+- Isolation renforcée en phase 6 par les politiques de ligne PostgreSQL.
+
+### 4.6 Identité, profils et permissions
+
+- `person` : identité (nom affiché, langue, fuseau horaire, pays de résidence déclaré).
+- `user` : compte de connexion, lié à une `person`. **Les utilisateurs de robots n'ont pas de compte de connexion par défaut** (§11).
+- `membership` : appartenance à une organisation avec des rôles.
+- Politique d'autorisation centralisée, refus par défaut, test qui échoue si une route n'a pas de permission déclarée.
+
+Rôles proposés :
+
+| Rôle | Portée | Accès |
 |---|---|---|
-| `platform_admin` | Globale | Tous (journalisé, MFA obligatoire) |
-| `org_admin` | Organisation | Gestion des membres et des paramètres |
-| `academy_instructor` | Organisation | Contenu, correction, suivi des apprenants |
-| `academy_student` | Soi-même | Parcours, exercices, progression |
-| `partner_manager` | Organisation | Liens, prospects, relances, statuts |
-| `partner_advisor` | Ses prospects assignés | Suivi et relances |
-| `bot_operator` | Instances assignées | Lecture et actions autorisées en démo |
-| `bot_risk_approver` | Organisation | Approbation des changements sur réel (phase 6) |
-| `bot_viewer` | Rapports autorisés | Lecture seule |
-| `bot_user` | Ses propres instances | Lecture de son état et de ses rapports, si accès accordé |
-
-### 4.6 Partage de services communs (`core`)
-
-`core` fournit : identité et authentification, profils, organisations et appartenances, rôles et permissions, journal d'audit, consentements, notifications (courriel et in-app), gestion des fichiers, catalogues de traduction, configuration par organisation, et un **outbox** pour les événements de domaine.
+| `platform_admin` | Globale | Tout ; journalisé ; TOTP obligatoire |
+| `org_admin` | Organisation | Membres, paramètres, exports |
+| `crm_admin` **[rév. 2]** | Organisation | CRM complet : affiliés, utilisateurs de robots, configurations, historique |
+| `crm_operator` **[rév. 2]** | Organisation | Saisie des interventions, notes, tâches ; mise à jour des statuts |
+| `crm_viewer` **[rév. 2]** | Organisation | Lecture ; données personnelles masquées par défaut |
+| `partner_manager` / `partner_advisor` | Organisation / prospects assignés | Liens, prospects, relances |
+| `academy_instructor` / `academy_student` | Organisation / soi-même | Contenus, parcours |
 
 ---
 
 ## 5. Technologies recommandées
 
-Le dépôt n'impose aucune technologie. Il ne contient ni code serveur, ni dépendance, ni base de données : le choix est donc libre, et guidé par les contraintes du produit.
-
 ### 5.1 Critères
 
-1. Sécurité intégrée (sessions, CSRF, hachage de mots de passe, permissions) plutôt qu'à reconstruire.
-2. Cohérence avec le langage des bots existants (Python).
-3. Support natif de l'internationalisation et des migrations de schéma.
-4. Écosystème mature et maintenu ; peu de dépendances tierces.
-5. Capacité à fonctionner sur un VPS ou une plateforme managée.
+1. Sécurité intégrée (sessions, CSRF, hachage, permissions).
+2. Simplicité : un CRM n'a pas besoin de temps réel ni de file de messages.
+3. Internationalisation et migrations natives.
+4. Peu de dépendances.
 
 ### 5.2 Comparaison résumée
 
 | Option | Points forts | Points faibles | Verdict |
 |---|---|---|---|
-| **Django (version LTS) + PostgreSQL, rendu serveur** | Authentification, sessions, CSRF, permissions, administration, migrations, i18n (gettext) inclus ; Python comme les bots ; mature | Plus de conventions à respecter ; admin à sécuriser | **Recommandé** |
-| FastAPI + SQLAlchemy + Alembic + gabarits | Léger, typage fort, API natives | Authentification, permissions, admin, i18n à construire soi-même : plus de code de sécurité à auditer | Acceptable, mais coût de sécurité plus élevé |
-| Next.js / TypeScript + API séparée | Excellente expérience front ; écosystème large | Deux langages, deux déploiements, sécurité de session à consolider ; le savoir-faire Python des bots ne sert pas | Écarté sauf équipe orientée TypeScript |
-| Microservices par module | Isolation forte | Complexité opérationnelle disproportionnée | Écarté à ce stade |
+| **Django (LTS) + PostgreSQL, rendu serveur** | Auth, sessions, CSRF, permissions, administration, migrations, gettext ; adapté à un CRM | Conventions à respecter | **Recommandé** |
+| FastAPI + SQLAlchemy + gabarits | Léger | Auth, permissions, admin, i18n à construire | Acceptable, plus de code de sécurité |
+| Next.js / TypeScript | Bonne expérience front | Deux langages et déploiements pour un CRM | Écarté |
 
-### 5.3 Stack recommandée
+### 5.3 Stack **[rév. 2]**
 
-| Couche | Choix | Justification |
+| Couche | Choix | Remarque |
 |---|---|---|
-| Langage | Python (version stable actuelle, à figer au démarrage) | Cohérence avec les bots ; écosystème sécurité et données |
-| Framework web | Django (dernière version LTS à la date de lancement) | Sécurité intégrée, administration, migrations, i18n |
-| Base de données | PostgreSQL (16 ou plus récente) | Exigence du produit ; RLS pour l'isolation |
-| Rendu et interactions | Gabarits Django, JavaScript minimal ; HTMX seulement si un besoin réel apparaît | Pas de SPA, peu de code client à sécuriser |
-| Design system | Tokens CSS issus du branding (§2.1), composants internes | Identité conservée, pas de dépendance graphique lourde |
-| Internationalisation | Catalogues gettext (`.po`) pour l'interface ; champs `*_fr` / `*_en` pour les contenus éditables | Standard Django, relecture par traducteur possible |
-| Authentification | Authentification Django + sessions serveur ; TOTP (double authentification) pour les administrateurs et les rôles sensibles ; courriel de vérification | Réduit le code de sécurité personnalisé |
-| Tâches asynchrones | Commandes de gestion et table de tâches dans PostgreSQL au départ ; file (Redis + worker) seulement si le volume l'exige | Moins de services à exploiter |
-| Fichiers | Stockage objet compatible S3, chiffré, accès par URL signée, analyse antivirus des envois | Rapports et pièces jointes hors base |
-| Courriel | Fournisseur transactionnel (à choisir) ; gabarits FR/EN | Relances, vérification, réinitialisation |
-| Tests | pytest et pytest-django ; Playwright pour les parcours FR/EN ; import-linter pour les frontières de modules ; tests d'isolation dédiés | Chaque règle de sécurité a un test |
-| Qualité | ruff, mypy progressif, pre-commit, scan de dépendances, scan de secrets | Réduit les défauts évitables |
-| Conteneurs | Image Docker non-root, multi-étapes ; compose pour le développement | Déploiement reproductible |
-| TLS et entrée | Reverse proxy avec TLS automatique (Caddy ou équivalent) | En-têtes et renouvellement de certificats |
-| Observabilité | Journaux JSON sans données personnelles ; suivi d'erreurs optionnel | Diagnostic sans fuite |
+| Langage | Python (version stable actuelle, à figer au démarrage) | Cohérence avec les scripts existants de l'administrateur |
+| Framework | Django (LTS à la date de lancement) | Administration et permissions intégrées |
+| Base | PostgreSQL 16 ou plus récent | Réseau privé |
+| Interface | Gabarits Django, JavaScript minimal | Tableaux, filtres, formulaires classiques |
+| Design | Tokens issus du branding | Composants internes |
+| i18n | gettext pour l'interface ; `*_fr` / `*_en` pour les contenus | Notes libres non traduites |
+| Authentification | Sessions Django ; TOTP pour `platform_admin` et `crm_admin` | Pas de compte pour les utilisateurs de robots |
+| Tâches et rappels **[rév. 2]** | Tâches planifiées (commande de gestion) qui créent des rappels dans l'application et, si activé, par courriel | Pas de file de messages au départ |
+| Exports **[rév. 2]** | CSV et PDF générés à la demande, journalisés | Données personnelles : export réservé à `crm_admin` |
+| Courriel | Fournisseur transactionnel (à choisir) | Rappels, réinitialisation |
+| Tests | pytest, pytest-django, Playwright (FR/EN), import-linter, tests d'autorisation et d'isolation | — |
+| Qualité | ruff, mypy progressif, scan de dépendances, scan de secrets | — |
+| Hébergement | Conteneur, reverse proxy TLS, PostgreSQL privé | Hébergement séparé du VPS recommandé (§11) |
 
-### 5.4 Internationalisation : principes de conception
-
-- La langue est déterminée par : préférence du compte › choix explicite › en-tête `Accept-Language` › français par défaut.
-- Chaque courriel, export et rapport est généré dans la langue du destinataire.
-- Les formats de dates, de nombres et de montants suivent la locale (fuseau horaire du compte).
-- **Les contenus pédagogiques et les avertissements de risque existent dans les deux langues avant publication.** Un contenu sans traduction ne se publie pas.
-- Pas de texte en dur dans les gabarits ni dans le code : tout passe par les catalogues.
-- Test de parité FR/EN en CI.
-- La langue n'est pas un argument de sécurité. En revanche, les messages d'erreur d'authentification sont les mêmes quel que soit le compte, et traduits de façon identique : ils ne doivent révéler ni l'existence d'un compte, ni la raison d'un échec.
-
-### 5.5 Agent VPS
-
-- Paquet Python distinct, sans dépendance lourde, déployé sur le VPS sous un utilisateur système dédié.
-- Fonctions : lecture de l'état des bots, génération de rapports, envoi de heartbeats.
-- Communication : HTTPS sortant uniquement ; requêtes signées (HMAC-SHA256 sur méthode, chemin, horodatage, nonce et empreinte du corps) ; secret propre à chaque agent ; révocation immédiate ; rejet des requêtes trop anciennes ou rejouées.
-- **Aucune commande d'exécution de trading.** L'agent ne reçoit que des configurations validées, et seulement en phase 6.
+**Retiré [rév. 2]** : signatures HMAC, nonces, protocole d'agent, file de tâches distribuée, Redis.
 
 ---
 
@@ -271,269 +275,302 @@ Le dépôt n'impose aucune technologie. Il ne contient ni code serveur, ni dépe
 
 ### 6.1 `core` (partagé)
 
-Responsabilités : identité, profils, organisations, appartenances, rôles, permissions, audit, consentements, notifications, fichiers, configuration par organisation, traductions, outbox d'événements.
-
-Ne fait pas : aucune logique métier pédagogique, commerciale ou de bots.
+Identité, profils, organisations, appartenances, rôles, permissions, **tâches et rappels** **[rév. 2]**, audit, consentements, notifications, fichiers, traductions, outbox d'événements.
 
 ### 6.2 `partners`
 
 | Responsabilité | Détail |
 |---|---|
-| Registre des liens d'affiliation | Libellé, code, pays ciblés, statut, date de dernière revue, responsable |
-| Attribution du parrainage | Lien unique par partenaire ; attribution au prospect par jeton signé de courte durée, **sans cookie tiers ni traceur** sans consentement explicite |
-| Prospects | Coordonnées, source, pays, consentement daté, finalités, statut |
-| Onboarding et vérification | Statuts d'historique : nouveau, contacté, inscription confirmée, vérification en cours, vérifié, démo actif, abandonné, à revoir. **Seul le statut est stocké**, jamais la pièce d'identité |
-| Interactions et relances | Journal en ajout seul ; tâches de relance ; canal ; résultat |
-| Conformité | Export et suppression d'un prospect ; durée de conservation ; motif de traitement |
+| Liens d'affiliation | Libellé, code, pays ciblés, statut, dernière revue, responsable |
+| Attribution | Jeton signé de courte durée ; pas de traceur sans consentement |
+| Prospects | Coordonnées, source, pays, consentement daté, statut |
+| **Affiliés** **[rév. 2]** | Entité unique (§4.3) : identité, lien de parrainage, date d'inscription déclarée |
+| **Parcours d'inscription et de vérification** **[rév. 2]** | Étapes datées (voir tableau ci-dessous) |
+| Interactions et relances | Journal en ajout seul |
+| Conformité | Export, suppression, durée de conservation |
 
-Décision à prendre : le **statut de vérification** est une information fournie par Deriv ou saisie par le partenaire. Il faut définir la source de vérité et la procédure de mise à jour (§8).
+**Étapes du parcours** **[rév. 2]** — statuts déclarés par l'administrateur, **jamais de pièce d'identité** :
+
+| Étape | Valeurs possibles |
+|---|---|
+| Inscription | Non commencée · Déclarée par l'affilié · Compte créé (déclaré) |
+| Vérification | Non demandée · Demandée · En cours · Validée · Refusée · À revoir |
+| Démo | Non ouvert · Ouvert (déclaré) |
+
+Chaque changement est daté et annoté. La source (« affilié », « administrateur », « support Deriv ») est enregistrée.
 
 ### 6.3 `academy`
 
-| Responsabilité | Détail |
+Programmes, cours et leçons (bilingues), inscriptions, pré-évaluation d'admissibilité (référentiel versionné), exercices, évaluations, progression, attestation interne. La notation ne dépend jamais du solde d'un compte.
+
+### 6.4 `bots` — CRM administratif **[rév. 2]**
+
+Ce module est un **registre administratif**. Il ne communique avec aucun robot. Chaque donnée est une **déclaration** de l'administrateur.
+
+#### 6.4.1 Entités
+
+| Entité | Contenu |
 |---|---|
-| Programmes | Titre, description, public, prérequis, durée estimée, langues disponibles |
-| Cours et leçons | Ordre, contenu structuré (texte, illustrations, exercices), publication par langue |
-| Inscriptions | Statuts : demandé, actif, terminé, suspendu, annulé |
-| Pré-évaluation d'admissibilité | Référentiel de critères **versionné** (âge, pays, document, fonds, compréhension du risque), issus de §2.5 ; résultat : favorable, à vérifier, ne pas poursuivre |
-| Exercices et évaluations | Types : choix multiple, réponse courte, réflexion guidée ; correction déterministe ; tentatives limitées |
-| Progression | Événements horodatés par leçon ; tableau de bord apprenant et instructeur |
-| Attestations | Attestation **interne**, mention explicite sans valeur officielle, générée seulement après critères validés |
+| `bot_user` | Affilié concerné (référence) ; **souhaite un robot** (oui/non) ; **type de robot** : DIFFERS ou OVER/UNDER ; statut de configuration courant ; libellé libre facultatif de l'utilisateur sur le VPS (non secret) |
+| `reference_capital` | Montant déclaré, devise, date de la déclaration, auteur. **Aucun solde synchronisé.** |
+| `configuration_version` | Version **immuable** : type de robot, environnement déclaré (démo ou réel), capital de référence, réglages déclarés (§6.4.3), date d'application déclarée, auteur, note |
+| `intervention` | Date, type, note, auteur, lien vers l'affilié ou l'utilisateur de robot |
+| `task` | Titre, échéance, responsable, statut (à faire, faite, annulée), rappel, lien vers la fiche |
 
-Points de conception :
-- La notation **ne dépend jamais du solde** d'un compte de démo.
-- Les contenus réservés aux inscrits ne sont jamais servis dans une page publique (vérifié par test).
-- Les avertissements de risque sont affichés avant tout exercice de pratique démo.
+#### 6.4.2 Statuts de configuration **[rév. 2]**
 
-### 6.4 `bots`
+Ces cinq statuts décrivent **l'état administratif déclaré**, jamais l'état réel du VPS.
 
-| Responsabilité | Détail |
+| Statut | Signification | Entrée dans ce statut |
+|---|---|---|
+| **À configurer** | Utilisateur enregistré, aucune configuration déclarée comme appliquée | Création de la fiche |
+| **Configuration appliquée** | L'administrateur a déclaré avoir appliqué la configuration courante sur le VPS | Action « Marquer comme appliquée » : date d'application obligatoire |
+| **Modification demandée** | Une nouvelle version a été rédigée mais n'est pas encore déclarée comme appliquée | Création d'une nouvelle version non appliquée |
+| **En pause** | L'administrateur a déclaré l'utilisateur en pause (raison obligatoire) | Action explicite |
+| **Désactivé** | L'administrateur a déclaré l'utilisateur désactivé (raison obligatoire) | Action explicite |
+
+Règles :
+- Une seule version est « courante » par utilisateur de robot.
+- Passer à « Configuration appliquée » exige une date et une note ; la version devient la version appliquée déclarée.
+- « Modification demandée » est automatique à la création d'une version non appliquée, et ne peut pas être posé à la main sans version.
+- « En pause » et « Désactivé » n'effacent jamais l'historique.
+- Chaque transition est journalisée (auteur, date, ancien et nouvel état).
+- Une fiche sans déclaration depuis un délai configurable (par défaut 30 jours) est signalée comme « à revalider » dans le tableau de bord.
+
+#### 6.4.3 Réglages déclarés **[rév. 2]**
+
+- La plateforme **ne lit jamais** `reglages.env` et **n'importe rien** depuis le VPS.
+- Les réglages sont saisis manuellement, à partir d'un **modèle de formulaire par type de robot**.
+- Le modèle ne contient que des paramètres **non secrets**, validés par l'administrateur (liste à fournir, §11).
+- Aucun champ ne peut accueillir un token, un mot de passe ou une clé. Les champs de texte libre (notes) passent par un **contrôle de motifs** qui détecte les chaînes ressemblant à des secrets et refuse l'enregistrement.
+
+#### 6.4.4 Tableau de bord **[rév. 2]**
+
+Vue d'ensemble pour répondre à « où en est chaque affilié ? » :
+
+| Colonne | Source |
 |---|---|
-| Utilisateurs de bots | Enregistrement géré par un opérateur ; lien optionnel avec un compte de connexion |
-| Instances | Type (Differs, Over/Under, extensible), configuration de référence, état |
-| Environnements | `demo` et `real` **obligatoires** et étiquetés sur chaque instance ; vues et actions réservées au réel renforcées |
-| Identifiants Deriv | **Jamais stockés en clair** : le secret reste sur le VPS ; la plateforme ne garde qu'une empreinte et un libellé (§8) |
-| Supervision | Heartbeat, état (en marche, arrêté, erreur, inconnu), dernière activité, latence |
-| Incidents | Ouverture, gravité, responsable, actions, clôture ; journal immuable |
-| Rapports | Rapports autorisés, filtrés par organisation et rôle, exportables ; aucune donnée d'autres utilisateurs |
-| Configuration (phase 6) | Versions immuables ; validation des paramètres par type ; approbation à deux personnes pour le réel |
-| Arrêt d'urgence | Interrupteur par instance et global, journalisé |
+| Affilié, pays, langue | `partners` |
+| Étape d'inscription et de vérification | `partners` |
+| Souhaite un robot, type | `bots` |
+| Statut de configuration déclaré | `bots` |
+| Dernière déclaration (date) | `bots` |
+| Dernière intervention (date) | `bots` |
+| Prochaine tâche (date) | `core` |
+| Alertes | Calculées : tâche en retard, « modification demandée » depuis plus de N jours, vérification en attente depuis plus de N jours, fiche à revalider |
 
-### 6.5 Interactions entre modules
+Filtres : statut, type de robot, environnement déclaré, étape de vérification, alertes, responsable.
+
+#### 6.4.5 Environnement démo et réel **[rév. 2]**
+
+Simple champ **déclaratif** sur chaque version de configuration. Il sert à l'affichage et au filtrage. La plateforme ne vérifie rien et n'agit pas différemment selon la valeur ; une alerte signale seulement que l'environnement « réel » est déclaré, pour rappeler l'obligation de suivi.
+
+#### 6.4.6 Tâches, rappels et actions en attente **[rév. 2]**
+
+- Création manuelle, ou automatique lors d'événements (vérification en attente depuis N jours, fiche à revalider, modification demandée sans application).
+- Rappels dans l'application, et par courriel si l'administrateur l'active.
+- Vue « Mes tâches » par responsable, et vue globale pour `crm_admin`.
+
+### 6.5 `academy` / `partners` / `bots` : interactions
 
 | Événement | Émetteur | Consommateur | Usage |
 |---|---|---|---|
-| `partners.lead_qualified` | partners | academy | Proposer une inscription au programme |
-| `academy.enrollment_activated` | academy | partners | Mettre à jour le statut d'onboarding |
-| `bots.instance_status_changed` | bots | core (notifications) | Alerte aux opérateurs |
-| `core.membership_changed` | core | tous | Révoquer les accès en cache |
+| `partners.lead_converted` | partners | bots, academy | Créer une fiche d'affilié |
+| `partners.verification_changed` | partners | bots, core | Créer une tâche si la vérification est validée ou refusée |
+| `bots.configuration_applied_declared` | bots | core | Journaliser et mettre à jour les alertes |
 
-Les événements passent par l'outbox PostgreSQL (écriture dans la même transaction, publication ensuite). Pas de bus externe au départ.
+Les événements passent par l'outbox PostgreSQL. Aucun événement ne part vers le VPS.
 
 ---
 
 ## 7. Fondations techniques nécessaires
 
-### 7.1 Infrastructure de développement
-- Dépôt : nouveau dossier applicatif à la racine ou dans `platform/`, sans toucher aux fichiers existants.
-- Docker compose : application, PostgreSQL, stockage objet local, courriel de test.
-- Environnements : local, préproduction, production. Configuration par variables d'environnement, aucun secret dans le dépôt.
-- `.env.example` sans valeurs ; `.gitignore` étendu (`.env`, clés, certificats).
+### 7.1 Développement
+- Dossier applicatif séparé, docker compose (application et PostgreSQL), environnements local, préproduction, production.
+- Configuration par variables d'environnement ; `.env.example` sans valeurs.
 
-### 7.2 Sécurité de base (phase 1)
-- Sessions serveur, cookies `__Host-` (`HttpOnly`, `Secure`, `SameSite=Lax`).
-- Hachage Argon2id ; politique de mot de passe ; limitation de débit sur connexion et réinitialisation ; messages d'erreur uniformes.
-- Double authentification (TOTP) : obligatoire pour `platform_admin`, `bot_risk_approver`, et toute action sur le réel.
-- En-têtes HTTP : CSP stricte (sans `unsafe-inline`), HSTS, `frame-ancestors 'none'`, `Referrer-Policy`, `Permissions-Policy` (reprises de l'ancien `netlify.toml`, §2.7).
-- Protection CSRF sur toutes les écritures ; vérification de l'en-tête `Origin`.
-- Autoéchappement des gabarits ; interdiction de `|safe` sur les données utilisateur (règle de revue et test).
-- Journal d'audit en ajout seul : acteur, organisation, action, cible, résultat, horodatage. Droits PostgreSQL sans `UPDATE` ni `DELETE` pour l'application.
+### 7.2 Sécurité de base
+- Sessions serveur, cookies `__Host-`, Argon2id, limitation de débit, messages d'erreur uniformes.
+- TOTP obligatoire pour `platform_admin` et `crm_admin`.
+- En-têtes HTTP stricts, CSRF, vérification `Origin`, autoéchappement des gabarits.
+- Journal d'audit en ajout seul, pour tout changement de statut, de version de configuration et de donnée personnelle.
 
 ### 7.3 Données et multi-tenancy
-- Clés étrangères composites `(organization_id, id)` là où une entité référence une autre entité du même tenant.
-- Manager ou requêteur de base qui filtre par organisation ; contournement interdit sauf pour les tâches système journalisées.
-- Tests d'isolation pour chaque type de ressource : un utilisateur d'une autre organisation reçoit 404.
-- Migrations réversibles pour les ajouts ; expansion puis contraction pour les renommages.
+- Clés composites `(organization_id, id)`.
+- Tests d'isolation pour chaque type de ressource.
+- Versions de configuration **immuables** : une correction crée une nouvelle version, jamais une modification.
 
-### 7.4 Confidentialité et données personnelles
-- Registre des traitements, base légale par traitement, durée de conservation par catégorie.
-- Consentement distinct pour chaque finalité (prospection, relance, communication pédagogique).
-- Droits d'accès, de rectification et d'effacement : fonctions d'export et de suppression dès la première version qui stocke des données personnelles.
-- Minimisation : ne collecter que ce qui sert un parcours ; **ne jamais stocker de pièce d'identité** ni de photo de document.
-- Journaux sans données personnelles en clair (adresses courriel masquées ou hachées).
-- Sauvegardes chiffrées, rétention définie, procédure de restauration testée.
+### 7.4 Interdictions techniques **[rév. 2]**
 
-### 7.5 Intégration des bots
-- Protocole de l'agent (§5.5) : signature, horodatage, nonce, révocation, versionnage.
-- Inventaire des bots existants (langages, emplacements, formats de journaux, emplacement des identifiants) : préalable à la phase 4.
-- Simulation locale de l'agent pour les tests, sans accès à un compte réel.
+Ces règles sont testées en CI :
+- aucune colonne, aucun champ de formulaire, aucune table nommée pour un token, un mot de passe ou une clé Deriv ;
+- aucun client HTTP vers le VPS ni vers Deriv depuis la plateforme ;
+- aucun module de lecture de fichier `reglages.env` ;
+- aucune route de commande ou de contrôle de robot ;
+- le contrôle de motifs sur les notes et les réglages est actif et testé (faux positifs acceptés, faux négatifs non).
+
+### 7.5 Confidentialité
+- Registre des traitements, base légale et durée de conservation par catégorie.
+- Consentement distinct pour la prospection et pour les relances.
+- Export et suppression d'une fiche (affilié, prospect, utilisateur de robot).
+- Minimisation : pas de pièce d'identité, pas de capture d'écran de compte, pas de solde.
+- Journaux sans données personnelles en clair.
 
 ### 7.6 Qualité et livraison
-- CI : tests unitaires, tests d'autorisation, tests d'isolation, parité FR/EN, import-linter, ruff, scan de dépendances, scan de secrets, build d'image.
-- Revue de code obligatoire pour les modules `core` et `bots`.
-- Documentation d'exploitation : sauvegarde, restauration, révocation d'agent, rotation de secrets, réponse à incident.
+- CI : tests unitaires, autorisation, isolation, parité FR/EN, règles d'import, lint, scans.
+- Revue obligatoire pour `core` et `bots`.
+- Procédure d'exploitation : sauvegarde, restauration, rotation de secrets, réponse à incident.
 
 ---
 
 ## 8. Risques de sécurité et de conformité
 
-### 8.1 Sécurité
+### 8.1 Sécurité **[rév. 2]**
 
 | # | Risque | Gravité | Mesures |
 |---|---|---|---|
-| SEC-1 | Vol ou fuite d'identifiants Deriv (jetons d'accès à des comptes financiers) | **Critique** | Secret conservé sur le VPS ; aucune valeur en base ; empreinte seulement ; droits minimaux ; rotation ; test d'absence de secret en base |
-| SEC-2 | Ordre passé sur compte réel par erreur ou abus | **Critique** | Lecture seule en phases 1 à 5 ; approbation à deux personnes ; interrupteur d'arrêt ; environnement étiqueté ; journal |
-| SEC-3 | Fuite de données entre organisations | Élevée | Isolation applicative et RLS ; tests d'isolation obligatoires ; revue |
-| SEC-4 | Compromission d'un compte administrateur | Élevée | TOTP obligatoire ; sessions courtes pour les rôles élevés ; alertes de connexion ; journal |
-| SEC-5 | Usurpation d'agent VPS ou rejeu de messages | Élevée | HMAC, horodatage, nonce, révocation, TLS, mTLS envisageable |
-| SEC-6 | Injection (SQL, gabarits, commandes) | Élevée | ORM, gabarits à échappement automatique, aucun shell avec entrées utilisateur, validation stricte |
-| SEC-7 | Fuite via journaux ou sauvegardes | Moyenne | Journaux sans données personnelles ; chiffrement des sauvegardes ; accès restreint |
-| SEC-8 | Dépendances vulnérables | Moyenne | Versions figées, scan automatique, mises à jour régulières |
-| SEC-9 | Accès à la base depuis l'extérieur | Élevée | Base sur réseau privé, pas d'exposition publique, comptes applicatifs à droits limités |
-| SEC-10 | Téléversement malveillant (rapports, pièces jointes) | Moyenne | Pas de téléversement de pièce d'identité ; type et taille contrôlés ; analyse antivirus ; stockage hors du serveur web |
-| SEC-11 | Usurpation de parrainage ou attribution frauduleuse | Moyenne | Jetons signés et courts ; validation côté serveur ; journal d'attribution |
-| SEC-12 | Enumération de comptes | Faible | Réponses uniformes, limitation de débit |
+| SEC-1 | Saisie d'un token ou d'un mot de passe dans une note ou un réglage | Élevée | Contrôle de motifs ; formulaires sans champ secret ; message d'avertissement ; purge et journal si détection |
+| SEC-2 | Compromission d'un compte administrateur (accès aux données personnelles d'affiliés) | Élevée | TOTP obligatoire ; sessions courtes ; journal ; moindre privilège |
+| SEC-3 | Fuite de données entre organisations | Élevée | Isolation applicative ; tests ; RLS en phase 6 |
+| SEC-4 | Export massif de données personnelles | Élevée | Export réservé à `crm_admin` ; journalisé ; limité en volume ; PDF filigrané |
+| SEC-5 | Injection (SQL, gabarits, export CSV) | Moyenne | ORM ; autoéchappement ; neutralisation des formules dans les CSV (`=`, `+`, `-`, `@`) |
+| SEC-6 | Fuite via journaux ou sauvegardes | Moyenne | Journaux sans données personnelles ; sauvegardes chiffrées |
+| SEC-7 | Dépendances vulnérables | Moyenne | Versions figées ; scans |
+| SEC-8 | Accès à la base depuis l'extérieur | Élevée | Réseau privé ; comptes à droits limités |
+| SEC-9 | Téléversement malveillant | Faible | Pas de téléversement de pièce d'identité ; types et tailles contrôlés ; analyse |
 
-### 8.2 Conformité et contenu (à valider avec un juriste et le responsable)
+Les risques liés au VPS (tokens, reglages.env, systemd, trading) **sont hors du périmètre de la plateforme**. Ils restent sous la responsabilité de l'administrateur, avec ses pratiques existantes.
 
-| # | Sujet | Enjeu | Mesure proposée |
-|---|---|---|---|
-| CONF-1 | Statut des activités de trading automatisé sur comptes réels | Une plateforme qui gère des bots pour des tiers peut relever d'un cadre réglementé selon les pays | Phase 1 à 5 en lecture seule ; aucune exécution d'ordres pour le compte de tiers avant validation écrite |
-| CONF-2 | Relation avec Deriv (affiliation, API, conditions d'utilisation) | Les conditions peuvent restreindre le partage de données, la communication et les usages automatisés | Revue des conditions à chaque changement ; clauses dans les documents internes |
-| CONF-3 | Public jeune et formation au trading | Risque de mineurs, de pression commerciale, de fausses attentes | Vérification de l'âge déclaré et contrôle du public ; aucun contenu destiné aux mineurs |
-| CONF-4 | Promesses et preuves | Témoignages ou affirmations non vérifiés (ex. carte d'électeur RDC) | Aucun témoignage ou statistique sans source vérifiée ; retrait de l'affirmation non sourcée |
-| CONF-5 | Données personnelles (RGPD et équivalents) | Prospection, relance, profilage possibles | §7.4 ; registre ; DPIA si profilage |
-| CONF-6 | Avertissements de risque | Obligatoires et doivent être lisibles | Texte officiel en anglais, traduction distincte ; affichage avant tout accès à la pratique |
-| CONF-7 | Attestations | Risque de confusion avec une certification | Mention « interne, sans valeur officielle » sur chaque attestation |
-| CONF-8 | Transferts internationaux | Données stockées ou traitées hors de la zone de résidence | Choix d'hébergement documenté ; clauses contractuelles |
-| CONF-9 | Droit de la marque | Usage du nom et du logo Deriv | Mention de distinction ; pas de logo Deriv sans autorisation |
-| CONF-10 | Versets religieux | Droits de traduction selon l'édition | Vérifier la source avant publication |
+### 8.2 Risques propres au CRM **[rév. 2]**
+
+| # | Risque | Mesures |
+|---|---|---|
+| CRM-1 | **Écart entre ce qui est déclaré et ce qui est appliqué** : la plateforme affiche une configuration qui n'est pas celle du VPS | Mention « déclaré, non vérifié » sur chaque statut ; date de dernière déclaration visible ; alerte de revalidation ; procédure de revue périodique par l'administrateur |
+| CRM-2 | Erreur de saisie des réglages (valeur de capital ou de mise erronée) | Modèle de formulaire avec bornes et unités ; double saisie pour les changements de capital ; historique consultable |
+| CRM-3 | Fiche « configuration appliquée » alors que la modification n'a pas été faite | Date et auteur obligatoires ; le statut ne change qu'à la déclaration explicite |
+| CRM-4 | Données personnelles d'affiliés en excès | Minimisation ; pas de pièce d'identité ; durée de conservation ; export contrôlé |
+| CRM-5 | Notes contenant des informations sensibles | Contrôle de motifs ; formation de l'administrateur ; purge sur demande |
+| CRM-6 | Confusion entre démo et réel | Libellé explicite à chaque affichage ; filtre dédié ; aucune action ne se déclenche automatiquement |
+
+### 8.3 Conformité et contenu (à valider avec un juriste et le responsable)
+
+| # | Sujet | Mesure proposée |
+|---|---|---|
+| CONF-1 | Activité d'affiliation et d'utilisation de robots automatisés | Le CRM ne passe ni n'exécute d'ordre. Il **documente** une activité qui peut être réglementée selon les pays : revue juridique avant d'enregistrer des affiliés hors de pays validés |
+| CONF-2 | Conditions Deriv (affiliation, API, données partagées) | Revue à chaque changement ; pas de transmission de données à Deriv par la plateforme |
+| CONF-3 | Données personnelles (RGPD et équivalents) | §7.5 ; registre ; analyse d'impact si profilage |
+| CONF-4 | Public jeune | Vérification de l'âge déclaré ; pas de contenu destiné aux mineurs |
+| CONF-5 | Promesses non vérifiées | Aucun témoignage ni statistique sans source |
+| CONF-6 | Avertissements de risque | Texte officiel en anglais, traduction distincte |
+| CONF-7 | Droit de la marque | Mention de distinction ; pas de logo Deriv sans autorisation |
+| CONF-8 | Droits des traductions religieuses | Vérifier la source |
 
 ---
 
-## 9. Feuille de route de construction progressive
+## 9. Feuille de route de construction progressive **[rév. 2]**
 
-Chaque phase a un **critère de sortie vérifiable**. Aucune phase ne commence sans approbation de la précédente. Les estimations sont pour une personne à temps plein et indicatives.
+Chaque phase a un critère de sortie vérifiable. Aucune phase ne commence sans approbation de la précédente. Estimations pour une personne à temps plein, indicatives.
 
 ### Phase 1 — Fondations (3 à 4 semaines)
-**Objectif** : une application vide mais sûre, bilingue, multi-organisation, testée.
+- Squelette, Docker, PostgreSQL, CI, règles d'import, tests.
+- Identité, sessions, TOTP, organisations, rôles, permissions, refus par défaut.
+- Journal d'audit. Internationalisation FR/EN avec parité en CI.
+- Design minimal, pages de connexion et de profil.
+- Politique de confidentialité (brouillon).
 
-- Squelette du projet, Docker, PostgreSQL, CI, tests, import-linter.
-- Identité : comptes, sessions, mots de passe, TOTP pour les rôles sensibles, réinitialisation.
-- Organisations, appartenances, rôles, politique d'autorisation avec refus par défaut.
-- Journal d'audit.
-- Internationalisation : langue par compte, catalogues FR/EN, parité en CI.
-- Design system minimal : tokens issus de §2.1, gabarits de base, pages de connexion et de profil.
-- Politique de confidentialité et mentions légales réécrites (brouillon).
-
-**Critère de sortie** : tests d'authentification et d'isolation verts ; FR et EN complets sur les écrans existants ; déploiement de test réussi ; revue de sécurité interne.
+**Sortie** : tests d'authentification et d'isolation verts ; FR et EN complets ; déploiement de test ; revue de sécurité interne.
 
 ### Phase 2 — ACADEMY (4 à 6 semaines)
-**Objectif** : formation autonome de bout en bout.
+- Programmes, cours, leçons bilingues ; import des huit séquences après relecture.
+- Inscriptions, pré-évaluation, exercices, progression, attestation interne.
 
-- Programmes, cours, leçons (modèle bilingue), import des huit séquences Match/Differs après relecture pédagogique.
-- Inscriptions et statuts.
-- Pré-évaluation d'admissibilité (référentiel versionné, §6.3).
-- Exercices, évaluations, progression.
-- Attestation interne (mention explicite).
-- Tableaux de bord apprenant et instructeur.
+**Sortie** : parcours complet en FR et EN ; isolation testée ; contenus validés.
 
-**Critère de sortie** : parcours complet d'un apprenant en FR et EN ; isolation testée ; aucune donnée d'un apprenant visible par un autre ; contenus validés par le responsable pédagogique.
+### Phase 3 — PARTNERS : prospects, affiliés et parcours (3 à 5 semaines)
+- Liens d'affiliation, attribution par jeton signé.
+- Prospects avec consentement ; conversion en affilié (§4.3).
+- **Parcours d'inscription et de vérification** (§6.2), sans pièce d'identité.
+- Interactions, relances, export, suppression.
 
-### Phase 3 — PARTNERS (3 à 5 semaines)
-**Objectif** : suivi des prospects et des liens, sans traceur non consenti.
+**Sortie** : validation juridique écrite ; tests de consentement ; export et suppression vérifiés.
 
-- Registre des liens d'affiliation ; attribution par jeton signé.
-- Prospects, consentements, statuts d'onboarding (sans pièce d'identité).
-- Journal des interactions et relances.
-- Export et suppression ; durée de conservation.
-- Passage d'un prospect qualifié vers ACADEMY (événement).
+### Phase 4 — BOT MANAGEMENT : CRM des utilisateurs de robots (4 à 5 semaines) **[rév. 2]**
+- Fiche utilisateur de robot liée à l'affilié : souhaite un robot, type DIFFERS ou OVER/UNDER.
+- Capital de référence déclaré, avec historique.
+- Versions de configuration immuables, réglages déclarés selon modèle par type.
+- Statuts de configuration (§6.4.2) et leurs règles de transition.
+- Environnement démo ou réel déclaré.
+- Interventions, notes, dates.
 
-**Critère de sortie** : validation juridique écrite avant mise en production ; tests de consentement ; export et suppression vérifiés ; aucune donnée de prospect dans les journaux.
+**Sortie** : toutes les transitions de statut testées ; versions immuables ; contrôle de motifs actif ; aucun champ secret (test de schéma) ; aucune dépendance vers le VPS.
 
-### Phase 4 — BOT MANAGEMENT en lecture seule (5 à 7 semaines)
-**Objectif** : superviser les bots sans rien modifier à distance.
+### Phase 5 — Tableau de bord, tâches et rappels (3 à 4 semaines) **[rév. 2]**
+- Vue d'ensemble par affilié et par utilisateur de robot, filtres, alertes.
+- Tâches, rappels dans l'application et par courriel, vue « Mes tâches ».
+- Exports CSV et PDF journalisés, avec neutralisation des formules.
+- Procédure de revue périodique des déclarations.
 
-- Inventaire des bots existants (préalable bloquant).
-- Modèle : utilisateurs de bots, instances, types (Differs, Over/Under), environnements démo et réel.
-- Agent VPS signé : heartbeats, états, rapports.
-- Supervision, incidents, rapports autorisés.
-- Aucun identifiant Deriv n'est saisi ni stocké dans la plateforme en phase 4 : l'agent utilise ses propres secrets locaux. La question des empreintes (§8, SEC-1) ne se pose donc qu'en phase 5.
+**Sortie** : alertes correctes sur jeux de test ; exports contrôlés ; charge acceptable sur un jeu de données réaliste.
 
-**Critère de sortie** : requête non signée, rejouée ou révoquée refusée (tests) ; aucun secret en base (test de schéma) ; supervision fiable sur un bot de démonstration ; revue de sécurité du protocole.
-
-### Phase 5 — BOT MANAGEMENT : configuration et démo (4 à 6 semaines)
-**Objectif** : configurer des instances sur l'environnement démo, avec traçabilité.
-
-- Configurations versionnées et immuables ; validation par type de bot.
-- Application par l'agent seulement sur signature valide et version croissante ; retour arrière.
-- Interrupteur d'arrêt d'urgence.
-- Actions sur le démo uniquement.
-
-**Critère de sortie** : tests de bout en bout sur démo ; refus automatique de toute action réelle ; journal complet.
-
-### Phase 6 — Réel, sous conditions (à décider)
-**Objectif** : permettre des actions sur comptes réels **seulement** si le cadre est validé.
-
-- Approbation à deux personnes ; rôle `bot_risk_approver` avec TOTP.
-- Limites de risque configurables (mise maximale, pertes maximales) appliquées côté agent.
-- Revue de sécurité externe.
-
-**Critère de sortie** : validation juridique écrite ; test d'intrusion sans constat critique ; procédure d'arrêt testée. **Cette phase n'est pas engagée par défaut.**
-
-### Phase 7 — Durcissement et exploitation (3 à 4 semaines)
-- Politiques de ligne PostgreSQL (RLS) pour l'isolation.
-- Test d'intrusion de l'application et de l'agent.
+### Phase 6 — Durcissement et exploitation (3 à 4 semaines)
+- Politiques de ligne PostgreSQL.
+- Test d'intrusion de l'application.
 - Sauvegardes chiffrées, restauration testée.
-- Observabilité : tableaux de bord techniques, alertes sur authentifications échouées et rejets d'agent.
-- Procédures d'exploitation et de réponse à incident.
+- Procédures d'exploitation et de réponse à incident ; revue juridique finale.
 
-**Critère de sortie** : aucun constat critique ouvert ; restauration validée ; procédures relues.
+**Sortie** : aucun constat critique ouvert ; restauration validée.
 
-### Calendrier indicatif
+### Phases retirées **[rév. 2]**
+- ~~Agent VPS et communication signée~~
+- ~~Configuration appliquée par l'agent, arrêt d'urgence, actions sur le réel~~
+
+Si un besoin de contrôle technique apparaît plus tard, il fera l'objet d'un document de décision séparé, avec une analyse de sécurité et juridique préalable.
+
+### Calendrier indicatif **[rév. 2]**
 
 | Phase | Durée | Cumul |
 |---|---|---|
 | 1 | 3 à 4 semaines | 3 à 4 |
 | 2 | 4 à 6 semaines | 7 à 10 |
-| 3 | 3 à 5 semaines (parallélisable avec la fin de 2 après validation juridique) | 9 à 14 |
-| 4 | 5 à 7 semaines | 14 à 21 |
-| 5 | 4 à 6 semaines | 18 à 27 |
-| 6 | Non engagée par défaut | — |
-| 7 | 3 à 4 semaines | 21 à 31 |
+| 3 | 3 à 5 semaines (parallélisable avec la fin de 2) | 9 à 14 |
+| 4 | 4 à 5 semaines | 13 à 19 |
+| 5 | 3 à 4 semaines | 16 à 23 |
+| 6 | 3 à 4 semaines | 19 à 27 |
 
-Le contenu pédagogique (cours, exercices, évaluations, traductions relues) est souvent le goulot d'étranglement réel. À estimer séparément.
+Le contenu pédagogique et la saisie initiale des fiches sont souvent le goulot d'étranglement. À estimer séparément.
 
 ---
 
 ## 10. Mise à jour des documents existants
 
-Pour éviter les contradictions, les trois documents suivants sont marqués « remplacés » en tête : `PROPOSED_ARCHITECTURE.md`, `MIGRATION_PLAN.md`, `IMPLEMENTATION_ROADMAP.md`. Leur contenu historique est conservé. `CURRENT_STATE.md` et `GAP_ANALYSIS.md` restent valables.
+- `PROPOSED_ARCHITECTURE.md`, `MIGRATION_PLAN.md`, `IMPLEMENTATION_ROADMAP.md` : déjà marqués « remplacés ». Un amendement **[rév. 2]** en tête précise les sections retirées.
+- `GAP_ANALYSIS.md` : §2.3 décrit un agent et des commandes ; le même amendement s'applique.
+- `CURRENT_STATE.md` : inchangé.
 
 ---
 
 ## 11. Décisions qui nécessitent votre approbation
 
-Classées par ordre d'urgence. Les décisions 1 à 4 bloquent la phase 1.
+Les décisions 1 à 5 bloquent la phase 1 ou 4.
 
-1. **Framework** : Django (recommandé) ou FastAPI. Cette décision conditionne toute la structure du code.
-2. **Hébergement de la plateforme** : VPS Ubuntu existant (conteneurs, base sur réseau privé, utilisateur dédié) ou plateforme managée. Recommandation : séparer la plateforme du VPS des bots dès que possible ; accepter le VPS seulement pour la préproduction.
-3. **Nom de domaine et sous-domaine** de la plateforme.
-4. **Périmètre des comptes** : les utilisateurs de bots sont-ils des comptes de connexion ou des fiches gérées par un opérateur ? (Recommandation : fiches gérées par défaut.)
-5. **Identifiants Deriv** (bloque la phase 4) : confirmer que la plateforme **ne stocke aucun jeton**, que le secret reste sur le VPS, et que seules des empreintes sont conservées. Vérifier les conditions d'API Deriv et les portées disponibles.
-6. **Canal WhatsApp** : le retirer de la plateforme, ou le cadrer par une politique écrite.
-7. **Réel** : confirmer que la phase 6 n'est pas engagée sans validation juridique écrite.
-8. **Validation juridique** : affiliation, données de prospects, public visé, pays cibles, statut des bots.
-9. **Source de vérité du statut de vérification Deriv** (phase 3) : fournie par Deriv, saisie par le partenaire, ou les deux.
-10. **Contenus** : responsable pédagogique désigné pour relire les huit séquences en FR et EN.
-11. **Droits** : vérifier la source de la traduction Louis Segond avant publication, et la question des photos du fondateur (consentement et usage).
-12. **Canal de communication avec les apprenants** et politique de rétention.
-13. **Fournisseur de courriel transactionnel** et fournisseur de stockage objet.
-14. **Langue par défaut** et stratégie de repli (français par défaut, `Accept-Language`).
-15. **Premier tenant** : SYSTEM-C seul, ou ouverture à d'autres organisations dès la phase 1 (recommandation : architecture prête, ouverture après phase 3).
+1. **Framework** : Django (recommandé) ou FastAPI.
+2. **Hébergement de la plateforme** : hors du VPS Ubuntu (recommandé), ou sur le VPS dans un conteneur isolé, utilisateur dédié, réseau privé.
+3. **Nom de domaine** et sous-domaine.
+4. **Propriété de la fiche affilié** (§4.3) : `partners` (recommandé) ou `bots`.
+5. **Utilisateurs de robots** : fiches gérées par l'administrateur (recommandé) ou comptes de connexion.
+6. **Liste des réglages à déclarer** : fournir **les noms des paramètres** de `reglages.env` pour chaque type de robot, **sans leurs valeurs**, en indiquant lesquels sont secrets. Seuls les paramètres non secrets seront saisissables. Les tokens restent hors de la plateforme.
+7. **Capital de référence** : montant déclaré manuellement, avec devise et date. Confirmer qu'aucune synchronisation de solde n'est souhaitée.
+8. **Seuils d'alerte** : délai de revalidation (proposition : 30 jours), délai de « modification demandée » (proposition : 7 jours), délai de vérification en attente (proposition : 14 jours).
+9. **Qui peut déclarer un environnement réel** : `crm_admin` uniquement (proposition), avec double saisie.
+10. **Durée de conservation** des interventions, des notes et des fiches d'affiliés non actifs.
+11. **Canal WhatsApp** : retiré de la plateforme, ou cadré par une politique écrite.
+12. **Validation juridique** : activité d'affiliation et de robots, données de prospects, public, pays cibles (CONF-1 et CONF-3).
+13. **Responsable pédagogique** pour les contenus ACADEMY.
+14. **Fournisseurs** : courriel transactionnel, stockage objet.
+15. **Langue par défaut** : français, avec repli sur la langue du navigateur.
 
 ---
 
 ## 12. Prochaine action proposée
 
-Après approbation des décisions 1 à 4 : créer le squelette de la phase 1 dans un dossier séparé, sans toucher aux fichiers existants, puis démarrer les tests d'authentification et d'isolation **avant** les écrans.
+Après validation de cette révision et des décisions 1 à 5 : créer le squelette de la phase 1 dans un dossier séparé, sans modifier les fichiers existants. Aucune implémentation du module BOT MANAGEMENT avant validation de la phase 3, qui fixe la propriété de la fiche affilié.

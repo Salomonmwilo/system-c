@@ -1,5 +1,7 @@
 > **Document remplacé (2026-11-09).** Cette version supposait une vitrine à préserver. L'orientation actuelle est décrite dans `NEW_PROJECT_DIRECTION.md`. Contenu conservé comme historique.
 
+> **Amendement rév. 2 (2026-11-09).** Les phases « Agent VPS » et « Configuration par l'agent » sont **retirées**. Les phases BOT MANAGEMENT sont désormais la phase 4 (CRM des utilisateurs de robots) et la phase 5 (tableau de bord, tâches et rappels), décrites dans `NEW_PROJECT_DIRECTION.md` §9.
+
 # SYSTEM-C — Feuille de route par phases
 
 Découpage en phases livrables, chacune avec un critère de sortie vérifiable. Les phases 1 et 2 peuvent commencer dès approbation ; les suivantes dépendent des décisions listées en fin de document.

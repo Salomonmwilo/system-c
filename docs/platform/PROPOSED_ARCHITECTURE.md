@@ -1,5 +1,7 @@
 > **Document remplacé (2026-11-09).** Cette version supposait une vitrine à préserver. L'orientation actuelle est décrite dans `NEW_PROJECT_DIRECTION.md`. Contenu conservé comme historique.
 
+> **Amendement rév. 2 (2026-11-09).** Le module BOT MANAGEMENT est désormais un **CRM administratif** (sans contrôle technique, sans lien avec le VPS). Retirés : R-BOT-1 (agent), R-BOT-2 (requêtes signées), R-BOT-3 (écriture de configuration), la communication VPS du schéma et l'arborescence `agent/`, R-OPS-1 (placement de l'agent), et R-SEC-3 remplacé par l'interdiction totale de stocker des tokens (`NEW_PROJECT_DIRECTION.md` §7.4). Référence actuelle : `NEW_PROJECT_DIRECTION.md` §4 et §6.4.
+
 # SYSTEM-C — Architecture proposée
 
 Objectif : faire évoluer SYSTEM-C vers SYSTEM-C Platform en **réutilisant le maximum de l'existant**, sans réécrire la vitrine ni remplacer l'architecture sans justification.
