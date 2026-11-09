@@ -1,3 +1,5 @@
+> **Document remplacé (2026-11-09).** Cette version supposait une vitrine à préserver. L'orientation actuelle est décrite dans `NEW_PROJECT_DIRECTION.md`. Contenu conservé comme historique.
+
 # SYSTEM-C — Architecture proposée
 
 Objectif : faire évoluer SYSTEM-C vers SYSTEM-C Platform en **réutilisant le maximum de l'existant**, sans réécrire la vitrine ni remplacer l'architecture sans justification.

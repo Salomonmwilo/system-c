@@ -1,3 +1,5 @@
+> **Document remplacé (2026-11-09).** Cette version supposait une vitrine à préserver. L'orientation actuelle est décrite dans `NEW_PROJECT_DIRECTION.md`. Contenu conservé comme historique.
+
 # SYSTEM-C — Feuille de route par phases
 
 Découpage en phases livrables, chacune avec un critère de sortie vérifiable. Les phases 1 et 2 peuvent commencer dès approbation ; les suivantes dépendent des décisions listées en fin de document.

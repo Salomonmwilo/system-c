@@ -1,3 +1,5 @@
+> **Document remplacé (2026-11-09).** Cette version supposait une vitrine à préserver. L'orientation actuelle est décrite dans `NEW_PROJECT_DIRECTION.md`. Contenu conservé comme historique.
+
 # SYSTEM-C — Plan de migration
 
 Objectif : faire évoluer le projet vers SYSTEM-C Platform **sans casser la vitrine actuelle**, en gardant chaque étape réversible.
