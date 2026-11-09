@@ -1,0 +1,1545 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: SYSTEM-C Platform\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-09 02:12+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: SYSTEM-C\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Academy"
+msgstr "Academy"
+
+msgid "title (French)"
+msgstr "titre (français)"
+
+msgid "title (English)"
+msgstr "titre (anglais)"
+
+msgid "Requested"
+msgstr "Demandée"
+
+msgid "Active"
+msgstr "Actif"
+
+msgid "Completed"
+msgstr "Terminée"
+
+msgid "Cancelled"
+msgstr "Annulée"
+
+msgid ""
+"Module in preparation. The data structure (programmes, courses, lessons, "
+"enrolments) is in place; the learner experience will come in a later phase."
+msgstr "Module en préparation. La structure des données (programmes, cours, leçons, inscriptions) est en place ; l'espace apprenant viendra dans une phase ultérieure."
+
+#, python-format
+msgid "%(n)s course"
+msgid_plural "%(n)s courses"
+msgstr[0] "%(n)s cours"
+msgstr[1] "%(n)s cours"
+
+msgid "No programme yet."
+msgstr "Aucun programme pour l'instant."
+
+msgid "Robot management"
+msgstr "Gestion des robots"
+
+msgid "Never write a Deriv token, password or API key here."
+msgstr "N'écrivez jamais ici de token Deriv, de mot de passe ni de clé API."
+
+msgid "Not chosen yet"
+msgstr "Pas encore choisi"
+
+msgid "Affiliate"
+msgstr "Affilié"
+
+msgid "Declared amount. Never synchronised with an account balance."
+msgstr "Montant déclaré. Jamais synchronisé avec le solde d'un compte."
+
+msgid "Only a CRM administrator can declare a real account."
+msgstr "Seul un administrateur CRM peut déclarer un compte réel."
+
+#, python-format
+msgid "Unit: %(unit)s"
+msgstr "Unité : %(unit)s"
+
+msgid "Not yet verified on the real files."
+msgstr "Pas encore vérifié sur les fichiers réels."
+
+msgid "I confirm the declaration below."
+msgstr "Je confirme la déclaration ci-dessous."
+
+msgid "Declaration date"
+msgstr "Date de déclaration"
+
+msgid "Administrative note"
+msgstr "Note administrative"
+
+msgid "The date cannot be in the future."
+msgstr "La date ne peut pas être dans le futur."
+
+msgid "Date applied on the VPS"
+msgstr "Date d'application sur le VPS"
+
+msgid "Note"
+msgstr "Note"
+
+msgid "Reason"
+msgstr "Motif"
+
+msgid "Indicate the file and line checked before marking it verified."
+msgstr "Indiquez le fichier et la ligne vérifiés avant de le marquer comme vérifié."
+
+msgid "The maximum must be greater than or equal to the minimum."
+msgstr "Le maximum doit être supérieur ou égal au minimum."
+
+msgid "Search"
+msgstr "Recherche"
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "All statuses"
+msgstr "Tous les statuts"
+
+msgid "Robot"
+msgstr "Robot"
+
+msgid "All robots"
+msgstr "Tous les robots"
+
+msgid "Account type"
+msgstr "Type de compte"
+
+msgid "All accounts"
+msgstr "Tous les comptes"
+
+msgid "Alert"
+msgstr "Alerte"
+
+msgid "No filter"
+msgstr "Aucun filtre"
+
+msgid "Configuration to apply"
+msgstr "Configuration à appliquer"
+
+msgid "Change request pending"
+msgstr "Demande de modification en attente"
+
+msgid "Configuration to review"
+msgstr "Configuration à revalider"
+
+msgid "Demo"
+msgstr "Démo"
+
+msgid "Real"
+msgstr "Réel"
+
+msgid "Use a three-letter ISO currency code, for example USD."
+msgstr "Utilisez un code de devise ISO à trois lettres, par exemple USD."
+
+msgid ""
+"Lowercase letters, digits, dots, hyphens and underscores only (for example "
+"bot_user_12)."
+msgstr "Lettres minuscules, chiffres, points, tirets et tirets bas uniquement (par exemple bot_user_12)."
+
+msgid "robot"
+msgstr "robot"
+
+msgid "parameter"
+msgstr "paramètre"
+
+msgid "used by this robot"
+msgstr "utilisé par ce robot"
+
+msgid "verified on the real files"
+msgstr "vérifié sur les fichiers réels"
+
+msgid "unit"
+msgstr "unité"
+
+msgid "minimum"
+msgstr "minimum"
+
+msgid "maximum"
+msgstr "maximum"
+
+msgid "verification reference"
+msgstr "référence de vérification"
+
+msgid "File and line checked, date and author. Never a value or a secret."
+msgstr "Fichier et ligne vérifiés, date et auteur. Jamais une valeur ni un secret."
+
+msgid "To configure"
+msgstr "À configurer"
+
+msgid "Configuration applied"
+msgstr "Configuration appliquée"
+
+msgid "Change requested"
+msgstr "Modification demandée"
+
+msgid "Paused"
+msgstr "En pause"
+
+msgid "Disabled"
+msgstr "Désactivé"
+
+msgid "None"
+msgstr "Aucun"
+
+msgid "affiliate"
+msgstr "affilié"
+
+msgid "wants to use a robot"
+msgstr "souhaite utiliser un robot"
+
+msgid "VPS user label"
+msgstr "Libellé de l'utilisateur VPS"
+
+msgid "Optional label of the robot user on the VPS. Never a password or token."
+msgstr "Libellé facultatif de l'utilisateur du robot sur le VPS. Jamais un mot de passe ni un token."
+
+msgid "administrative note"
+msgstr "note administrative"
+
+msgid "status"
+msgstr "statut"
+
+msgid "robot user"
+msgstr "utilisateur de robot"
+
+msgid "robot users"
+msgstr "utilisateurs de robots"
+
+msgid "Draft"
+msgstr "Brouillon"
+
+msgid "Validated"
+msgstr "Validée"
+
+msgid "version"
+msgstr "version"
+
+msgid "state"
+msgstr "état"
+
+msgid "account type"
+msgstr "type de compte"
+
+msgid "reference capital"
+msgstr "capital de référence"
+
+msgid "currency"
+msgstr "devise"
+
+msgid "configuration version"
+msgstr "version de configuration"
+
+msgid "configuration versions"
+msgstr "versions de configuration"
+
+msgid "Declared applied"
+msgstr "Déclarée appliquée"
+
+msgid "Correction"
+msgstr "Correction"
+
+msgid "date applied on the VPS"
+msgstr "date d'application sur le VPS"
+
+msgid "note"
+msgstr "note"
+
+msgid ""
+"I confirm that this configuration concerns a REAL Deriv account. This is an "
+"administrative declaration only: no command is sent to the VPS or to Deriv."
+msgstr "Je confirme que cette configuration concerne un compte Deriv RÉEL. Il s'agit uniquement d'une déclaration administrative : aucune commande n'est envoyée au VPS ni à Deriv."
+
+msgid "This affiliate is archived."
+msgstr "Cet affilié est archivé."
+
+msgid "This affiliate already has a robot record."
+msgstr "Cet affilié a déjà une fiche robot."
+
+msgid ""
+"This robot record is disabled. Reactivate it before preparing a "
+"configuration."
+msgstr "Cette fiche robot est désactivée. Réactivez-la avant de préparer une configuration."
+
+msgid "Choose a robot type before preparing a configuration."
+msgstr "Choisissez un type de robot avant de préparer une configuration."
+
+msgid ""
+"Only a CRM administrator can prepare a configuration for a real account."
+msgstr "Seul un administrateur CRM peut préparer une configuration pour un compte réel."
+
+msgid "A validated version cannot be changed. Create a new version."
+msgstr "Une version validée ne peut pas être modifiée. Créez une nouvelle version."
+
+msgid "Only a CRM administrator can change a configuration for a real account."
+msgstr "Seul un administrateur CRM peut modifier une configuration de compte réel."
+
+#, python-format
+msgid "%(key)s is not an allowed parameter for this robot."
+msgstr "%(key)s n'est pas un paramètre autorisé pour ce robot."
+
+#, python-format
+msgid "%(key)s must be at least %(min)s."
+msgstr "%(key)s doit être au moins égal à %(min)s."
+
+#, python-format
+msgid "%(key)s must be at most %(max)s."
+msgstr "%(key)s doit être au plus égal à %(max)s."
+
+msgid "This version has already been validated."
+msgstr "Cette version a déjà été validée."
+
+msgid ""
+"This robot record is disabled. Reactivate it before validating a "
+"configuration."
+msgstr "Cette fiche robot est désactivée. Réactivez-la avant de valider une configuration."
+
+msgid "Enter the reference capital before validating."
+msgstr "Saisissez le capital de référence avant de valider."
+
+msgid "Explicit confirmation is required for a real account."
+msgstr "Une confirmation explicite est obligatoire pour un compte réel."
+
+msgid "A date and a note are required to declare a real account."
+msgstr "Une date et une note sont obligatoires pour déclarer un compte réel."
+
+msgid "Only a validated version can be declared applied."
+msgstr "Seule une version validée peut être déclarée appliquée."
+
+msgid ""
+"Only a CRM administrator can declare a real-account configuration applied."
+msgstr "Seul un administrateur CRM peut déclarer appliquée une configuration de compte réel."
+
+msgid "Only the latest validated version can be declared applied."
+msgstr "Seule la dernière version validée peut être déclarée appliquée."
+
+msgid "This version is already declared applied."
+msgstr "Cette version est déjà déclarée appliquée."
+
+msgid "A reason is required to correct a declaration."
+msgstr "Un motif est obligatoire pour corriger une déclaration."
+
+msgid "Only an application declaration can be corrected."
+msgstr "Seule une déclaration d'application peut être corrigée."
+
+msgid "This declaration has already been corrected."
+msgstr "Cette déclaration a déjà été corrigée."
+
+msgid "Only a CRM administrator can correct a real-account declaration."
+msgstr "Seul un administrateur CRM peut corriger une déclaration de compte réel."
+
+msgid "Unknown status."
+msgstr "Statut inconnu."
+
+msgid "A reason is required."
+msgstr "Un motif est obligatoire."
+
+msgid "This status is already set."
+msgstr "Ce statut est déjà en place."
+
+msgid "A disabled record must be reactivated before being paused."
+msgstr "Une fiche désactivée doit être réactivée avant d'être mise en pause."
+
+msgid "Account"
+msgstr "Compte"
+
+msgid "Open the robot record"
+msgstr "Ouvrir la fiche robot"
+
+msgid "No robot record for this affiliate."
+msgstr "Aucune fiche robot pour cet affilié."
+
+msgid "Associate a robot"
+msgstr "Associer un robot"
+
+msgid "Robot record"
+msgstr "Fiche robot"
+
+msgid "Breadcrumb"
+msgstr "Fil d'Ariane"
+
+msgid "Robot users"
+msgstr "Utilisateurs de robots"
+
+msgid "Declared by an administrator, not checked on the VPS."
+msgstr "Déclaré par un administrateur, non vérifié sur le VPS."
+
+msgid "Affiliate record"
+msgstr "Fiche affilié"
+
+msgid "Edit"
+msgstr "Modifier"
+
+msgid ""
+"The latest validated configuration is declared for a REAL account. Only a "
+"CRM administrator can change, validate or declare it."
+msgstr "La dernière configuration validée est déclarée pour un compte RÉEL. Seul un administrateur CRM peut la modifier, la valider ou la déclarer."
+
+msgid "Administrative record"
+msgstr "Fiche administrative"
+
+msgid "Wants a robot"
+msgstr "Souhaite un robot"
+
+msgid "Yes"
+msgstr "Oui"
+
+msgid "No"
+msgstr "Non"
+
+msgid "Last declared application"
+msgstr "Dernière application déclarée"
+
+msgid "Waiting since"
+msgstr "En attente depuis"
+
+msgid "Pause or disable"
+msgstr "Pause ou désactivation"
+
+#, python-format
+msgid "Current reason: %(reason)s"
+msgstr "Motif actuel : %(reason)s"
+
+msgid ""
+"Administrative status only: stop or restart the service on the VPS with your "
+"usual commands."
+msgstr "Statut administratif uniquement : arrêtez ou relancez le service sur le VPS avec vos commandes habituelles."
+
+msgid "Pause"
+msgstr "Mettre en pause"
+
+msgid "Reason for disabling"
+msgstr "Motif de la désactivation"
+
+msgid "Disable"
+msgstr "Désactiver"
+
+msgid "Reason for reactivating"
+msgstr "Motif de la réactivation"
+
+msgid "Reactivate"
+msgstr "Réactiver"
+
+msgid "Status history"
+msgstr "Historique des statuts"
+
+msgid "Configuration"
+msgstr "Configuration"
+
+#, python-format
+msgid "Continue draft v%(n)s"
+msgstr "Reprendre le brouillon v%(n)s"
+
+msgid "Prepare a change"
+msgstr "Préparer une modification"
+
+msgid "Prepare the first configuration"
+msgstr "Préparer la première configuration"
+
+msgid ""
+"Choose a robot type (DIFFERS or OVER/UNDER) before preparing a configuration."
+msgstr "Choisissez un type de robot (DIFFERS ou OVER/UNDER) avant de préparer une configuration."
+
+#, python-format
+msgid "Latest validated version: v%(n)s"
+msgstr "Dernière version validée : v%(n)s"
+
+msgid "View details"
+msgstr "Voir le détail"
+
+msgid "Reference capital"
+msgstr "Capital de référence"
+
+msgid "Applied on the VPS"
+msgstr "Appliquée sur le VPS"
+
+#, python-format
+msgid "Declared applied on %(date)s"
+msgstr "Déclarée appliquée le %(date)s"
+
+msgid "Not declared yet"
+msgstr "Pas encore déclarée"
+
+msgid "Parameter"
+msgstr "Paramètre"
+
+msgid "Value"
+msgstr "Valeur"
+
+msgid "Declare this version applied on the VPS"
+msgstr "Déclarer cette version appliquée sur le VPS"
+
+msgid ""
+"Do this after applying the settings on the VPS with your usual scripts. The "
+"platform does not check it."
+msgstr "À faire après avoir appliqué les réglages sur le VPS avec vos scripts habituels. La plateforme ne le vérifie pas."
+
+msgid "Declare applied"
+msgstr "Déclarer appliquée"
+
+msgid "No validated configuration yet."
+msgstr "Aucune configuration validée pour l'instant."
+
+msgid "Version history"
+msgstr "Historique des versions"
+
+msgid "Version"
+msgstr "Version"
+
+msgid "State"
+msgstr "État"
+
+msgid "Capital"
+msgstr "Capital"
+
+msgid "Created"
+msgstr "Créée"
+
+msgid "corrected"
+msgstr "corrigée"
+
+msgid "No version yet."
+msgstr "Aucune version pour l'instant."
+
+msgid "Edit the robot record"
+msgstr "Modifier la fiche robot"
+
+msgid "Associate a robot with an affiliate"
+msgstr "Associer un robot à un affilié"
+
+#, python-format
+msgid "Robot record of %(name)s"
+msgstr "Fiche robot de %(name)s"
+
+msgid ""
+"Robot users are administrative records without a sign-in account. Never "
+"record a Deriv token, a password or an API key: there is no field for them."
+msgstr "Les utilisateurs de robots sont des fiches administratives sans compte de connexion. N'enregistrez jamais de token Deriv, de mot de passe ni de clé API : aucun champ n'est prévu pour cela."
+
+msgid ""
+"Every active affiliate already has a robot record, or there is no affiliate "
+"yet."
+msgstr "Tous les affiliés actifs ont déjà une fiche robot, ou aucun affilié n'existe encore."
+
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid ""
+"Administrative register only. The platform never connects to the VPS: "
+"statuses are what an administrator declared."
+msgstr "Registre administratif uniquement. La plateforme ne se connecte jamais au VPS : les statuts sont ceux qu'un administrateur a déclarés."
+
+msgid "Filter robot users"
+msgstr "Filtrer les utilisateurs de robots"
+
+msgid "Filter"
+msgstr "Filtrer"
+
+msgid "Reset"
+msgstr "Réinitialiser"
+
+msgid "Declared status"
+msgstr "Statut déclaré"
+
+msgid "No robot user matches these criteria."
+msgstr "Aucun utilisateur de robot ne correspond à ces critères."
+
+msgid "declared statuses, not checked on the VPS"
+msgstr "statuts déclarés, non vérifiés sur le VPS"
+
+#, python-format
+msgid "%(n)s declared on a real account"
+msgid_plural "%(n)s declared on a real account"
+msgstr[0] "%(n)s déclaré sur un compte réel"
+msgstr[1] "%(n)s déclarés sur un compte réel"
+
+msgid "View robot users"
+msgstr "Voir les utilisateurs de robots"
+
+msgid "Configurations to apply"
+msgstr "Configurations à appliquer"
+
+msgid "Status “To configure”"
+msgstr "Statut « À configurer »"
+
+msgid "View configurations to apply"
+msgstr "Voir les configurations à appliquer"
+
+msgid "Pending changes"
+msgstr "Modifications en attente"
+
+msgid "Status “Change requested”"
+msgstr "Statut « Modification demandée »"
+
+msgid "View pending changes"
+msgstr "Voir les modifications en attente"
+
+#, python-format
+msgid "%(p)s paused · %(d)s disabled"
+msgstr "%(p)s en pause · %(d)s désactivé(s)"
+
+msgid "View applied configurations"
+msgstr "Voir les configurations appliquées"
+
+#, python-format
+msgid "%(n)s change request pending for more than %(days)s days"
+msgid_plural "%(n)s change requests pending for more than %(days)s days"
+msgstr[0] "%(n)s demande de modification en attente depuis plus de %(days)s jours"
+msgstr[1] "%(n)s demandes de modification en attente depuis plus de %(days)s jours"
+
+#, python-format
+msgid "%(n)s configuration declared more than %(days)s days ago (to review)"
+msgid_plural ""
+"%(n)s configurations declared more than %(days)s days ago (to review)"
+msgstr[0] "%(n)s configuration déclarée il y a plus de %(days)s jours (à revalider)"
+msgstr[1] "%(n)s configurations déclarées il y a plus de %(days)s jours (à revalider)"
+
+msgid "Allowed parameters"
+msgstr "Paramètres autorisés"
+
+msgid ""
+"Closed list of non-secret, numeric parameters. No key can be added here, and "
+"there is no field for tokens or passwords."
+msgstr "Liste fermée de paramètres numériques non secrets. Aucune clé ne peut être ajoutée ici, et aucun champ n'est prévu pour des tokens ou des mots de passe."
+
+msgid ""
+"Until a parameter has been checked on the real files of the robot, it stays "
+"marked “to verify”. Untick “used by this robot” for keys the robot does not "
+"read."
+msgstr "Tant qu'un paramètre n'a pas été vérifié sur les fichiers réels du robot, il reste marqué « à vérifier ». Décochez « utilisé par ce robot » pour les clés que le robot ne lit pas."
+
+msgid "Used"
+msgstr "Utilisé"
+
+msgid "Verified"
+msgstr "Vérifié"
+
+msgid "Unit"
+msgstr "Unité"
+
+msgid "Minimum"
+msgstr "Minimum"
+
+msgid "Maximum"
+msgstr "Maximum"
+
+msgid "Verification reference"
+msgstr "Référence de vérification"
+
+msgid "Configuration version"
+msgstr "Version de configuration"
+
+#, python-format
+msgid "Version v%(n)s · %(robot)s"
+msgstr "Version v%(n)s · %(robot)s"
+
+msgid "Validated · immutable"
+msgstr "Validée · immuable"
+
+msgid "Edit the draft"
+msgstr "Modifier le brouillon"
+
+msgid "Validate"
+msgstr "Valider"
+
+msgid "Declaration"
+msgstr "Déclaration"
+
+msgid "Real account declaration"
+msgstr "Déclaration de compte réel"
+
+msgid "Declared by"
+msgstr "Déclaré par"
+
+msgid "Confirmed"
+msgstr "Confirmé le"
+
+msgid "Wording accepted"
+msgstr "Texte accepté"
+
+msgid "Parameters"
+msgstr "Paramètres"
+
+msgid "Verification"
+msgstr "Vérification"
+
+msgid "To verify"
+msgstr "À vérifier"
+
+msgid "No parameter entered."
+msgstr "Aucun paramètre saisi."
+
+msgid "Application on the VPS (declared)"
+msgstr "Application sur le VPS (déclarée)"
+
+msgid "Correct this declaration"
+msgstr "Corriger cette déclaration"
+
+msgid "Record the correction"
+msgstr "Enregistrer la correction"
+
+msgid "Not declared applied yet."
+msgstr "Pas encore déclarée appliquée."
+
+#, python-format
+msgid "Draft v%(n)s"
+msgstr "Brouillon v%(n)s"
+
+msgid "Configuration draft"
+msgstr "Brouillon de configuration"
+
+#, python-format
+msgid "Draft v%(n)s · %(robot)s"
+msgstr "Brouillon v%(n)s · %(robot)s"
+
+msgid ""
+"Once validated, this version can no longer be changed: any change creates a "
+"new version. Only numeric, non-secret parameters from the allowed list can "
+"be entered."
+msgstr "Une fois validée, cette version ne peut plus être modifiée : tout changement crée une nouvelle version. Seuls des paramètres numériques et non secrets de la liste autorisée peuvent être saisis."
+
+msgid "Leave empty the parameters this robot does not use."
+msgstr "Laissez vides les paramètres que ce robot n'utilise pas."
+
+msgid ""
+"No parameter is enabled for this robot. A CRM administrator can enable them "
+"in “Allowed parameters”."
+msgstr "Aucun paramètre n'est activé pour ce robot. Un administrateur CRM peut les activer dans « Paramètres autorisés »."
+
+msgid "Save the draft"
+msgstr "Enregistrer le brouillon"
+
+msgid "Save and review for validation"
+msgstr "Enregistrer et passer à la validation"
+
+msgid "Back"
+msgstr "Retour"
+
+msgid "Delete this draft"
+msgstr "Supprimer ce brouillon"
+
+msgid "Validate the version"
+msgstr "Valider la version"
+
+msgid "Validation"
+msgstr "Validation"
+
+#, python-format
+msgid "Validate version v%(n)s · %(robot)s"
+msgstr "Valider la version v%(n)s · %(robot)s"
+
+msgid ""
+"After validation this version is locked. Any later change will create a new "
+"version."
+msgstr "Après validation, cette version est verrouillée. Toute modification ultérieure créera une nouvelle version."
+
+msgid "Missing: edit the draft first."
+msgstr "Manquant : modifiez d'abord le brouillon."
+
+msgid "Validate and lock"
+msgstr "Valider et verrouiller"
+
+msgid "Back to the draft"
+msgstr "Retour au brouillon"
+
+msgid "You are not allowed to perform this action."
+msgstr "Vous n'êtes pas autorisé à effectuer cette action."
+
+msgid "The robot record has been created."
+msgstr "La fiche robot a été créée."
+
+msgid "The robot record has been updated."
+msgstr "La fiche robot a été mise à jour."
+
+msgid "The draft has been saved."
+msgstr "Le brouillon a été enregistré."
+
+msgid "The draft has been deleted."
+msgstr "Le brouillon a été supprimé."
+
+#, python-format
+msgid "Version %(number)s has been validated. It can no longer be changed."
+msgstr "La version %(number)s a été validée. Elle ne peut plus être modifiée."
+
+msgid ""
+"The configuration has been declared applied. The platform does not check the "
+"VPS."
+msgstr "La configuration a été déclarée appliquée. La plateforme ne vérifie pas le VPS."
+
+msgid "The declaration has been corrected."
+msgstr "La déclaration a été corrigée."
+
+msgid "The status has been updated."
+msgstr "Le statut a été mis à jour."
+
+msgid "The parameter list has been saved."
+msgstr "La liste des paramètres a été enregistrée."
+
+msgid "Core"
+msgstr "Socle"
+
+msgid "Email address"
+msgstr "Adresse électronique"
+
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Incorrect email address or password."
+msgstr "Adresse électronique ou mot de passe incorrect."
+
+msgid "Too many unsuccessful attempts. Please try again later."
+msgstr "Trop de tentatives infructueuses. Réessayez plus tard."
+
+msgid "Full name"
+msgstr "Nom complet"
+
+msgid "Language"
+msgstr "Langue"
+
+msgid "Roles"
+msgstr "Rôles"
+
+msgid "Initial password"
+msgstr "Mot de passe initial"
+
+msgid ""
+"At least 12 characters. Share it through a separate channel; the person "
+"should change it after signing in."
+msgstr "Au moins 12 caractères. Transmettez-le par un canal séparé ; la personne doit le changer après sa première connexion."
+
+msgid "This account cannot be created with this email address."
+msgstr "Ce compte ne peut pas être créé avec cette adresse électronique."
+
+msgid "French"
+msgstr "Français"
+
+msgid "English"
+msgstr "Anglais"
+
+msgid "email address"
+msgstr "adresse électronique"
+
+msgid "full name"
+msgstr "nom complet"
+
+msgid "preferred language"
+msgstr "langue préférée"
+
+msgid "active"
+msgstr "actif"
+
+msgid "staff status"
+msgstr "statut équipe"
+
+msgid "date joined"
+msgstr "date d'inscription"
+
+msgid "user"
+msgstr "utilisateur"
+
+msgid "users"
+msgstr "utilisateurs"
+
+msgid "name"
+msgstr "nom"
+
+msgid "identifier"
+msgstr "identifiant"
+
+msgid "organization"
+msgstr "organisation"
+
+msgid "organizations"
+msgstr "organisations"
+
+msgid "Organization administrator"
+msgstr "Administrateur de l'organisation"
+
+msgid "CRM administrator"
+msgstr "Administrateur CRM"
+
+msgid "CRM operator"
+msgstr "Opérateur CRM"
+
+msgid "CRM viewer"
+msgstr "Lecteur CRM"
+
+msgid "Partner manager"
+msgstr "Responsable partenaires"
+
+msgid "Partner advisor"
+msgstr "Conseiller partenaires"
+
+msgid "Academy instructor"
+msgstr "Formateur Academy"
+
+msgid "Academy student"
+msgstr "Apprenant Academy"
+
+msgid "role"
+msgstr "rôle"
+
+msgid "membership"
+msgstr "appartenance"
+
+msgid "memberships"
+msgstr "appartenances"
+
+msgid "No contact with the affiliate for"
+msgstr "Aucun contact avec l'affilié depuis"
+
+msgid "Change request pending for"
+msgstr "Demande de modification en attente depuis"
+
+msgid "Last declared configuration older than"
+msgstr "Dernière configuration déclarée plus ancienne que"
+
+msgid "Registration unfinished for"
+msgstr "Inscription inachevée depuis"
+
+msgid "Verification unfinished for"
+msgstr "Vérification inachevée depuis"
+
+msgid "default currency"
+msgstr "devise par défaut"
+
+msgid "organization settings"
+msgstr "paramètres de l'organisation"
+
+msgid "audit entry"
+msgstr "entrée du journal"
+
+msgid "audit entries"
+msgstr "entrées du journal"
+
+msgid "Access denied"
+msgstr "Accès refusé"
+
+msgid "Sign in"
+msgstr "Se connecter"
+
+msgid "You do not have permission to perform this action."
+msgstr "Vous n'avez pas la permission d'effectuer cette action."
+
+msgid "Back to the dashboard"
+msgstr "Retour au tableau de bord"
+
+msgid "Page not found"
+msgstr "Page introuvable"
+
+msgid "This page does not exist or is not available in your organization."
+msgstr "Cette page n'existe pas ou n'est pas disponible dans votre organisation."
+
+msgid "Audit log"
+msgstr "Journal d'audit"
+
+msgid ""
+"Append-only record of administrative actions. It never contains notes, "
+"passwords or tokens."
+msgstr "Registre en ajout seul des actions administratives. Il ne contient jamais de notes, de mots de passe ni de tokens."
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Person"
+msgstr "Personne"
+
+msgid "Action"
+msgstr "Action"
+
+msgid "Details"
+msgstr "Détails"
+
+msgid "No entry yet."
+msgstr "Aucune entrée pour l'instant."
+
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+#, python-format
+msgid "Hello, %(name)s"
+msgstr "Bonjour, %(name)s"
+
+#, python-format
+msgid "Overview of %(org)s. All figures come from the platform records."
+msgstr "Vue d'ensemble de %(org)s. Tous les chiffres proviennent des fiches de la plateforme."
+
+msgid "No module is available for your roles yet."
+msgstr "Aucun module n'est disponible pour vos rôles pour l'instant."
+
+msgid "Think clearly."
+msgstr "Penser juste."
+
+msgid "Act with discipline."
+msgstr "Agir avec discipline."
+
+msgid ""
+"Administrative platform for affiliates, robot users and learning programmes. "
+"No gain is promised; nothing here controls a robot."
+msgstr "Plateforme administrative pour les affiliés, les utilisateurs de robots et les programmes de formation. Aucun gain n'est promis ; rien ici ne pilote un robot."
+
+msgid "Access is reserved for members of an organization."
+msgstr "L'accès est réservé aux membres d'une organisation."
+
+msgid "Add a member"
+msgstr "Ajouter un membre"
+
+msgid ""
+"Robot users do not need an account. Create accounts only for people who must "
+"sign in."
+msgstr "Les utilisateurs de robots n'ont pas besoin de compte. Créez des comptes uniquement pour les personnes qui doivent se connecter."
+
+msgid "Create the account"
+msgstr "Créer le compte"
+
+msgid "Members and roles"
+msgstr "Membres et rôles"
+
+msgid ""
+"Only the CRM administrator role can declare a real account. Removing every "
+"role removes access to this organization."
+msgstr "Seul le rôle d'administrateur CRM permet de déclarer un compte réel. Retirer tous les rôles retire l'accès à cette organisation."
+
+msgid "Name"
+msgstr "Nom"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "Inactive"
+msgstr "Inactif"
+
+msgid "No organization"
+msgstr "Aucune organisation"
+
+msgid "Your account is not a member of any active organization."
+msgstr "Votre compte n'est membre d'aucune organisation active."
+
+msgid "Ask an organization administrator to give you a role."
+msgstr "Demandez à un administrateur de l'organisation de vous attribuer un rôle."
+
+msgid "Change password"
+msgstr "Changer le mot de passe"
+
+msgid "Alert thresholds"
+msgstr "Seuils d'alerte"
+
+msgid ""
+"Thresholds are in days. They only produce alerts on the dashboard; they "
+"never change a record."
+msgstr "Les seuils sont exprimés en jours. Ils produisent seulement des alertes au tableau de bord ; ils ne modifient jamais une fiche."
+
+msgid ""
+"Allowed ranges: no contact 7–180, change request 1–60, configuration review "
+"7–365, registration 1–60, verification 1–90."
+msgstr "Plages autorisées : sans contact 7–180, demande de modification 1–60, revalidation de configuration 7–365, inscription 1–60, vérification 1–90."
+
+msgid "Your password has been changed."
+msgstr "Votre mot de passe a été modifié."
+
+msgid "The account has been created."
+msgstr "Le compte a été créé."
+
+msgid "You cannot remove your own organization administrator role."
+msgstr "Vous ne pouvez pas retirer votre propre rôle d'administrateur de l'organisation."
+
+msgid "Roles have been updated."
+msgstr "Les rôles ont été mis à jour."
+
+msgid "Alert thresholds have been saved."
+msgstr "Les seuils d'alerte ont été enregistrés."
+
+msgid "Partners"
+msgstr "Partners"
+
+msgid "Two-letter ISO code, for example CD, FR or BE."
+msgstr "Code ISO à deux lettres, par exemple CD, FR ou BE."
+
+msgid "Person in charge of following up with this affiliate."
+msgstr "Personne chargée du suivi de cet affilié."
+
+msgid "Another affiliate already uses this email address."
+msgstr "Un autre affilié utilise déjà cette adresse électronique."
+
+msgid "Source"
+msgstr "Source"
+
+msgid "Never write a password, token or API key here."
+msgstr "N'écrivez jamais ici de mot de passe, de token ni de clé API."
+
+msgid ""
+"Public HTTPS link only. A referral link never contains a password or token."
+msgstr "Lien HTTPS public uniquement. Un lien de parrainage ne contient jamais de mot de passe ni de token."
+
+msgid "The link must start with https://."
+msgstr "Le lien doit commencer par https://."
+
+msgid "Deriv registration"
+msgstr "Inscription Deriv"
+
+msgid "All"
+msgstr "Tous"
+
+msgid "No recent contact"
+msgstr "Pas de contact récent"
+
+msgid "Registration unfinished"
+msgstr "Inscription inachevée"
+
+msgid "Verification unfinished"
+msgstr "Vérification inachevée"
+
+msgid "Show archived"
+msgstr "Afficher les archivés"
+
+msgid "Use a two-letter ISO country code, for example CD."
+msgstr "Utilisez un code pays ISO à deux lettres, par exemple CD."
+
+msgid "label"
+msgstr "libellé"
+
+msgid "referral link"
+msgstr "lien de parrainage"
+
+msgid "referral links"
+msgstr "liens de parrainage"
+
+msgid "Prospect"
+msgstr "Prospect"
+
+msgid "Not started"
+msgstr "Non commencée"
+
+msgid "Declared by the affiliate"
+msgstr "Déclarée par l'affilié"
+
+msgid "Deriv account created (declared)"
+msgstr "Compte Deriv créé (déclaré)"
+
+msgid "Not requested"
+msgstr "Non demandée"
+
+msgid "In progress"
+msgstr "En cours"
+
+msgid "To review"
+msgstr "À revoir"
+
+msgid "Rejected"
+msgstr "Refusée"
+
+msgid "Not opened"
+msgstr "Non ouvert"
+
+msgid "Demo account opened (declared)"
+msgstr "Compte démo ouvert (déclaré)"
+
+msgid "phone"
+msgstr "téléphone"
+
+msgid "country"
+msgstr "pays"
+
+msgid "assigned to"
+msgstr "attribué à"
+
+msgid "verification"
+msgstr "vérification"
+
+msgid "demo account"
+msgstr "compte démo"
+
+msgid "last contact"
+msgstr "dernier contact"
+
+msgid "affiliates"
+msgstr "affiliés"
+
+msgid "Demo account"
+msgstr "Compte démo"
+
+msgid "The affiliate"
+msgstr "L'affilié"
+
+msgid "An administrator"
+msgstr "Un administrateur"
+
+msgid "Deriv support"
+msgstr "Le support Deriv"
+
+msgid "step"
+msgstr "étape"
+
+msgid "date"
+msgstr "date"
+
+msgid "source"
+msgstr "source"
+
+msgid "Call"
+msgstr "Appel"
+
+msgid "Message"
+msgstr "Message"
+
+msgid "Email"
+msgstr "Courriel"
+
+msgid "Meeting"
+msgstr "Rendez-vous"
+
+msgid "Internal note"
+msgstr "Note interne"
+
+msgid "Other contact"
+msgstr "Autre contact"
+
+msgid "type"
+msgstr "type"
+
+msgid "summary"
+msgstr "résumé"
+
+msgid "To do"
+msgstr "À faire"
+
+msgid "Done"
+msgstr "Faite"
+
+msgid "action"
+msgstr "action"
+
+msgid "due date"
+msgstr "échéance"
+
+msgid "details"
+msgstr "précisions"
+
+msgid "Unknown step."
+msgstr "Étape inconnue."
+
+msgid "This status is not valid for this step."
+msgstr "Ce statut n'est pas valable pour cette étape."
+
+msgid "This follow-up is already closed."
+msgstr "Cette relance est déjà clôturée."
+
+msgid "Affiliates"
+msgstr "Affiliés"
+
+msgid "Archived"
+msgstr "Archivé"
+
+msgid "Last contact"
+msgstr "Dernier contact"
+
+msgid "none recorded"
+msgstr "aucun enregistré"
+
+msgid "Restore"
+msgstr "Restaurer"
+
+msgid "Archive"
+msgstr "Archiver"
+
+msgid "Contact details"
+msgstr "Coordonnées"
+
+msgid "Phone"
+msgstr "Téléphone"
+
+msgid "Country"
+msgstr "Pays"
+
+msgid "Referral link"
+msgstr "Lien de parrainage"
+
+msgid "Assigned to"
+msgstr "Attribué à"
+
+msgid "Deriv registration and verification"
+msgstr "Inscription et vérification Deriv"
+
+msgid "Declared statuses, never checked automatically with Deriv."
+msgstr "Statuts déclarés, jamais vérifiés automatiquement auprès de Deriv."
+
+#, python-format
+msgid "Since %(date)s"
+msgstr "Depuis le %(date)s"
+
+msgid "No date recorded"
+msgstr "Aucune date enregistrée"
+
+msgid "Record a step"
+msgstr "Enregistrer une étape"
+
+msgid "Record"
+msgstr "Enregistrer"
+
+msgid "Step history"
+msgstr "Historique des étapes"
+
+msgid "Step"
+msgstr "Étape"
+
+msgid "Change"
+msgstr "Changement"
+
+msgid "Recorded by"
+msgstr "Enregistré par"
+
+msgid "Follow-ups"
+msgstr "Relances"
+
+msgid "Overdue"
+msgstr "En retard"
+
+#, python-format
+msgid "Due %(date)s"
+msgstr "Échéance le %(date)s"
+
+msgid "Mark done"
+msgstr "Marquer faite"
+
+msgid "No follow-up scheduled."
+msgstr "Aucune relance planifiée."
+
+msgid "Schedule a follow-up"
+msgstr "Planifier une relance"
+
+msgid "Schedule"
+msgstr "Planifier"
+
+msgid "Interactions and notes"
+msgstr "Interactions et notes"
+
+msgid "Add an interaction or a note"
+msgstr "Ajouter une interaction ou une note"
+
+msgid "Add"
+msgstr "Ajouter"
+
+msgid "No interaction recorded yet."
+msgstr "Aucune interaction enregistrée pour l'instant."
+
+msgid "Edit affiliate"
+msgstr "Modifier l'affilié"
+
+msgid "Add an affiliate"
+msgstr "Ajouter un affilié"
+
+#, python-format
+msgid "Edit %(name)s"
+msgstr "Modifier %(name)s"
+
+msgid ""
+"Do not record identity documents. The registration and verification steps "
+"are entered on the affiliate's record."
+msgstr "N'enregistrez aucune pièce d'identité. Les étapes d'inscription et de vérification se saisissent sur la fiche de l'affilié."
+
+msgid "Filter affiliates"
+msgstr "Filtrer les affiliés"
+
+msgid "No affiliate matches these criteria."
+msgstr "Aucun affilié ne correspond à ces critères."
+
+msgid "Total affiliates"
+msgstr "Total des affiliés"
+
+#, python-format
+msgid "including %(n)s prospect"
+msgid_plural "including %(n)s prospects"
+msgstr[0] "dont %(n)s prospect"
+msgstr[1] "dont %(n)s prospects"
+
+msgid "View affiliates"
+msgstr "Voir les affiliés"
+
+msgid "Active affiliates"
+msgstr "Affiliés actifs"
+
+msgid "View active affiliates"
+msgstr "Voir les affiliés actifs"
+
+msgid "Pending registrations"
+msgstr "Inscriptions en attente"
+
+msgid "Deriv account not yet created"
+msgstr "Compte Deriv pas encore créé"
+
+msgid "Pending verifications"
+msgstr "Vérifications en attente"
+
+msgid "Account created, verification not finished"
+msgstr "Compte créé, vérification non terminée"
+
+msgid "Follow-ups to do"
+msgstr "Relances à effectuer"
+
+#, python-format
+msgid "due today or overdue · %(n)s open in total"
+msgid_plural "due today or overdue · %(n)s open in total"
+msgstr[0] "à faire aujourd'hui ou en retard · %(n)s ouverte au total"
+msgstr[1] "à faire aujourd'hui ou en retard · %(n)s ouvertes au total"
+
+msgid "View follow-ups"
+msgstr "Voir les relances"
+
+#, python-format
+msgid "%(n)s affiliate without contact for %(days)s days"
+msgid_plural "%(n)s affiliates without contact for %(days)s days"
+msgstr[0] "%(n)s affilié sans contact depuis %(days)s jours"
+msgstr[1] "%(n)s affiliés sans contact depuis %(days)s jours"
+
+#, python-format
+msgid "%(n)s registration unfinished for %(days)s days"
+msgid_plural "%(n)s registrations unfinished for %(days)s days"
+msgstr[0] "%(n)s inscription inachevée depuis %(days)s jours"
+msgstr[1] "%(n)s inscriptions inachevées depuis %(days)s jours"
+
+#, python-format
+msgid "%(n)s verification unfinished for %(days)s days"
+msgid_plural "%(n)s verifications unfinished for %(days)s days"
+msgstr[0] "%(n)s vérification inachevée depuis %(days)s jours"
+msgstr[1] "%(n)s vérifications inachevées depuis %(days)s jours"
+
+msgid "Scope"
+msgstr "Portée"
+
+msgid "Assigned to me"
+msgstr "Qui me sont attribuées"
+
+msgid "Due date"
+msgstr "Échéance"
+
+msgid "No open follow-up."
+msgstr "Aucune relance ouverte."
+
+msgid "Referral links"
+msgstr "Liens de parrainage"
+
+msgid "Label"
+msgstr "Libellé"
+
+msgid "Link"
+msgstr "Lien"
+
+msgid "Deactivate"
+msgstr "Désactiver"
+
+msgid "Activate"
+msgstr "Activer"
+
+msgid "No referral link yet."
+msgstr "Aucun lien de parrainage pour l'instant."
+
+msgid "Add a link"
+msgstr "Ajouter un lien"
+
+msgid "The affiliate has been created."
+msgstr "L'affilié a été créé."
+
+msgid "The affiliate has been updated."
+msgstr "L'affilié a été mis à jour."
+
+msgid "The step has been recorded."
+msgstr "L'étape a été enregistrée."
+
+msgid "The interaction has been added."
+msgstr "L'interaction a été ajoutée."
+
+msgid "The follow-up has been scheduled."
+msgstr "La relance a été planifiée."
+
+msgid "The follow-up has been updated."
+msgstr "La relance a été mise à jour."
+
+msgid "The affiliate has been archived."
+msgstr "L'affilié a été archivé."
+
+msgid "The affiliate has been restored."
+msgstr "L'affilié a été restauré."
+
+msgid "The referral link has been saved."
+msgstr "Le lien de parrainage a été enregistré."
+
+msgid "Platform"
+msgstr "Plateforme"
+
+msgid "Skip to content"
+msgstr "Aller au contenu"
+
+msgid "Main navigation"
+msgstr "Navigation principale"
+
+msgid "Close"
+msgstr "Fermer"
+
+msgid "Open menu"
+msgstr "Ouvrir le menu"
+
+msgid "Sign out"
+msgstr "Se déconnecter"
+
+msgid "REAL"
+msgstr "RÉEL"
+
+msgid "DEMO"
+msgstr "DÉMO"
+
+msgid "Please correct the errors below."
+msgstr "Veuillez corriger les erreurs ci-dessous."
+
+msgid "Pagination"
+msgstr "Pagination"
+
+#, python-format
+msgid "Page %(number)s of %(total)s · %(results)s result"
+msgid_plural "Page %(number)s of %(total)s · %(results)s results"
+msgstr[0] "Page %(number)s sur %(total)s · %(results)s résultat"
+msgstr[1] "Page %(number)s sur %(total)s · %(results)s résultats"
+
+msgid "Previous"
+msgstr "Précédent"
+
+msgid "Next"
+msgstr "Suivant"
+
+msgid "Organization"
+msgstr "Organisation"
+
+msgid "Change organization"
+msgstr "Changer d'organisation"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Programmes"
+msgstr "Programmes"
+
+msgid "Administration"
+msgstr "Administration"
+
+msgid "Administrative records only. No connection to the VPS."
+msgstr "Fiches administratives uniquement. Aucune connexion au VPS."
