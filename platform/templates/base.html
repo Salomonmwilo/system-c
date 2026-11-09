@@ -1,0 +1,75 @@
+{% load static i18n %}<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#09090a">
+  <title>{% block title %}{% translate "Platform" %}{% endblock %} · SYSTEM-C</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/systemc.css' %}">
+</head>
+<body class="sc-body">
+  <a class="visually-hidden-focusable sc-skip" href="#main">{% translate "Skip to content" %}</a>
+  {% block body %}
+  <div class="sc-shell">
+    <aside class="sc-sidebar d-none d-lg-flex" aria-label="{% translate 'Main navigation' %}">
+      {% include "includes/sidebar.html" with nav_id="desktop" %}
+    </aside>
+
+    <div class="offcanvas offcanvas-start sc-offcanvas" tabindex="-1" id="scMobileNav" aria-labelledby="scMobileNavLabel">
+      <div class="offcanvas-header pb-0">
+        <span class="visually-hidden" id="scMobileNavLabel">{% translate "Main navigation" %}</span>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="offcanvas" aria-label="{% translate 'Close' %}"></button>
+      </div>
+      <div class="offcanvas-body p-0 d-flex flex-column">
+        {% include "includes/sidebar.html" with nav_id="mobile" %}
+      </div>
+    </div>
+
+    <div class="sc-main">
+      <header class="sc-topbar">
+        <button class="btn btn-outline-secondary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#scMobileNav" aria-controls="scMobileNav">
+          <i class="bi bi-list" aria-hidden="true"></i><span class="visually-hidden">{% translate "Open menu" %}</span>
+        </button>
+        <p class="sc-page-title text-truncate">{% block page_title %}{% endblock %}</p>
+        <div class="ms-auto d-flex align-items-center gap-2">
+          <form method="post" action="{% url 'core:switch_language' %}" class="sc-lang btn-group btn-group-sm" role="group" aria-label="{% translate 'Language' %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            {% for code, name in available_languages %}
+              <button type="submit" name="language" value="{{ code }}" class="btn {% if LANGUAGE_CODE == code %}btn-dark{% else %}btn-outline-secondary{% endif %}" lang="{{ code }}" {% if LANGUAGE_CODE == code %}aria-pressed="true"{% else %}aria-pressed="false"{% endif %} title="{{ name }}">{{ code|upper }}</button>
+            {% endfor %}
+          </form>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle" aria-hidden="true"></i>
+              <span class="d-none d-sm-inline">{{ user.get_short_name }}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><span class="dropdown-item-text small text-body-secondary">{{ user.email }}</span></li>
+              <li><a class="dropdown-item" href="{% url 'core:password_change' %}"><i class="bi bi-key me-2" aria-hidden="true"></i>{% translate "Change password" %}</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <form method="post" action="{% url 'core:logout' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>{% translate "Sign out" %}</button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <main id="main" class="sc-content" tabindex="-1">
+        {% include "includes/messages.html" %}
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+  {% endblock %}
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

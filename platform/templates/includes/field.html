@@ -1,0 +1,24 @@
+{% load systemc %}{% with kind=f|widget_kind %}
+<div class="mb-3{% if wrapper_class %} {{ wrapper_class }}{% endif %}">
+  {% if kind == "checkbox" %}
+    <div class="form-check">
+      {{ f }}
+      <label class="form-check-label" for="{{ f.id_for_label }}">{{ f.label }}</label>
+    </div>
+  {% elif kind == "checkbox-multiple" or kind == "radio" %}
+    <fieldset{% if f.help_text %} aria-describedby="{{ f.auto_id }}_help"{% endif %}>
+      <legend class="form-label fs-6">{{ f.label }}</legend>
+      {% for choice in f %}
+        <div class="form-check">
+          {{ choice.tag }}
+          <label class="form-check-label" for="{{ choice.id_for_label }}">{{ choice.choice_label }}</label>
+        </div>
+      {% endfor %}
+    </fieldset>
+  {% else %}
+    <label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}{% if f.field.required %} <span class="text-danger" aria-hidden="true">*</span>{% endif %}</label>
+    {{ f }}
+  {% endif %}
+  {% if f.help_text %}<div class="form-text" id="{{ f.auto_id }}_help">{{ f.help_text }}</div>{% endif %}
+  {% for error in f.errors %}<div class="invalid-feedback d-block" id="{{ f.auto_id }}_error">{{ error }}</div>{% endfor %}
+</div>{% endwith %}

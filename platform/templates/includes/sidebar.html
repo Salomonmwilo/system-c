@@ -1,0 +1,54 @@
+{% load static i18n %}
+{% with ns=request.resolver_match.namespace url_name=request.resolver_match.url_name %}
+<a class="sc-brand" href="{% url 'core:dashboard' %}">
+  <img src="{% static 'img/logo-mark.png' %}" alt="" width="40" height="40">
+  <span><strong>SYSTEM-C</strong><small>Platform</small></span>
+</a>
+{% if current_organization %}
+  <div class="sc-org">
+    <span class="sc-org-label">{% translate "Organization" %}</span>
+    {% if user_organizations|length > 1 %}
+      <form method="post" action="{% url 'core:switch_organization' %}" class="d-flex gap-1 mt-1">
+        {% csrf_token %}
+        <label class="visually-hidden" for="org-{{ nav_id }}">{% translate "Change organization" %}</label>
+        <select class="form-select form-select-sm" name="organization" id="org-{{ nav_id }}">
+          {% for org in user_organizations %}<option value="{{ org.pk }}" {% if org == current_organization %}selected{% endif %}>{{ org.name }}</option>{% endfor %}
+        </select>
+        <button class="btn btn-sm btn-primary" type="submit">{% translate "OK" %}</button>
+      </form>
+    {% else %}
+      <span class="text-white">{{ current_organization.name }}</span>
+    {% endif %}
+  </div>
+{% endif %}
+<nav class="sc-nav">
+  {% if nav.dashboard %}
+    <a href="{% url 'core:dashboard' %}" {% if ns == 'core' and url_name == 'dashboard' %}aria-current="page"{% endif %}><i class="bi bi-speedometer2" aria-hidden="true"></i>{% translate "Dashboard" %}</a>
+  {% endif %}
+  {% if nav.affiliates or nav.followups or nav.referral_links %}
+    <p class="sc-nav-heading">{% translate "Partners" %}</p>
+    {% if nav.affiliates %}<a href="{% url 'partners:affiliate_list' %}" {% if ns == 'partners' and 'affiliate' in url_name or ns == 'partners' and url_name == 'interaction_create' %}aria-current="page"{% endif %}><i class="bi bi-people" aria-hidden="true"></i>{% translate "Affiliates" %}</a>{% endif %}
+    {% if nav.followups %}<a href="{% url 'partners:followup_list' %}" {% if ns == 'partners' and url_name == 'followup_list' %}aria-current="page"{% endif %}><i class="bi bi-calendar-check" aria-hidden="true"></i>{% translate "Follow-ups" %}</a>{% endif %}
+    {% if nav.referral_links %}<a href="{% url 'partners:referral_links' %}" {% if ns == 'partners' and url_name == 'referral_links' %}aria-current="page"{% endif %}><i class="bi bi-link-45deg" aria-hidden="true"></i>{% translate "Referral links" %}</a>{% endif %}
+  {% endif %}
+  {% if nav.bots %}
+    <p class="sc-nav-heading">{% translate "Robot management" %}</p>
+    <a href="{% url 'bots:botuser_list' %}" {% if ns == 'bots' and url_name != 'parameters' %}aria-current="page"{% endif %}><i class="bi bi-cpu" aria-hidden="true"></i>{% translate "Robot users" %}</a>
+    {% if nav.parameters %}<a href="{% url 'bots:parameters' %}" {% if ns == 'bots' and url_name == 'parameters' %}aria-current="page"{% endif %}><i class="bi bi-sliders" aria-hidden="true"></i>{% translate "Allowed parameters" %}</a>{% endif %}
+  {% endif %}
+  {% if nav.academy %}
+    <p class="sc-nav-heading">{% translate "Academy" %}</p>
+    <a href="{% url 'academy:home' %}" {% if ns == 'academy' %}aria-current="page"{% endif %}><i class="bi bi-mortarboard" aria-hidden="true"></i>{% translate "Programmes" %}</a>
+  {% endif %}
+  {% if nav.members or nav.thresholds or nav.audit %}
+    <p class="sc-nav-heading">{% translate "Administration" %}</p>
+    {% if nav.members %}<a href="{% url 'core:members' %}" {% if ns == 'core' and 'member' in url_name %}aria-current="page"{% endif %}><i class="bi bi-person-gear" aria-hidden="true"></i>{% translate "Members and roles" %}</a>{% endif %}
+    {% if nav.thresholds %}<a href="{% url 'core:thresholds' %}" {% if ns == 'core' and url_name == 'thresholds' %}aria-current="page"{% endif %}><i class="bi bi-bell" aria-hidden="true"></i>{% translate "Alert thresholds" %}</a>{% endif %}
+    {% if nav.audit %}<a href="{% url 'core:audit' %}" {% if ns == 'core' and url_name == 'audit' %}aria-current="page"{% endif %}><i class="bi bi-journal-text" aria-hidden="true"></i>{% translate "Audit log" %}</a>{% endif %}
+  {% endif %}
+</nav>
+<div class="sc-sidebar-footer">
+  <span lang="la" class="sc-motto">Solus cum plenitudine, inopi est alia</span><br>
+  {% translate "Administrative records only. No connection to the VPS." %}
+</div>
+{% endwith %}

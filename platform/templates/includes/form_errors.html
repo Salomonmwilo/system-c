@@ -1,0 +1,7 @@
+{% load i18n %}
+{% if form.non_field_errors or form.errors %}
+  <div class="alert alert-danger" role="alert" tabindex="-1">
+    <p class="fw-semibold mb-1">{% translate "Please correct the errors below." %}</p>
+    {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+  </div>
+{% endif %}
