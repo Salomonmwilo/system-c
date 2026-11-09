@@ -1,0 +1,4 @@
+# Dépendances d'exécution de SYSTEM-C Platform (versions figées).
+Django==5.2.19
+psycopg[binary]==3.3.8
+argon2-cffi==25.1.0

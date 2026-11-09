@@ -1,0 +1,21 @@
+# Base PostgreSQL locale pour le développement (facultatif si PostgreSQL est déjà installé).
+# Usage : docker compose --env-file .env up -d db
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-systemc}
+      POSTGRES_USER: ${POSTGRES_USER:-systemc}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Définissez POSTGRES_PASSWORD dans .env}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"  # écoute uniquement en local
+    volumes:
+      - systemc_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  systemc_pg:
