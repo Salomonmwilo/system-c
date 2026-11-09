@@ -12,7 +12,7 @@
     <div class="d-flex flex-wrap gap-2 align-items-center">
       {% include "includes/bot_status.html" with status=bot_user.status label=bot_user.get_status_display %}
       {% include "includes/account_type.html" with account_type=bot_user.current_account_type %}
-      <span class="sc-declared">{% translate "Declared by an administrator, not checked on the VPS." %}</span>
+      <span class="sc-declared">{% translate "Declared by an administrator, not checked on the VPS" %}</span>
     </div>
   </div>
   <div class="d-flex gap-2 flex-wrap">
@@ -105,7 +105,7 @@
           </div>
           <dl class="sc-dl mb-3">
             <dt>{% translate "Robot" %}</dt><dd>{{ latest.get_robot_type_display }}</dd>
-            <dt>{% translate "Reference capital" %}</dt><dd>{{ latest.reference_capital }} {{ latest.currency }}</dd>
+            <dt>{% translate "Reference capital" %}</dt><dd>{{ latest.reference_capital|floatformat:"2g" }} {{ latest.currency }}</dd>
             <dt>{% translate "Validated" %}</dt><dd>{% blocktranslate with date=latest.validated_at|date:"SHORT_DATETIME_FORMAT" person=latest.validated_by %}{{ date }}, by {{ person }}{% endblocktranslate %}</dd>
             <dt>{% translate "Applied on the VPS" %}</dt><dd>{% if applied_declaration and applied_declaration.version_id == latest.pk %}{% blocktranslate with date=applied_declaration.applied_on|date:"SHORT_DATE_FORMAT" %}Declared applied on {{ date }}{% endblocktranslate %}{% else %}<span class="sc-badge sc-badge-wait">{% translate "Not declared yet" %}</span>{% endif %}</dd>
           </dl>
@@ -139,7 +139,7 @@
             <td><a class="fw-semibold" href="{% url 'bots:version_detail' v.pk %}">v{{ v.number }}</a></td>
             <td>{% if v.state == "draft" %}<span class="sc-badge sc-badge-neutral">{% translate "Draft" %}</span>{% else %}<span class="sc-badge sc-badge-ok"><i class="bi bi-lock" aria-hidden="true"></i>{% translate "Validated" %}</span>{% endif %}</td>
             <td>{% include "includes/account_type.html" with account_type=v.account_type %}</td>
-            <td class="text-nowrap">{% if v.reference_capital is not None %}{{ v.reference_capital }} {{ v.currency }}{% else %}—{% endif %}</td>
+            <td class="text-nowrap">{% if v.reference_capital is not None %}{{ v.reference_capital|floatformat:"2g" }} {{ v.currency }}{% else %}—{% endif %}</td>
             <td class="d-none d-md-table-cell small">{% blocktranslate with date=v.created_at|date:"SHORT_DATE_FORMAT" person=v.created_by %}{{ date }}, by {{ person }}{% endblocktranslate %}</td>
             <td class="small">{% for d in v.declarations.all %}{% if d.kind == "applied" %}<div>{{ d.applied_on|date:"SHORT_DATE_FORMAT" }}{% if d.correction %} <span class="sc-badge sc-badge-stop">{% translate "corrected" %}</span>{% endif %}</div>{% endif %}{% empty %}—{% endfor %}</td>
           </tr>

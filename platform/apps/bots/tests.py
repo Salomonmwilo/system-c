@@ -464,7 +464,7 @@ class FullFlowViewTests(BotsTestCase):
         login(self.client, self.admin, self.org)
         self.client.post(reverse("core:switch_language"), {"language": "en"})
         response = self.client.get(reverse("bots:botuser_detail", args=[self.bot.pk]))
-        self.assertContains(response, "Declared by an administrator, not checked on the VPS.")
+        self.assertContains(response, "Declared by an administrator, not checked on the VPS")
         self.assertContains(response, 'lang="en"')
 
 

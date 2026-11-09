@@ -26,7 +26,7 @@
     <div class="sc-card mb-3"><div class="sc-card-header"><h2>{% translate "Declaration" %}</h2></div><div class="sc-card-body"><dl class="sc-dl">
       <dt>{% translate "Robot" %}</dt><dd>{{ version.get_robot_type_display }}</dd>
       <dt>{% translate "Account type" %}</dt><dd>{{ version.get_account_type_display }}</dd>
-      <dt>{% translate "Reference capital" %}</dt><dd>{% if version.reference_capital is not None %}{{ version.reference_capital }} {{ version.currency }}{% else %}—{% endif %}</dd>
+      <dt>{% translate "Reference capital" %}</dt><dd>{% if version.reference_capital is not None %}{{ version.reference_capital|floatformat:"2g" }} {{ version.currency }}{% else %}—{% endif %}</dd>
       <dt>{% translate "Created" %}</dt><dd>{% blocktranslate with date=version.created_at|date:"SHORT_DATETIME_FORMAT" person=version.created_by %}{{ date }}, by {{ person }}{% endblocktranslate %}</dd>
       <dt>{% translate "Validated" %}</dt><dd>{% if version.validated_at %}{% blocktranslate with date=version.validated_at|date:"SHORT_DATETIME_FORMAT" person=version.validated_by %}{{ date }}, by {{ person }}{% endblocktranslate %}{% else %}—{% endif %}</dd>
       <dt>{% translate "Note" %}</dt><dd>{{ version.admin_note|linebreaksbr|default:"—" }}</dd>

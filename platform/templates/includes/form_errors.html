@@ -1,7 +1,10 @@
 {% load i18n %}
-{% if form.non_field_errors or form.errors %}
-  <div class="alert alert-danger" role="alert" tabindex="-1">
-    <p class="fw-semibold mb-1">{% translate "Please correct the errors below." %}</p>
-    {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+{% if form.errors %}
+  <div class="alert alert-danger sc-error-summary" role="alert" tabindex="-1" aria-labelledby="{{ form.prefix|default:'form' }}-errors-title" data-error-summary>
+    <p class="fw-semibold mb-0" id="{{ form.prefix|default:'form' }}-errors-title">{% translate "Please correct the errors below." %}</p>
+    <ul>
+      {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+      {% for field in form %}{% for error in field.errors %}<li><a href="#{% if field.id_for_label %}{{ field.id_for_label }}{% else %}{{ field.auto_id }}_0{% endif %}">{{ field.label }}</a><br>{{ error }}</li>{% endfor %}{% endfor %}
+    </ul>
   </div>
 {% endif %}

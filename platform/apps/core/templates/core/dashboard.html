@@ -6,7 +6,7 @@
 <div class="sc-page-head">
   <div>
     <h1>{% translate "Dashboard" %}</h1>
-    <p class="sc-lead">{% blocktranslate with name=user.get_short_name %}Hello {{ name }}. Here is what needs your attention, then the overall figures. Everything comes from the platform records.{% endblocktranslate %}</p>
+    <p class="sc-meta-line">{% translate "Figures taken from the platform records" %}</p>
   </div>
 </div>
 
@@ -14,7 +14,7 @@
 <section class="sc-ledger" aria-labelledby="todo-title">
   <div class="sc-ledger-head">
     <h2 id="todo-title">{% translate "To handle" %}</h2>
-    <span class="sc-declared">{% blocktranslate with date=today|date:"DATE_FORMAT" %}Situation on {{ date }}{% endblocktranslate %}</span>
+    <span class="sc-meta-line m-0">{% blocktranslate with date=today|date:"DATE_FORMAT" %}Situation on {{ date }}{% endblocktranslate %}</span>
   </div>
   <ol>
     {% for item in priorities %}
@@ -22,7 +22,7 @@
       <span class="sc-count" aria-hidden="true">{{ item.count }}</span>
       <span>
         <span class="sc-what"><span class="visually-hidden">{{ item.count }} </span>{{ item.label }}</span>
-        <span class="sc-why">{% if item.count == 0 %}{% translate "Nothing pending." %}{% else %}{{ item.hint }}{% endif %}</span>
+        <span class="sc-why">{% if item.count == 0 %}{% translate "Nothing pending" %}{% else %}{{ item.hint }}{% endif %}</span>
       </span>
       {% if item.count %}<a class="btn btn-sm {% if item.urgent %}btn-primary{% else %}btn-outline-primary{% endif %} sc-act" href="{{ item.url }}">{{ item.action }}</a>{% else %}<span class="sc-act"></span>{% endif %}
     </li>
@@ -31,9 +31,11 @@
 </section>
 {% endif %}
 
+<div class="sc-summaries">
 {% for section in sections %}
   {% include section.template with data=section.context %}
 {% empty %}
-  <div class="sc-card mt-4"><div class="sc-empty"><i class="bi bi-grid" aria-hidden="true"></i>{% translate "No module is available for your roles yet." %}</div></div>
+  <div class="sc-card"><div class="sc-empty"><i class="bi bi-grid" aria-hidden="true"></i>{% translate "No module is available for your roles yet." %}</div></div>
 {% endfor %}
+</div>
 {% endblock %}

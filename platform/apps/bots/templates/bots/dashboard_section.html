@@ -1,9 +1,11 @@
 {% load i18n %}
-<h2 class="sc-section-title">{% translate "Robot users" %} <span class="sc-declared">{% translate "declared statuses, not checked on the VPS" %}</span></h2>
-<dl class="sc-summary">
-  <div><dt>{% translate "Robot users" %}</dt><dd><a href="{% url 'bots:botuser_list' %}">{{ data.total }}</a><span class="sc-note">{% translate "excluding disabled records" %}</span></dd></div>
-  <div><dt>{% translate "Configuration applied" %}</dt><dd><a href="{% url 'bots:botuser_list' %}?status=applied">{{ data.applied }}</a></dd></div>
-  <div><dt>{% translate "Declared on a real account" %}</dt><dd><a href="{% url 'bots:botuser_list' %}?account_type=real">{{ data.real }}</a></dd></div>
-  <div><dt>{% translate "Paused" %}</dt><dd><a href="{% url 'bots:botuser_list' %}?status=paused">{{ data.paused }}</a></dd></div>
-  <div><dt>{% translate "Disabled" %}</dt><dd><a href="{% url 'bots:botuser_list' %}?status=disabled">{{ data.disabled }}</a></dd></div>
-</dl>
+<section aria-labelledby="summary-bots">
+  <h2 class="sc-section-title" id="summary-bots">{% translate "Robot users" %} <span class="sc-declared">{% translate "declared statuses, not checked on the VPS" %}</span></h2>
+  <dl class="sc-summary">
+    <div><dt>{% translate "Robot users" %}<span class="sc-note">{% translate "excluding disabled records" %}</span></dt><dd><a href="{% url 'bots:botuser_list' %}">{{ data.total }}</a></dd></div>
+    <div><dt>{% translate "Configuration applied" %}</dt><dd><a href="{% url 'bots:botuser_list' %}?status=applied">{{ data.applied }}</a></dd></div>
+    <div><dt>{% translate "Declared on a real account" %}</dt><dd><a href="{% url 'bots:botuser_list' %}?account_type=real">{{ data.real }}</a></dd></div>
+    <div><dt>{% translate "Paused" %}</dt><dd><a href="{% url 'bots:botuser_list' %}?status=paused">{{ data.paused }}</a></dd></div>
+    <div><dt>{% translate "Disabled" %}</dt><dd><a href="{% url 'bots:botuser_list' %}?status=disabled">{{ data.disabled }}</a></dd></div>
+  </dl>
+</section>

@@ -10,7 +10,7 @@
   <p>{% translate "After validation this version is locked. Any later change will create a new version." %}</p>
   <dl class="sc-dl mb-3">
     <dt>{% translate "Account type" %}</dt><dd>{% include "includes/account_type.html" with account_type=version.account_type %}</dd>
-    <dt>{% translate "Reference capital" %}</dt><dd>{% if version.reference_capital is not None %}{{ version.reference_capital }} {{ version.currency }}{% else %}<span class="text-danger">{% translate "Missing: edit the draft first." %}</span>{% endif %}</dd>
+    <dt>{% translate "Reference capital" %}</dt><dd>{% if version.reference_capital is not None %}{{ version.reference_capital|floatformat:"2g" }} {{ version.currency }}{% else %}<span class="text-danger">{% translate "Missing: edit the draft first." %}</span>{% endif %}</dd>
     <dt>{% translate "Parameters" %}</dt><dd>{% for p in parameters %}<code class="me-2">{{ p.key }}={{ p.value|decimal_display }}</code>{% empty %}—{% endfor %}</dd>
   </dl>
   <form method="post" novalidate>{% csrf_token %}

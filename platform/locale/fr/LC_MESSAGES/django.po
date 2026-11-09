@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SYSTEM-C Platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 23:09+0000\n"
+"POT-Creation-Date: 2026-11-09 23:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: SYSTEM-C\n"
@@ -76,6 +76,7 @@ msgid_plural "Changes waiting to be applied"
 msgstr[0] "Modification en attente d'application"
 msgstr[1] "Modifications en attente d'application"
 
+#, python-format
 msgid "%(n)s waiting for more than %(days)s days"
 msgid_plural "%(n)s waiting for more than %(days)s days"
 msgstr[0] "%(n)s en attente depuis plus de %(days)s jours"
@@ -89,6 +90,7 @@ msgid_plural "Configurations to review"
 msgstr[0] "Configuration à revalider"
 msgstr[1] "Configurations à revalider"
 
+#, python-format
 msgid "Declared applied more than %(days)s days ago"
 msgstr "Déclarées appliquées il y a plus de %(days)s jours"
 
@@ -432,8 +434,8 @@ msgstr "Fil d'Ariane"
 msgid "Robot users"
 msgstr "Utilisateurs de robots"
 
-msgid "Declared by an administrator, not checked on the VPS."
-msgstr "Déclaré par un administrateur, non vérifié sur le VPS."
+msgid "Declared by an administrator, not checked on the VPS"
+msgstr "Déclaré par un administrateur, non vérifié sur le VPS"
 
 msgid "Affiliate record"
 msgstr "Fiche affilié"
@@ -1042,22 +1044,18 @@ msgstr "Aucune entrée pour l'instant."
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#, python-format
-msgid ""
-"Hello %(name)s. Here is what needs your attention, then the overall figures. "
-"Everything comes from the platform records."
-msgstr ""
-"Bonjour %(name)s. Voici ce qui demande votre attention, puis les chiffres "
-"d'ensemble. Tout provient des fiches de la plateforme."
+msgid "Figures taken from the platform records"
+msgstr "Chiffres issus des fiches de la plateforme"
 
 msgid "To handle"
 msgstr "À traiter"
 
+#, python-format
 msgid "Situation on %(date)s"
 msgstr "Situation au %(date)s"
 
-msgid "Nothing pending."
-msgstr "Rien en attente."
+msgid "Nothing pending"
+msgstr "Rien en attente"
 
 msgid "No module is available for your roles yet."
 msgstr "Aucun module n'est disponible pour vos rôles pour l'instant."
@@ -1166,6 +1164,7 @@ msgid_plural "Follow-ups to do today"
 msgstr[0] "Relance à effectuer aujourd'hui"
 msgstr[1] "Relances à effectuer aujourd'hui"
 
+#, python-format
 msgid "%(n)s overdue"
 msgid_plural "%(n)s overdue"
 msgstr[0] "%(n)s en retard"
@@ -1194,6 +1193,7 @@ msgid_plural "Registrations stalled"
 msgstr[0] "Inscription bloquée"
 msgstr[1] "Inscriptions bloquées"
 
+#, python-format
 msgid "Deriv account not created after %(days)s days"
 msgstr "Compte Deriv non créé après %(days)s jours"
 
@@ -1202,6 +1202,7 @@ msgid_plural "Affiliates without recent contact"
 msgstr[0] "Affilié sans contact récent"
 msgstr[1] "Affiliés sans contact récent"
 
+#, python-format
 msgid "No contact for %(days)s days or more"
 msgstr "Aucun contact depuis %(days)s jours ou plus"
 
@@ -1422,8 +1423,8 @@ msgstr "Attribué à"
 msgid "Deriv registration and verification"
 msgstr "Inscription et vérification Deriv"
 
-msgid "Declared statuses, never checked automatically with Deriv."
-msgstr "Statuts déclarés, jamais vérifiés automatiquement auprès de Deriv."
+msgid "Declared statuses, never checked automatically with Deriv"
+msgstr "Statuts déclarés, jamais vérifiés automatiquement auprès de Deriv"
 
 #, python-format
 msgid "Since %(date)s"

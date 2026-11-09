@@ -531,6 +531,10 @@ T = {
     "Administrative records only. No connection to the VPS.": "Fiches administratives uniquement. Aucune connexion au VPS.",
     "%(n)s course": ("%(n)s cours", "%(n)s cours"),
     # Révision du design (audit DESIGN_AUDIT.md)
+    "Figures taken from the platform records": "Chiffres issus des fiches de la plateforme",
+    "Nothing pending": "Rien en attente",
+    "Declared by an administrator, not checked on the VPS": "Déclaré par un administrateur, non vérifié sur le VPS",
+    "Declared statuses, never checked automatically with Deriv": "Statuts déclarés, jamais vérifiés automatiquement auprès de Deriv",
     "Configuration to apply on the VPS": ("Configuration à appliquer sur le VPS", "Configurations à appliquer sur le VPS"),
     "Robot users waiting for their first applied configuration": "Utilisateurs de robots en attente d'une première configuration appliquée",
     "See the robot users": "Voir les utilisateurs de robots",

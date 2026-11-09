@@ -90,3 +90,36 @@ Vérification dans Chromium :
 - aucune erreur de console ni violation de CSP ;
 - la confirmation s'affiche, et la refuser n'envoie pas le formulaire ;
 - aucun débordement horizontal sur mobile.
+
+## Deuxième passe : `ui-ux-pro-max` et `unslop` (2026-11-09)
+
+**Diagnostic `unslop` :** slop léger. Selon la skill, c'est un mode de polissage : on garde l'identité noir et or, et on ne corrige que ce que la grille `references/signs.md` relève.
+
+**Direction :**
+- *Produit :* registre administratif des affiliés et des utilisateurs de robots, pour l'équipe SYSTEM-C.
+- *Caractère :* exact, posé, solennel.
+- *Univers :* le registre et le sceau (papier, encre, filet d'or).
+- *Moments :* le registre « À traiter » ; la carte de configuration validée.
+- *Signature :* le filet d'or qui précède toute information « déclarée, non vérifiée ».
+
+**Recommandations `ui-ux-pro-max` consultées (profils « CRM & Client Management » et « Banking/Traditional Finance ») :**
+- style plat et suisse, pas d'ombres, transitions de couleur de 150 ms ;
+- or en accent de confiance ;
+- règles d'ergonomie *Submit Feedback*, *Focusable Error Summary*, *Focus Not Obscured*, *Number Formatting*, *Confirmation Dialogs* et *Empty States*.
+
+| Passe | Constat | Correction |
+|---|---|---|
+| Espacement | Valeurs hors grille (14 px, 3 px, 9 px) | Grille de 4 px ; navigation en rangées de 36 px (44 px sur mobile) |
+| Couleur | Deux rôles de texte flous | Trois rôles (encre, pierre, atténué) ; filets à environ 10 % de l'encre |
+| Icônes | Icônes de navigation en or | Couleur du texte atténué ; or réservé à la rubrique active |
+| Texte | Formule d'accueil en en-tête ; points finaux sur libellés courts | Titre de contexte et méta factuelle ; libellés sans point final |
+| Typographie | Graisse 600 répandue | 400 et 500 ; 600 réservé aux titres en serif |
+| Mise en page | Résumés en cases identiques | Deux registres côte à côte, libellé à gauche, chiffre aligné à droite ; largeur jusqu'à 1 440 px |
+| Détails | Rayons non imbriqués | Contrôles 8 px, cartes 12 px ; montants avec séparateur de milliers (12 500,00 USD) |
+| Mouvement | Courbe générique | Une courbe `cubic-bezier(0.22, 1, 0.36, 1)`, 150 ms, léger enfoncement au clic |
+| Ergonomie | Envoi sans retour ; résumé d'erreurs non relié | Bouton « occupé » après envoi ; résumé focalisé avec un lien vers chaque champ ; focus jamais masqué par la barre collante |
+
+**Vérification :** tests `SkillPolishTests`. Dans Chromium :
+- le résumé d'erreurs reçoit le focus et ses liens mènent aux champs ;
+- aucune erreur de console ;
+- aucun débordement horizontal sur mobile.

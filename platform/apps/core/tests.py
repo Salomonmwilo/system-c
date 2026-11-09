@@ -380,3 +380,41 @@ class DesignRevisionTests(TestCase):
             self.assertTrue((base / "css" / url).resolve().exists(), url)
         self.assertTrue((base / "vendor/fonts/LICENSE-IBM-Plex-Sans.txt").exists())
         self.assertTrue((base / "vendor/fonts/LICENSE-Source-Serif-4.txt").exists())
+
+
+class SkillPolishTests(TestCase):
+    """Règles issues des skills ui-ux-pro-max et unslop (docs/platform/DESIGN_AUDIT.md)."""
+
+    def setUp(self):
+        self.org = make_org()
+        self.admin = make_user(self.org, Role.CRM_ADMIN, Role.ORG_ADMIN)
+        login(self.client, self.admin, self.org)
+
+    def test_error_summary_links_each_invalid_field(self):
+        response = self.client.post(reverse("core:member_create"), {"full_name": "Sans adresse", "preferred_language": "fr"})
+        self.assertContains(response, "data-error-summary")
+        self.assertContains(response, 'href="#id_email"')
+        self.assertContains(response, 'href="#id_password"')
+        self.assertContains(response, 'href="#id_roles_0"')  # groupe de cases : première case
+        self.assertNotContains(response, 'href="#"')
+
+    def test_dashboard_has_no_greeting_headline(self):
+        response = self.client.get(reverse("core:dashboard"))
+        self.assertNotContains(response, "Bonjour")
+        self.assertContains(response, "Chiffres issus des fiches de la plateforme")
+
+    def test_reference_capital_uses_thousand_separators(self):
+        from decimal import Decimal
+
+        from apps.bots import services as bot_services
+        from apps.core.testing import fake_request
+        from apps.partners import services as partner_services
+
+        affiliate = partner_services.create_affiliate(organization=self.org, actor=self.admin, data={"display_name": "Capital"})
+        bot = bot_services.create_bot_user(organization=self.org, affiliate=affiliate, actor=self.admin, data={"robot_type": "DIFFERS"})
+        request = fake_request(self.admin, self.org)
+        version = bot_services.start_version(request=request, bot_user=bot)
+        bot_services.update_draft(request=request, version=version, data={"reference_capital": Decimal("12500")}, parameters={})
+        bot_services.validate_version(request=request, version=version)
+        response = self.client.get(reverse("bots:botuser_detail", args=[bot.pk]))
+        self.assertContains(response, "12 500,00 USD")
