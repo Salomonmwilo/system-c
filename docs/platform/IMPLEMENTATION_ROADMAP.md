@@ -2,6 +2,8 @@
 
 > **Amendement rév. 2 (2026-11-09).** Les phases « Agent VPS » et « Configuration par l'agent » sont **retirées**. Les phases BOT MANAGEMENT sont désormais la phase 4 (CRM des utilisateurs de robots) et la phase 5 (tableau de bord, tâches et rappels), décrites dans `NEW_PROJECT_DIRECTION.md` §9.
 
+> **Amendement rév. 3 (2026-11-09).** Porte bloquante avant la phase 4 : la liste blanche des réglages (`BOT_CRM_SPEC.md` §0 et §4) doit être vérifiée contre les fichiers réels, sans exposer de valeur ni de secret. Sans cette vérification, aucun champ de configuration n'est créé. La phase 4 suit les tests de `BOT_CRM_SPEC.md` §11.
+
 # SYSTEM-C — Feuille de route par phases
 
 Découpage en phases livrables, chacune avec un critère de sortie vérifiable. Les phases 1 et 2 peuvent commencer dès approbation ; les suivantes dépendent des décisions listées en fin de document.

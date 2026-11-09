@@ -5,6 +5,7 @@ Statut : **révision 2 — proposition à approuver**. Aucun code n'est écrit �
 Historique :
 - Révision 1 (2026-11-09) : plateforme SaaS à trois modules.
 - **Révision 2 (2026-11-09) : BOT MANAGEMENT redéfini comme CRM administratif.** Le module ne contrôle plus les robots. Il n'y a ni agent sur le VPS, ni API de contrôle, ni commande distante, ni synchronisation de trades, ni stockage de tokens. Les sections touchées sont signalées par **[rév. 2]**.
+- **Révision 3 (2026-11-09) : décisions de conception validées** (propriété des affiliés, comptes de robots, liste blanche, mode réel, alertes, sécurité). Détail dans `BOT_CRM_SPEC.md`, qui fait foi pour le CRM. Les sections modifiées sont marquées **[rév. 3]**.
 
 Documents remplacés : `PROPOSED_ARCHITECTURE.md`, `MIGRATION_PLAN.md`, `IMPLEMENTATION_ROADMAP.md` (voir §10). `CURRENT_STATE.md` et `GAP_ANALYSIS.md` restent valables comme inventaire.
 
@@ -189,9 +190,9 @@ Pourquoi pas des microservices : trois modules, équipe réduite, besoins transa
 
 La demande initiale donne aux deux modules PARTNERS et BOT MANAGEMENT la gestion des affiliés et de leur parcours d'inscription et de vérification. Il faut éviter deux fiches pour une même personne.
 
-**Recommandation** : une seule entité **Affilié** dans `partners`, qui possède l'identité, le lien de parrainage, le parcours d'inscription et de vérification. `bots` **référence** l'affilié par son identifiant et ajoute ses propres données (robot, capital, configurations, interventions). BOT MANAGEMENT affiche donc une vue complète de l'affilié sans dupliquer les données.
+**Décidé [rév. 3]** : `partners` est propriétaire de la fiche principale. Une seule fiche par personne. `academy` et `bots` la **référencent** par identifiant et ne copient aucune donnée personnelle. Voir `BOT_CRM_SPEC.md` §1.
 
-Alternative : `bots` possède l'affilié, et `partners` ne gère que les prospects jusqu'à leur inscription. Plus simple à expliquer à l'administrateur, mais la vue « parrainage » doit alors lire le module bots.
+Option écartée [rév. 3] : `bots` propriétaire de l'affilié.
 
 Dans les deux cas, un **prospect** (PARTNERS, avant inscription) devient un **affilié** à la conversion. Un seul événement de domaine porte cette transition.
 
@@ -332,12 +333,19 @@ Ces cinq statuts décrivent **l'état administratif déclaré**, jamais l'état 
 Règles :
 - Une seule version est « courante » par utilisateur de robot.
 - Passer à « Configuration appliquée » exige une date et une note ; la version devient la version appliquée déclarée.
-- « Modification demandée » est automatique à la création d'une version non appliquée, et ne peut pas être posé à la main sans version.
+- **[rév. 3]** Les statuts sont **calculés** (sauf « En pause » et « Désactivé »). « Modification demandée » apparaît seulement si une déclaration d'application existe pour une version antérieure et qu'une version plus récente est validée sans déclaration. Une version jamais déclarée appliquée reste « À configurer ». Règles complètes : `BOT_CRM_SPEC.md` §3.
 - « En pause » et « Désactivé » n'effacent jamais l'historique.
 - Chaque transition est journalisée (auteur, date, ancien et nouvel état).
 - Une fiche sans déclaration depuis un délai configurable (par défaut 30 jours) est signalée comme « à revalider » dans le tableau de bord.
 
-#### 6.4.3 Réglages déclarés **[rév. 2]**
+#### 6.4.3 Réglages déclarés **[rév. 3]**
+
+- La plateforme **ne lit jamais** `reglages.env` et n'importe rien depuis le VPS.
+- Les paramètres viennent d'une **liste blanche fermée** (`bots.parameter_definition`), gouvernée par `crm_admin`. Seuls les paramètres au statut `verified` apparaissent dans le formulaire.
+- **Aucun champ destiné à un secret** n'existe : ni colonne, ni champ de formulaire, ni table. Ce point est la protection principale.
+- Les valeurs sont validées par type, bornes et unité. Une clé inconnue est refusée.
+- Les **notes libres** restent possibles. Une détection par expressions régulières **n'est pas considérée comme une protection** : elle sert de rappel, et les mesures réelles sont décrites dans `BOT_CRM_SPEC.md` §9.
+- **Liste provisoire** : les 12 clés ne sont pas validées. Elles dépendent de la vérification des fichiers réels, qui n'a pas pu être faite (`BOT_CRM_SPEC.md` §0).
 
 - La plateforme **ne lit jamais** `reglages.env` et **n'importe rien** depuis le VPS.
 - Les réglages sont saisis manuellement, à partir d'un **modèle de formulaire par type de robot**.
@@ -363,7 +371,7 @@ Filtres : statut, type de robot, environnement déclaré, étape de vérificatio
 
 #### 6.4.5 Environnement démo et réel **[rév. 2]**
 
-Simple champ **déclaratif** sur chaque version de configuration. Il sert à l'affichage et au filtrage. La plateforme ne vérifie rien et n'agit pas différemment selon la valeur ; une alerte signale seulement que l'environnement « réel » est déclaré, pour rappeler l'obligation de suivi.
+**[rév. 3]** Seul `crm_admin` peut déclarer un compte réel. La déclaration exige une confirmation explicite, une date, une note et une trace d'audit. Elle ne déclenche **aucune** action sur le VPS ni sur Deriv. Une double validation des versions réelles est recommandée, en attente de décision (`BOT_CRM_SPEC.md` §5).
 
 #### 6.4.6 Tâches, rappels et actions en attente **[rév. 2]**
 
@@ -407,7 +415,7 @@ Ces règles sont testées en CI :
 - aucun client HTTP vers le VPS ni vers Deriv depuis la plateforme ;
 - aucun module de lecture de fichier `reglages.env` ;
 - aucune route de commande ou de contrôle de robot ;
-- le contrôle de motifs sur les notes et les réglages est actif et testé (faux positifs acceptés, faux négatifs non).
+- **[rév. 3]** aucun champ destiné à un secret ; liste blanche fermée ; versions immuables en base ; tests de schéma et d'import (`BOT_CRM_SPEC.md` §11.1). Le contrôle de motifs n'est pas compté comme protection.
 
 ### 7.5 Confidentialité
 - Registre des traitements, base légale et durée de conservation par catégorie.
@@ -429,7 +437,7 @@ Ces règles sont testées en CI :
 
 | # | Risque | Gravité | Mesures |
 |---|---|---|---|
-| SEC-1 | Saisie d'un token ou d'un mot de passe dans une note ou un réglage | Élevée | Contrôle de motifs ; formulaires sans champ secret ; message d'avertissement ; purge et journal si détection |
+| SEC-1 | Saisie d'un token ou d'un mot de passe dans une note | Élevée | **[rév. 3]** Aucun champ secret ; liste blanche ; avertissement et journal ; formation ; purge sur demande. La détection par expressions régulières n'est pas une protection |
 | SEC-2 | Compromission d'un compte administrateur (accès aux données personnelles d'affiliés) | Élevée | TOTP obligatoire ; sessions courtes ; journal ; moindre privilège |
 | SEC-3 | Fuite de données entre organisations | Élevée | Isolation applicative ; tests ; RLS en phase 6 |
 | SEC-4 | Export massif de données personnelles | Élevée | Export réservé à `crm_admin` ; journalisé ; limité en volume ; PDF filigrané |
@@ -449,7 +457,7 @@ Les risques liés au VPS (tokens, reglages.env, systemd, trading) **sont hors du
 | CRM-2 | Erreur de saisie des réglages (valeur de capital ou de mise erronée) | Modèle de formulaire avec bornes et unités ; double saisie pour les changements de capital ; historique consultable |
 | CRM-3 | Fiche « configuration appliquée » alors que la modification n'a pas été faite | Date et auteur obligatoires ; le statut ne change qu'à la déclaration explicite |
 | CRM-4 | Données personnelles d'affiliés en excès | Minimisation ; pas de pièce d'identité ; durée de conservation ; export contrôlé |
-| CRM-5 | Notes contenant des informations sensibles | Contrôle de motifs ; formation de l'administrateur ; purge sur demande |
+| CRM-5 | Notes contenant des informations sensibles | Contrôle de motifs ; formation ; purge sur demande | **[rév. 3]** Limites de longueur ; avertissement visible ; formation ; revue périodique ; purge sur demande |
 | CRM-6 | Confusion entre démo et réel | Libellé explicite à chaque affichage ; filtre dédié ; aucune action ne se déclenche automatiquement |
 
 ### 8.3 Conformité et contenu (à valider avec un juriste et le responsable)
@@ -502,7 +510,7 @@ Chaque phase a un critère de sortie vérifiable. Aucune phase ne commence sans 
 - Environnement démo ou réel déclaré.
 - Interventions, notes, dates.
 
-**Sortie** : toutes les transitions de statut testées ; versions immuables ; contrôle de motifs actif ; aucun champ secret (test de schéma) ; aucune dépendance vers le VPS.
+**Sortie** : tests de `BOT_CRM_SPEC.md` §11 verts (statuts, immuabilité, permissions, déclaration réelle, schéma sans secret, import) ; liste blanche validée contre les fichiers réels ; aucune dépendance vers le VPS.
 
 ### Phase 5 — Tableau de bord, tâches et rappels (3 à 4 semaines) **[rév. 2]**
 - Vue d'ensemble par affilié et par utilisateur de robot, filtres, alertes.
@@ -549,9 +557,9 @@ Le contenu pédagogique et la saisie initiale des fiches sont souvent le goulot 
 
 ---
 
-## 11. Décisions qui nécessitent votre approbation
+## 11. Décisions — état après révision 3
 
-Les décisions 1 à 5 bloquent la phase 1 ou 4.
+**Validées [rév. 3]** : 4 (propriété `partners`), 5 (fiches robots sans compte), 7 (capital déclaré manuellement), 9 (mode réel par `crm_admin`). **Non tranchée** : 1 (framework : Django recommandé, décision toujours ouverte). **Bloquante** : 6 (liste des réglages, non vérifiée, `BOT_CRM_SPEC.md` §0). Les autres restent ouvertes. Détail des décisions propres au CRM : `BOT_CRM_SPEC.md` §10.
 
 1. **Framework** : Django (recommandé) ou FastAPI.
 2. **Hébergement de la plateforme** : hors du VPS Ubuntu (recommandé), ou sur le VPS dans un conteneur isolé, utilisateur dédié, réseau privé.
