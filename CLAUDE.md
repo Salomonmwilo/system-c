@@ -20,6 +20,8 @@
   3. `unslop` : passes de polissage (espacement, couleur, icônes, texte, typographie, mise en page, détails, mouvement) ;
   4. `frontend-design-audit` : audit d'ergonomie final et corrections.
   5. `web-interface-guidelines` (Vercel) et `accessibility` (WCAG 2.2) : revue des gabarits et audit des pages rendues, puis corrections.
+  6. `taste-skill` (copie partielle : rédaction, formulaires, accès ; ses règles de site vitrine ne s'appliquent pas à l'application) et `image-to-code` (quand une maquette ou une capture est fournie).
+- Le système de design lisible par les agents est `DESIGN.md` (racine du dépôt, skill `design-md`) : le mettre à jour avec `systemc.css`.
 - Direction retenue (passe `unslop`) : exact, posé, solennel ; univers du registre et du sceau. La signature est le filet d'or de `.sc-declared` : il ne sert qu'aux informations déclarées, non vérifiées.
 - Identité imposée par le responsable : **noir et or, sobre et institutionnel**. Les jetons de design sont en tête de `platform/static/css/systemc.css`.
 - Provenance et revue des skills : `.claude/skills/SOURCES.md`.

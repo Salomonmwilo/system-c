@@ -12,8 +12,25 @@ Chaque skill a été lue intégralement avant installation. Elle est figée à u
 | `unslop` | [heydamir/unslop](https://github.com/heydamir/unslop/tree/97daa3eb365670ea3f87ed85356cbfcee18105a5/skills/unslop) | `97daa3eb365670ea3f87ed85356cbfcee18105a5` | CC BY 4.0 (`unslop/LICENSE`), auteur : Damir Sokolovsky ([@heydamir](https://x.com/heydamir)) | Méthode en neuf passes pour retirer l'aspect « généré » et donner du caractère |
 | `web-interface-guidelines` | Règles : [vercel-labs/web-interface-guidelines](https://github.com/vercel-labs/web-interface-guidelines/tree/434b7f91364665f2f733b310ec54809bf8f37937) ; enveloppe d'origine : [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills/tree/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/skills/web-design-guidelines) | `434b7f91364665f2f733b310ec54809bf8f37937` (2026-10-05) et `1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62` (2026-10-27) | MIT (`web-interface-guidelines/LICENSE` ; MIT déclaré dans le README de agent-skills) | Revue du code d'interface selon les règles de Vercel : accessibilité, focus, formulaires, typographie, contenus, navigation, tactile |
 | `accessibility` | [addyosmani/web-quality-skills](https://github.com/addyosmani/web-quality-skills/tree/afa8da942115f2961fdbfa80807ea0b232ff6c00/skills/accessibility) | `afa8da942115f2961fdbfa80807ea0b232ff6c00` (2026-08-24) | MIT (`accessibility/LICENSE`), auteur : Addy Osmani | Audit WCAG 2.2 fondé sur les pages rendues (Lighthouse ou axe), puis corrections |
+| `taste-skill` (nom : `design-taste-frontend`), **copie partielle** | [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill/tree/f6b76575f949707b4e3c37cd86cb44b0b98643e8/skills/taste-skill) | `f6b76575f949707b4e3c37cd86cb44b0b98643e8` (2026-11-07) | MIT (`taste-skill/LICENSE`), auteur : Leonxlnx | Règles de rédaction (marques de texte généré), de système, de formulaires et d'accessibilité. Installée à la demande du responsable (2026-11-11). |
+| `image-to-code` | [Leonxlnx/imagegen-skills](https://github.com/Leonxlnx/imagegen-skills/tree/beb16b0d0f4dae9a6f5cb04ea41e97b93a54ab8e/skills/image-to-code) | `beb16b0d0f4dae9a6f5cb04ea41e97b93a54ab8e` (2026-10-19) | MIT (`image-to-code/LICENSE`), auteur : Leonxlnx | Traduire une image (maquette, capture) en interface ; règles contre les boîtes imbriquées et les micro-étiquettes |
+| `design-md` | Format et exemples : [VoltAgent/awesome-design-md](https://github.com/VoltAgent/awesome-design-md/tree/fcc70284932276d085f01ef9f83edde90b1258cb) | `fcc70284932276d085f01ef9f83edde90b1258cb` (2026-10-28) | MIT (`design-md/LICENSE`) | Tenir `DESIGN.md` (racine du dépôt), le système de design lisible par les agents. `SKILL.md` écrit pour ce projet ; deux exemples figés (`mercury`, `ibm`). |
 
 ## Empreintes SHA-256 des fichiers téléchargés
+
+Quatrième lot (2026-11-11) :
+
+```
+0c7a5852a5217be79cab422c6d58329b776f0c25bd6da8a7a01707ce75be6206  taste-skill/SKILL.md   (avant modification)
+5efe5057a414b9c11c75ec7840eb1536be24aaccc18c6e1cd7f24a41b17959f4  taste-skill/references/*.md   (concaténés par ordre alphabétique, non modifiés)
+4575a543ab88dad12ccea7d97e563d0bce5b448b06072e65d3264497dad326df  taste-skill/LICENSE   (identique à image-to-code/LICENSE)
+4c060a8064a8b13380bc2ef3d6e6a1d0b1e316aa093cd9807d0ce9e4eeb037fa  image-to-code/SKILL.md   (avant modification)
+6d4bdc9a9cf30e7beb593475fdcdbf29f981ea6bd7923f202866145409f87b44  design-md/LICENSE
+dabb3683422a9841369b0db53ff13ed375b0b6f019157a5c90e9fca165cc111f  design-md/references/mercury.DESIGN.md
+46f6fd65b5e7524fed1133b9b3c0dd619f9a0f145fbb2b87f3675c701a88f3bd  design-md/references/ibm.DESIGN.md
+```
+
+`unslop` et `web-interface-guidelines` ont été revérifiés le même jour : l'amont de `unslop` est toujours au commit figé (`97daa3eb`), et la copie locale est identique (seule la licence a été ajoutée).
 
 Troisième lot (2026-11-11) :
 
@@ -54,14 +71,29 @@ f2e3ccf4ec24d3418b731e6e8045403ab6bcd4bfcd9afa032e6ded12d45f9437  frontend-desig
 - `ui-ux-pro-max` : seule la skill principale est copiée, sans `scripts/tests/` ni les sous-skills `banner-design`, `brand`, `design`, `design-system`, `slides` et `ui-styling` du même dépôt.
 - `web-interface-guidelines/SKILL.md` : enveloppe écrite pour ce projet. L'original télécharge les règles depuis la branche `main` à chaque utilisation ; ici, elles sont lues dans `command.md`, figé au commit indiqué. Elle ajoute les exceptions du projet : casse de phrase en français, guillemets français, pas de règles React, pas de style ni de script en ligne.
 - `accessibility/SKILL.md` : le lien vers la skill voisine `web-quality-audit`, non installée, est remplacé par une mention.
+- `taste-skill` : seuls `SKILL.md`, `references/` et la licence sont copiés. Pas de `scripts/` (17 000 lignes), d'`assets/` (38 Mo) ni de `library/`. Dans `SKILL.md` : le crochet `Stop` de l'en-tête est retiré, et une section « Installation dans SYSTEM-C » précise ce qui manque et les règles du projet qui l'emportent.
+- `image-to-code/SKILL.md` : section « Utilisation dans SYSTEM-C » ajoutée en tête (pas de génération d'images ici, identité imposée, CSP).
 
 Aucun autre changement.
 
 ## Candidats écartés (2026-11-09)
 
-- `Leonxlnx/taste-skill` (MIT) : conçu pour des sites vitrines d'entreprise (accroches, photographies, effets 3D, composants animés) ; 41 Mo. Hors sujet pour un CRM d'administration.
+- `Leonxlnx/taste-skill` (MIT) : écartée le 2026-11-09, car conçue pour des sites vitrines. Installée partiellement le 2026-11-11 à la demande du responsable (voir le tableau et la revue de sécurité).
 - `superdesigndev/superdesign-skill` : non examinée en détail ; sa description la dit « propulsée par superdesign.dev », un service externe, ce que le projet exclut.
 - Recueils géants (centaines de skills non vérifiables une à une) : écartés par prudence.
+
+## Revue de sécurité (2026-11-11), quatrième lot
+
+- **`taste-skill` :**
+  - le `SKILL.md` et les 24 références sont lus ; ce sont des règles en Markdown ;
+  - les scripts n'ont pas été installés. Leur revue a relevé :
+    - le lancement de Chrome en tâche de fond ;
+    - des téléchargements depuis Wikimedia Commons, picsum.photos et cdn.jsdelivr.net, et des liens vers Google Fonts ;
+    - un crochet `Stop` qui exécutait `gate.mjs` automatiquement.
+
+    Ce sont trop de lignes pour une relecture complète, et cela contredit la règle « aucun CDN ni service externe ».
+- **`image-to-code` :** Markdown seul, aucune commande. Son flux principal suppose un outil de génération d'images, absent ici.
+- **`design-md` :** deux fichiers de description de marque en Markdown (couleurs, typographie, composants), sans instruction d'exécution.
 
 ## Revue de sécurité (2026-11-11)
 
