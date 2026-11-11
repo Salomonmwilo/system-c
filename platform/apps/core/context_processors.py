@@ -10,6 +10,7 @@ NAV_PERMISSIONS = {
     "bots": "bots.view_botuser",
     "parameters": "bots.manage_parameters",
     "academy": "academy.view",
+    "academy_orders": "payments.view_orders",
     "members": "core.manage_members",
     "thresholds": "core.manage_thresholds",
     "audit": "core.view_audit",

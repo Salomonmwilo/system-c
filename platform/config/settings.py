@@ -175,6 +175,11 @@ LOGGING = {
 # Valeurs par défaut propres à la plateforme.
 SYSTEMC_DEFAULT_CURRENCY = env("SYSTEMC_DEFAULT_CURRENCY", "USD")
 
+# Versions des textes montrés à l'acheteur, enregistrées sur chaque commande.
+# Les conditions générales de vente ne sont pas encore rédigées : version vide.
+SYSTEMC_RISK_NOTICE_VERSION = "2026-11"
+SYSTEMC_TERMS_VERSION = env("SYSTEMC_TERMS_VERSION", "")
+
 # Fichiers privés (ressources payantes d'Academy) : hors du code source et des
 # fichiers statiques, sans URL publique. Ils ne seront servis que par une vue
 # qui vérifie les droits d'accès.

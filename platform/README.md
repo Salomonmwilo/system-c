@@ -82,6 +82,14 @@ Crée ou complète le programme : 5 étapes, 25 leçons (titre et résumé, sans
 
 Les fichiers des ressources sont enregistrés dans `private_media/` (ou `SYSTEMC_PRIVATE_MEDIA_ROOT`), hors des fichiers statiques, sans adresse publique et ignorés par Git.
 
+### Essayer le parcours de commande (facultatif)
+
+```bash
+python manage.py seed_academy_demo --organization system-c --yes
+```
+
+Crée un programme et une offre d'essai publiés, marqués « [Démo] » (5,00 USD fictifs), avec des ressources qui pointent vers example.org. Refusé hors mode `DEBUG`. Aucune commande ni aucun paiement n'est simulé : commandez l'offre depuis « Offres », puis confirmez-la depuis « Commandes » avec une note. Les offres réelles de SYSTEM-C Method restent en brouillon et ne peuvent pas être commandées.
+
 L'administration Django (`/admin`) reste désactivée : elle contournerait l'isolation par organisation. Voir `docs/platform/SYSTEM_C_METHOD_AUDIT.md`.
 
 ## Tests
@@ -125,15 +133,15 @@ Règles de dépendance : `core` ne dépend d'aucun module. `partners` ne dépend
 
 | Rôle | Usage principal |
 |---|---|
-| `org_admin` | membres et rôles, journal d'audit |
+| `org_admin` | membres et rôles, journal d'audit ; commandes d'Academy : consultation, **confirmation manuelle des paiements**, annulation, remboursement (permissions `payments.*`) |
 | `crm_admin` | CRM complet, validation des versions, **seul rôle autorisé à déclarer un compte réel**, seuils, liste blanche |
 | `crm_operator` | fiches robot, brouillons démo, déclarations d'application démo, pauses, interactions |
 | `crm_viewer` | lecture seule, données personnelles masquées |
 | `partner_manager` | affiliés, parcours, relances, liens de parrainage |
 | `partner_advisor` | uniquement les affiliés qui lui sont attribués |
-| `academy_instructor`, `academy_student` | module Academy uniquement |
+| `academy_instructor`, `academy_student` | module Academy uniquement : consulter les programmes et les offres, commander |
 
-Un même compte peut cumuler plusieurs rôles. Le statut de super-utilisateur Django ne donne accès à aucune donnée d'organisation.
+Un même compte peut cumuler plusieurs rôles. Le statut de super-utilisateur Django ne donne accès à aucune donnée d'organisation, ni aucune permission de paiement. Un futur rôle `finance_admin` pourra recevoir les permissions `payments.*` (voir `apps/core/permissions.py`).
 
 ## Production (à compléter avant toute mise en ligne)
 

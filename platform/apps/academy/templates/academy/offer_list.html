@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Offers" %}{% endblock %}
+{% block page_title %}{% translate "Offers" %}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+  <h1 class="h3 mb-0">{% translate "Offers" %}</h1>
+  <a class="btn btn-outline-secondary" href="{% url 'academy:my_order_list' %}"><i class="bi bi-receipt me-1" aria-hidden="true"></i>{% translate "My orders" %}</a>
+</div>
+{% include "academy/includes/risk_notice.html" %}
+{% if offers %}
+<div class="row g-3">
+  {% for offer in offers %}
+  <div class="col-md-6 col-xl-4">
+    <article class="sc-card h-100 d-flex flex-column">
+      <div class="sc-card-body d-flex flex-column gap-2 flex-grow-1">
+        <p class="small text-body-secondary mb-0">{{ offer.program.title }}</p>
+        <h2 class="h5 mb-0"><a href="{% url 'academy:offer_detail' offer.pk %}">{{ offer.name }}</a></h2>
+        <p class="sc-num sc-serif fs-4 mb-0">{{ offer.price|floatformat:"2g" }}&nbsp;{{ offer.currency }}</p>
+        {% if offer.description %}<p class="small mb-0">{{ offer.description }}</p>{% endif %}
+        <div class="mt-auto pt-2">
+          {% if offer.has_access %}<span class="sc-badge sc-badge-ok"><i class="bi bi-unlock" aria-hidden="true"></i>{% translate "Access open" %}</span>
+          {% elif offer.open_order %}<a class="small" href="{% url 'academy:my_order_detail' offer.open_order.pk %}">{% translate "Order in progress: see its status" %}</a>
+          {% else %}<a class="btn btn-sm btn-primary" href="{% url 'academy:offer_detail' offer.pk %}">{% translate "See the offer" %}</a>{% endif %}
+        </div>
+      </div>
+    </article>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="sc-card"><div class="sc-empty"><i class="bi bi-bag" aria-hidden="true"></i>{% translate "No offer is open for ordering yet." %}</div></div>
+{% endif %}
+{% endblock %}

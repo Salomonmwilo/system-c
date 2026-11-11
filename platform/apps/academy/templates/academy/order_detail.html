@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% blocktranslate with n=order.pk %}Order {{ n }}{% endblocktranslate %}{% endblock %}
+{% block page_title %}{% translate "Orders" %}{% endblock %}
+{% block content %}
+<nav aria-label="{% translate 'Breadcrumb' %}"><ol class="breadcrumb small"><li class="breadcrumb-item"><a href="{% url 'academy:order_list' %}">{% translate "Orders" %}</a></li><li class="breadcrumb-item active" aria-current="page">{% blocktranslate with n=order.pk %}No. {{ n }}{% endblocktranslate %}</li></ol></nav>
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+  <div>
+    <h1 class="h3 mb-1">{% blocktranslate with n=order.pk %}Order {{ n }}{% endblocktranslate %}</h1>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      {% include "academy/includes/order_status.html" with status=order.status label=order.get_status_display %}
+      {% if order.status == "paid" or order.status == "refunded" %}<span class="sc-declared">{% translate "Payment confirmed by hand by an administrator, no provider connected" %}</span>{% endif %}
+    </div>
+  </div>
+  <p class="sc-num sc-serif fs-3 mb-0">{{ order.price|floatformat:"2g" }}&nbsp;{{ order.currency }}</p>
+</div>
+{% if order.has_partial_refund %}
+<div class="sc-banner sc-banner-info mb-3"><i class="bi bi-info-circle" aria-hidden="true"></i><div>{% blocktranslate with amount=order.refunded_amount|floatformat:"2g" currency=order.currency %}Partial refund recorded: {{ amount }} {{ currency }}. Access is unchanged; no rule is applied automatically.{% endblocktranslate %}</div></div>
+{% endif %}
+
+<div class="row g-3">
+  <div class="col-xl-5">
+    <div class="sc-card mb-3"><div class="sc-card-header"><h2>{% translate "Details" %}</h2></div><div class="sc-card-body">
+      <dl class="sc-dl mb-0">
+        <dt>{% translate "Buyer" %}</dt><dd class="text-break">{{ order.user.get_full_name|default:order.user.email }}<div class="small text-body-secondary">{{ order.user.email }}</div></dd>
+        <dt>{% translate "Offer" %}</dt><dd>{{ order.offer.name }}<div class="small text-body-secondary">{{ order.offer.program.title }}</div></dd>
+        <dt>{% translate "Price at order time" %}</dt><dd class="sc-num">{{ order.price|floatformat:"2g" }}&nbsp;{{ order.currency }}</dd>
+        <dt>{% translate "Amount refunded" %}</dt><dd class="sc-num">{{ order.refunded_amount|floatformat:"2g" }}&nbsp;{{ order.currency }}</dd>
+        <dt>{% translate "Ordered on" %}</dt><dd>{{ order.created_at|date:"SHORT_DATETIME_FORMAT" }}</dd>
+        <dt>{% translate "Transaction reference" %}</dt><dd>{% if order.transaction_ref %}<code translate="no">{{ order.transaction_ref }}</code>{% else %}{% translate "Not provided" %}{% endif %}</dd>
+        <dt>{% translate "Access" %}</dt><dd>{% if has_access %}<span class="sc-badge sc-badge-ok"><i class="bi bi-unlock" aria-hidden="true"></i>{% translate "Open" %}</span>{% else %}<span class="sc-badge sc-badge-neutral"><i class="bi bi-lock" aria-hidden="true"></i>{% translate "Closed" %}</span>{% endif %}{% if enrollment %}<div class="small text-body-secondary">{{ enrollment.get_status_display }}</div>{% endif %}</dd>
+        <dt>{% translate "Notice accepted" %}</dt><dd>{% if order.risk_notice_version %}{% blocktranslate with v=order.risk_notice_version %}Risk notice, version {{ v }}{% endblocktranslate %}{% else %}{% translate "Not provided" %}{% endif %}</dd>
+        <dt>{% translate "Terms of sale" %}</dt><dd>{% if order.terms_version %}{% blocktranslate with v=order.terms_version %}Version {{ v }}{% endblocktranslate %}{% else %}{% translate "Not published yet" %}{% endif %}</dd>
+      </dl>
+    </div></div>
+  </div>
+
+  <div class="col-xl-7">
+    {% if order.is_open and can_confirm %}
+    <div class="sc-card mb-3"><div class="sc-card-header"><h2>{% translate "Confirm the payment" %}</h2></div><div class="sc-card-body">
+      <p class="small text-body-secondary">{% translate "Confirm only after checking that the money was received. The confirmation opens access to the offer and is recorded with your name, the date, the amount and your note." %}</p>
+      {% include "includes/form_errors.html" with form=confirm_form %}
+      <form method="post" action="{% url 'academy:order_confirm' order.pk %}" novalidate data-confirm="{% translate 'Confirm this payment and open access?' %}">{% csrf_token %}
+        {% include "includes/field.html" with f=confirm_form.received %}
+        {% include "includes/field.html" with f=confirm_form.reference %}
+        {% include "includes/field.html" with f=confirm_form.note %}
+        <button class="btn btn-primary" type="submit"><i class="bi bi-check2-circle me-1" aria-hidden="true"></i>{% translate "Confirm the payment" %}</button>
+      </form>
+    </div></div>
+    {% endif %}
+
+    {% if order.status == "paid" and can_refund %}
+    <div class="sc-card mb-3"><div class="sc-card-body">
+      <details class="sc-details"{% if refund_form.errors %} open{% endif %}><summary>{% translate "Record a refund" %}</summary>
+        {% include "includes/form_errors.html" with form=refund_form %}
+        <form method="post" action="{% url 'academy:order_refund' order.pk %}" novalidate data-confirm="{% translate 'Record this refund? A full refund removes access immediately.' %}">{% csrf_token %}
+          <div class="row"><div class="col-md-5">{% include "includes/field.html" with f=refund_form.amount %}</div><div class="col-md-7">{% include "includes/field.html" with f=refund_form.reference %}</div></div>
+          {% include "includes/field.html" with f=refund_form.reason %}
+          <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>{% translate "Record the refund" %}</button>
+        </form>
+      </details>
+    </div></div>
+    {% endif %}
+
+    {% if order.is_open and can_cancel %}
+    <div class="sc-card mb-3"><div class="sc-card-body">
+      <details class="sc-details"{% if cancel_form.errors %} open{% endif %}><summary>{% translate "Cancel the order" %}</summary>
+        {% include "includes/form_errors.html" with form=cancel_form %}
+        <form method="post" action="{% url 'academy:order_cancel' order.pk %}" novalidate data-confirm="{% translate 'Cancel this order? This cannot be undone.' %}">{% csrf_token %}
+          {% include "includes/field.html" with f=cancel_form.reason %}
+          <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-x-circle me-1" aria-hidden="true"></i>{% translate "Cancel the order" %}</button>
+        </form>
+      </details>
+    </div></div>
+    {% endif %}
+
+    <div class="sc-card"><div class="sc-card-header"><h2>{% translate "History" %}</h2></div><div class="sc-card-body">
+      {% include "academy/includes/history.html" with show_notes=True %}
+    </div></div>
+  </div>
+</div>
+{% endblock %}

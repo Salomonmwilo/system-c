@@ -22,7 +22,7 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import Deferrable, Q
 from django.utils import timezone
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
@@ -92,6 +92,12 @@ class Course(BilingualTitleMixin):
 
     class Meta:
         ordering = ["position"]
+        constraints = [
+            # Différée : permet d'échanger deux positions dans une même transaction.
+            models.UniqueConstraint(
+                fields=["program", "position"], name="academy_course_unique_position", deferrable=Deferrable.DEFERRED
+            ),
+        ]
 
 
 class Lesson(BilingualTitleMixin):
@@ -112,6 +118,10 @@ class Lesson(BilingualTitleMixin):
             models.CheckConstraint(
                 condition=Q(is_published=False) | ~Q(body_fr=""), name="academy_lesson_published_has_content"
             ),
+            models.UniqueConstraint(
+                fields=["course", "position"], name="academy_lesson_unique_position", deferrable=Deferrable.DEFERRED
+            ),
+            models.UniqueConstraint(fields=["course", "title_fr"], name="academy_lesson_unique_title"),
         ]
 
     @property
@@ -156,6 +166,10 @@ class ProgramOffer(models.Model):
     @property
     def name(self) -> str:
         return _localized(self, "name")
+
+    @property
+    def description(self) -> str:
+        return _localized(self, "description")
 
 
 class Resource(models.Model):
@@ -269,17 +283,39 @@ class Order(models.Model):
         help_text=_("Reference given by the payment provider. Never a card number or bank details."),
     )
     notes = models.TextField(_("administrative note"), blank=True)
+    refunded_amount = models.DecimalField(_("amount refunded"), max_digits=10, decimal_places=2, default=Decimal("0"))
+    # Versions des textes affichés à l'acheteur au moment de la commande (traçabilité).
+    risk_notice_version = models.CharField(_("risk notice version"), max_length=20, blank=True)
+    terms_version = models.CharField(_("terms of sale version"), max_length=20, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+
+    OPEN_STATUSES = ("draft", "awaiting_payment", "payment_pending")
 
     class Meta:
         ordering = ["-created_at"]
         constraints = [
             models.CheckConstraint(condition=Q(price__gte=0), name="academy_order_price_not_negative"),
+            models.CheckConstraint(
+                condition=Q(refunded_amount__gte=0) & Q(refunded_amount__lte=models.F("price")),
+                name="academy_order_refund_within_price",
+            ),
         ]
 
     def __str__(self) -> str:
         return f"{self.pk} {self.offer.slug} {self.status}"
+
+    @property
+    def is_open(self) -> bool:
+        return self.status in self.OPEN_STATUSES
+
+    @property
+    def remaining_refundable(self) -> Decimal:
+        return self.price - self.refunded_amount
+
+    @property
+    def has_partial_refund(self) -> bool:
+        return self.status == self.Status.PAID and self.refunded_amount > 0
 
     def save(self, *args, **kwargs):
         if self._state.adding:
@@ -297,8 +333,11 @@ class OrderAudit(AppendOnlyModel):
         CREATED = "created", _("Created")
         STATUS_CHANGED = "status_changed", _("Status changed")
         PAYMENT_VERIFIED = "payment_verified", _("Payment verified")
-        REFUNDED = "refunded", _("Refunded")
+        REFUNDED = "refunded", _("Full refund")
+        PARTIAL_REFUND = "partial_refund", _("Partial refund")
         CANCELLED = "cancelled", _("Cancelled")
+
+    MONEY_ACTIONS = ("payment_verified", "refunded", "partial_refund")
 
     order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name="audit_log")
     action = models.CharField(max_length=30, choices=Action.choices)
@@ -306,11 +345,25 @@ class OrderAudit(AppendOnlyModel):
     new_status = models.CharField(max_length=20, blank=True)
     actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name="+")
     reference = models.CharField(_("transaction reference"), max_length=100, blank=True)
+    amount = models.DecimalField(_("amount"), max_digits=10, decimal_places=2, null=True, blank=True)
+    currency = models.CharField(_("currency"), max_length=3, blank=True)
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ["-created_at", "-id"]
+        constraints = [
+            # Une confirmation ou un remboursement porte toujours un auteur, une note, un montant et une devise.
+            models.CheckConstraint(
+                condition=~Q(action__in=("payment_verified", "refunded", "partial_refund"))
+                | (Q(actor__isnull=False) & ~Q(notes="") & Q(amount__gt=0) & ~Q(currency="")),
+                name="academy_orderaudit_money_action_complete",
+            ),
+            models.CheckConstraint(
+                condition=~Q(action="cancelled") | Q(actor__isnull=False),
+                name="academy_orderaudit_cancel_has_actor",
+            ),
+        ]
 
 
 class Enrollment(models.Model):
@@ -322,11 +375,11 @@ class Enrollment(models.Model):
     """
 
     class Status(models.TextChoices):
-        REQUESTED = "requested", _("Requested")
-        ACTIVE = "active", _("Active")
-        COMPLETED = "completed", _("Completed")
-        CANCELLED = "cancelled", _("Cancelled")
-        SUSPENDED = "suspended", _("Suspended")
+        REQUESTED = "requested", _("Enrolment requested")
+        ACTIVE = "active", _("Enrolment active")
+        COMPLETED = "completed", _("Enrolment completed")
+        CANCELLED = "cancelled", _("Enrolment cancelled")
+        SUSPENDED = "suspended", _("Enrolment suspended")
 
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name="+")
     program = models.ForeignKey(Program, on_delete=models.PROTECT, related_name="enrollments")

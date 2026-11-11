@@ -1,14 +1,22 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% block title %}{% translate "Academy" %}{% endblock %}
+{% block title %}{% translate "Programmes" %}{% endblock %}
 {% block page_title %}{% translate "Academy" %}{% endblock %}
 {% block content %}
-<h1 class="h3">{% translate "Academy" %}</h1>
-<div class="sc-banner sc-banner-info mb-3"><i class="bi bi-cone-striped" aria-hidden="true"></i><div>{% translate "Module in preparation. The data structure (programmes, courses, lessons, enrolments) is in place; the learner experience will come in a later phase." %}</div></div>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+  <h1 class="h3 mb-0">{% translate "Programmes" %}</h1>
+  <a class="btn btn-outline-secondary" href="{% url 'academy:offer_list' %}"><i class="bi bi-bag me-1" aria-hidden="true"></i>{% translate "Offers" %}</a>
+</div>
+<div class="sc-banner sc-banner-info mb-3"><i class="bi bi-info-circle" aria-hidden="true"></i><div>{% translate "Published offers can be ordered from the Offers page. Reading lessons and downloading resources come in the next phase." %}</div></div>
 <div class="sc-card"><div class="sc-card-body">
   {% for program in programs %}
-    <h2 class="h5">{{ program.title }}</h2>
-    <p class="small text-body-secondary">{% blocktranslate count n=program.courses.count %}{{ n }} course{% plural %}{{ n }} courses{% endblocktranslate %}</p>
+    <div class="d-flex justify-content-between align-items-start gap-3 py-2{% if not forloop.first %} border-top{% endif %}">
+      <div class="min-w-0">
+        <h2 class="h5 mb-1">{{ program.title }}</h2>
+        <p class="small text-body-secondary mb-0">{% blocktranslate count n=program.courses.count %}{{ n }} step{% plural %}{{ n }} steps{% endblocktranslate %}</p>
+      </div>
+      {% if program.is_published %}<span class="sc-badge sc-badge-ok"><i class="bi bi-eye" aria-hidden="true"></i>{% translate "Programme published" %}</span>{% else %}<span class="sc-badge sc-badge-neutral"><i class="bi bi-eye-slash" aria-hidden="true"></i>{% translate "Programme not published" %}</span>{% endif %}
+    </div>
   {% empty %}
     <div class="sc-empty"><i class="bi bi-mortarboard" aria-hidden="true"></i>{% translate "No programme yet." %}</div>
   {% endfor %}

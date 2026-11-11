@@ -38,7 +38,10 @@
   {% endif %}
   {% if nav.academy %}
     <p class="sc-nav-heading">{% translate "Academy" %}</p>
-    <a href="{% url 'academy:home' %}" {% if ns == 'academy' %}aria-current="page"{% endif %}><i class="bi bi-mortarboard" aria-hidden="true"></i>{% translate "Programmes" %}</a>
+    <a href="{% url 'academy:home' %}" {% if ns == 'academy' and url_name == 'home' %}aria-current="page"{% endif %}><i class="bi bi-mortarboard" aria-hidden="true"></i>{% translate "Programmes" %}</a>
+    <a href="{% url 'academy:offer_list' %}" {% if ns == 'academy' and 'offer' in url_name or ns == 'academy' and url_name == 'order_create' %}aria-current="page"{% endif %}><i class="bi bi-bag" aria-hidden="true"></i>{% translate "Offers" %}</a>
+    <a href="{% url 'academy:my_order_list' %}" {% if ns == 'academy' and 'my_order' in url_name %}aria-current="page"{% endif %}><i class="bi bi-receipt" aria-hidden="true"></i>{% translate "My orders" %}</a>
+    {% if nav.academy_orders %}<a href="{% url 'academy:order_list' %}" {% if ns == 'academy' and url_name == 'order_list' or ns == 'academy' and url_name == 'order_detail' %}aria-current="page"{% endif %}><i class="bi bi-cash-coin" aria-hidden="true"></i>{% translate "Orders" %}</a>{% endif %}
   {% endif %}
   {% if nav.members or nav.thresholds or nav.audit %}
     <p class="sc-nav-heading">{% translate "Administration" %}</p>

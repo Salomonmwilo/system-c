@@ -62,6 +62,14 @@ PERMISSIONS: dict[str, frozenset[str]] = {
     "bots.manage_parameters": frozenset({R.CRM_ADMIN}),
     # academy
     "academy.view": frozenset({R.ORG_ADMIN, R.CRM_ADMIN, R.ACADEMY_INSTRUCTOR, R.ACADEMY_STUDENT}),
+    "academy.buy": frozenset({R.ORG_ADMIN, R.CRM_ADMIN, R.ACADEMY_INSTRUCTOR, R.ACADEMY_STUDENT}),
+    # payments : commandes d'Academy. Réservé à org_admin pour la première version ;
+    # un futur rôle finance_admin pourra s'ajouter ici. Le statut de super-utilisateur
+    # ne donne aucune de ces permissions.
+    "payments.view_orders": frozenset({R.ORG_ADMIN}),
+    "payments.confirm_order": frozenset({R.ORG_ADMIN}),
+    "payments.cancel_order": frozenset({R.ORG_ADMIN}),
+    "payments.refund_order": frozenset({R.ORG_ADMIN}),
 }
 
 

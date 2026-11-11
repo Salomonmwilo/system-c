@@ -170,8 +170,9 @@ class PermissionPolicyTests(TestCase):
 
     def test_academy_roles_have_no_crm_access(self):
         for role in (Role.ACADEMY_STUDENT, Role.ACADEMY_INSTRUCTOR):
-            granted = [p for p in PERMISSIONS if roles_have_perm({role}, p)]
-            self.assertEqual(granted, ["academy.view"])
+            granted = sorted(p for p in PERMISSIONS if roles_have_perm({role}, p))
+            # Consulter Academy et commander une offre ; aucun accès au CRM ni aux paiements.
+            self.assertEqual(granted, ["academy.buy", "academy.view"])
 
     def test_student_gets_403_on_crm_pages(self):
         org = make_org()

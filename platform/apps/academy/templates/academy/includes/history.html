@@ -1,0 +1,6 @@
+{% load i18n %}<ul class="sc-timeline">{% for e in history %}<li>
+  <div class="sc-meta">{% if e.actor %}{% blocktranslate with date=e.created_at|date:"SHORT_DATETIME_FORMAT" person=e.actor %}{{ date }}, by {{ person }}{% endblocktranslate %}{% else %}{{ e.created_at|date:"SHORT_DATETIME_FORMAT" }}{% endif %}</div>
+  <div><strong>{{ e.get_action_display }}</strong>{% if e.amount %} <span class="sc-num">{{ e.amount|floatformat:"2g" }}&nbsp;{{ e.currency }}</span>{% endif %}</div>
+  {% if e.reference %}<div class="small">{% blocktranslate with ref=e.reference %}Reference: {{ ref }}{% endblocktranslate %}</div>{% endif %}
+  {% if e.notes and show_notes %}<div class="small">{{ e.notes }}</div>{% endif %}
+</li>{% endfor %}</ul>

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ offer.name }} · {{ offer.program.title }}{% endblock %}
+{% block page_title %}{% translate "Offers" %}{% endblock %}
+{% block content %}
+<nav aria-label="{% translate 'Breadcrumb' %}"><ol class="breadcrumb small"><li class="breadcrumb-item"><a href="{% url 'academy:offer_list' %}">{% translate "Offers" %}</a></li><li class="breadcrumb-item active" aria-current="page">{{ offer.name }}</li></ol></nav>
+<div class="mb-3">
+  <p class="small text-body-secondary mb-1">{{ offer.program.title }}</p>
+  <h1 class="h3 mb-1">{{ offer.name }}</h1>
+  <p class="sc-num sc-serif fs-3 mb-0">{{ offer.price|floatformat:"2g" }}&nbsp;{{ offer.currency }}</p>
+</div>
+{% include "academy/includes/risk_notice.html" %}
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="sc-card mb-3"><div class="sc-card-header"><h2>{% translate "What the offer includes" %}</h2></div><div class="sc-card-body">
+      {% if offer.description %}<p>{{ offer.description }}</p>{% endif %}
+      {% include "academy/includes/resource_rows.html" %}
+    </div></div>
+  </div>
+  <div class="col-lg-5">
+    <div class="sc-card"><div class="sc-card-header"><h2>{% translate "Order" %}</h2></div><div class="sc-card-body">
+      {% if has_access %}
+        <p class="mb-0"><span class="sc-badge sc-badge-ok"><i class="bi bi-unlock" aria-hidden="true"></i>{% translate "Access open" %}</span></p>
+      {% elif open_order %}
+        <p>{% translate "You already have an open order for this offer." %}</p>
+        <a class="btn btn-outline-primary" href="{% url 'academy:my_order_detail' open_order.pk %}">{% translate "See my order" %}</a>
+      {% elif can_buy %}
+        {% include "includes/form_errors.html" %}
+        <form method="post" action="{% url 'academy:order_create' offer.pk %}" novalidate>{% csrf_token %}
+          {% include "includes/field.html" with f=form.acknowledge %}
+          <p class="small text-body-secondary">{% translate "No online payment is available yet. Your order is recorded at the price shown; access opens only after an administrator confirms the payment." %}</p>
+          <button class="btn btn-primary" type="submit"><i class="bi bi-bag-check me-1" aria-hidden="true"></i>{% translate "Place the order" %}</button>
+        </form>
+      {% else %}
+        <p class="mb-0 small text-body-secondary">{% translate "Your role does not allow ordering." %}</p>
+      {% endif %}
+    </div></div>
+  </div>
+</div>
+{% endblock %}

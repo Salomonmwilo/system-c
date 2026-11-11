@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SYSTEM-C Platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-11 01:10+0000\n"
+"POT-Creation-Date: 2026-11-11 02:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: SYSTEM-C\n"
@@ -20,6 +20,61 @@ msgstr ""
 
 msgid "Academy"
 msgstr "Academy"
+
+msgid "Never enter a card number, bank details, password or access key."
+msgstr "N'indiquez jamais de numéro de carte, de coordonnées bancaires, de mot de passe ni de clé d'accès."
+
+msgid ""
+"I have read the notice above: this programme is educational, trading carries "
+"a risk of loss, no result is guaranteed and no personal advice is given."
+msgstr "J'ai lu l'avertissement ci-dessus : ce programme est éducatif, le trading comporte un risque de perte, aucun résultat n'est garanti et aucun conseil personnalisé n'est donné."
+
+msgid "Reason (optional)"
+msgstr "Motif (facultatif)"
+
+msgid "Transaction reference"
+msgstr "Référence de transaction"
+
+msgid "Verification note"
+msgstr "Note de vérification"
+
+msgid ""
+"How the payment was checked, for example the statement line or the receipt "
+"seen."
+msgstr "Comment le paiement a été vérifié, par exemple la ligne du relevé ou le reçu consulté."
+
+#, python-format
+msgid ""
+"I have checked that %(amount)s %(currency)s was received for this order."
+msgstr "J'ai vérifié la réception de %(amount)s %(currency)s pour cette commande."
+
+msgid "Reason for cancelling"
+msgstr "Motif de l'annulation"
+
+msgid "Amount refunded"
+msgstr "Montant remboursé"
+
+msgid "Refund reference"
+msgstr "Référence du remboursement"
+
+msgid "Justification"
+msgstr "Justification"
+
+#, python-format
+msgid ""
+"Refunding %(remaining)s %(currency)s in total is a full refund and removes "
+"access immediately. A smaller amount is a partial refund: access is kept."
+msgstr "Rembourser %(remaining)s %(currency)s au total constitue un remboursement intégral et retire l'accès immédiatement. Un montant inférieur est un remboursement partiel : l'accès est conservé."
+
+#, python-format
+msgid "At most %(remaining)s %(currency)s can still be refunded."
+msgstr "Il reste au plus %(remaining)s %(currency)s à rembourser."
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "All statuses"
+msgstr "Tous les statuts"
 
 msgid "Use a three-letter ISO currency code, for example USD."
 msgstr "Utilisez un code de devise ISO à trois lettres, par exemple USD."
@@ -157,6 +212,15 @@ msgstr "Référence communiquée par le prestataire de paiement. Jamais de numé
 msgid "administrative note"
 msgstr "note administrative"
 
+msgid "amount refunded"
+msgstr "montant remboursé"
+
+msgid "risk notice version"
+msgstr "version de l'avertissement sur les risques"
+
+msgid "terms of sale version"
+msgstr "version des conditions générales de vente"
+
 msgid "Created"
 msgstr "Créée"
 
@@ -166,34 +230,337 @@ msgstr "Statut modifié"
 msgid "Payment verified"
 msgstr "Paiement vérifié"
 
-msgid "Requested"
-msgstr "Demandée"
+msgid "Full refund"
+msgstr "Remboursement intégral"
 
-msgid "Active"
-msgstr "Actif"
+msgid "Partial refund"
+msgstr "Remboursement partiel"
 
-msgid "Completed"
-msgstr "Terminée"
+msgid "amount"
+msgstr "montant"
 
-msgid "Suspended"
-msgstr "Suspendue"
+msgid "Enrolment requested"
+msgstr "Inscription demandée"
+
+msgid "Enrolment active"
+msgstr "Inscription active"
+
+msgid "Enrolment completed"
+msgstr "Inscription terminée"
+
+msgid "Enrolment cancelled"
+msgstr "Inscription annulée"
+
+msgid "Enrolment suspended"
+msgstr "Inscription suspendue"
 
 msgid "access expires"
 msgstr "fin de l'accès"
 
-msgid ""
-"Module in preparation. The data structure (programmes, courses, lessons, "
-"enrolments) is in place; the learner experience will come in a later phase."
-msgstr "Module en préparation. La structure des données (programmes, cours, leçons, inscriptions) est en place ; l'espace apprenant viendra dans une phase ultérieure."
+msgid "This offer is not available."
+msgstr "Cette offre n'est pas disponible."
+
+msgid "You already have access to this offer."
+msgstr "Vous avez déjà accès à cette offre."
+
+msgid "A verification note is required."
+msgstr "Une note de vérification est obligatoire."
+
+msgid "This order can no longer be confirmed."
+msgstr "Cette commande ne peut plus être confirmée."
+
+msgid "A reason is required."
+msgstr "Un motif est obligatoire."
+
+msgid "Only an unpaid order can be cancelled. A paid order is refunded."
+msgstr "Seule une commande non payée peut être annulée. Une commande payée se rembourse."
+
+msgid "Cancelled by the buyer."
+msgstr "Annulée par l'acheteur."
+
+msgid "A justification is required."
+msgstr "Une justification est obligatoire."
+
+msgid "Enter a valid amount."
+msgstr "Indiquez un montant valide."
+
+msgid "Only a paid order can be refunded."
+msgstr "Seule une commande payée peut être remboursée."
 
 #, python-format
-msgid "%(n)s course"
-msgid_plural "%(n)s courses"
-msgstr[0] "%(n)s cours"
-msgstr[1] "%(n)s cours"
+msgid ""
+"The amount must be greater than zero and at most %(remaining)s %(currency)s."
+msgstr "Le montant doit être supérieur à zéro et au plus égal à %(remaining)s %(currency)s."
+
+msgid "Programmes"
+msgstr "Programmes"
+
+msgid "Offers"
+msgstr "Offres"
+
+msgid ""
+"Published offers can be ordered from the Offers page. Reading lessons and "
+"downloading resources come in the next phase."
+msgstr "Les offres publiées se commandent depuis la page Offres. La lecture des leçons et le téléchargement des ressources viendront à l'étape suivante."
+
+#, python-format
+msgid "%(n)s step"
+msgid_plural "%(n)s steps"
+msgstr[0] "%(n)s étape"
+msgstr[1] "%(n)s étapes"
+
+msgid "Programme published"
+msgstr "Programme publié"
+
+msgid "Programme not published"
+msgstr "Programme non publié"
 
 msgid "No programme yet."
 msgstr "Aucun programme pour l'instant."
+
+#, python-format
+msgid "%(date)s, by %(person)s"
+msgstr "le %(date)s, par %(person)s"
+
+#, python-format
+msgid "Reference: %(ref)s"
+msgstr "Référence : %(ref)s"
+
+msgid "In preparation"
+msgstr "En préparation"
+
+msgid "Open to you"
+msgstr "Accessible"
+
+msgid "After payment"
+msgstr "Après paiement"
+
+msgid "No resource is attached to this offer yet."
+msgstr "Aucune ressource n'est encore rattachée à cette offre."
+
+msgid "Educational programme"
+msgstr "Programme éducatif"
+
+msgid ""
+"Trading carries a risk of losing capital. No financial result is guaranteed. "
+"SYSTEM-C Method gives no personal advice, no trading signal and no "
+"investment recommendation; teaching examples are not recommendations."
+msgstr "Le trading comporte un risque de perte en capital. Aucun résultat financier n'est garanti. SYSTEM-C Method ne fournit ni conseil personnalisé, ni signal de trading, ni recommandation d'investissement ; les exemples pédagogiques ne sont pas des recommandations."
+
+#, python-format
+msgid "Order %(n)s"
+msgstr "Commande %(n)s"
+
+msgid "My orders"
+msgstr "Mes commandes"
+
+msgid "Breadcrumb"
+msgstr "Fil d'Ariane"
+
+msgid ""
+"No online payment is available yet. Access opens only after an administrator "
+"confirms the payment. Never send a card number, bank details or a password."
+msgstr "Aucun paiement en ligne n'est encore proposé. L'accès s'ouvre seulement après la confirmation du paiement par un administrateur. N'envoyez jamais de numéro de carte, de coordonnées bancaires ni de mot de passe."
+
+msgid ""
+"This order was refunded in full. Access to its resources is closed; your "
+"progress is kept."
+msgstr "Cette commande a été remboursée intégralement. L'accès à ses ressources est fermé ; votre progression est conservée."
+
+#, python-format
+msgid ""
+"A partial refund of %(amount)s %(currency)s was recorded. Your access is "
+"unchanged."
+msgstr "Un remboursement partiel de %(amount)s %(currency)s a été enregistré. Votre accès est inchangé."
+
+msgid "Resources of the offer"
+msgstr "Ressources de l'offre"
+
+msgid "Details"
+msgstr "Détails"
+
+msgid "Ordered on"
+msgstr "Commandée le"
+
+msgid "Access"
+msgstr "Accès"
+
+msgid "Open"
+msgstr "Ouvert"
+
+msgid "Closed"
+msgstr "Fermé"
+
+msgid "Terms of sale"
+msgstr "Conditions générales de vente"
+
+#, python-format
+msgid "Version %(v)s"
+msgstr "Version %(v)s"
+
+msgid "Not published yet"
+msgstr "Pas encore publiées"
+
+msgid "Cancel this order"
+msgstr "Annuler cette commande"
+
+msgid "Cancel this order? This cannot be undone."
+msgstr "Annuler cette commande ? Cette action est définitive."
+
+msgid "Cancel the order"
+msgstr "Annuler la commande"
+
+msgid "History"
+msgstr "Historique"
+
+msgid "Offer"
+msgstr "Offre"
+
+msgid "Price"
+msgstr "Prix"
+
+msgid "You have not placed any order."
+msgstr "Vous n'avez passé aucune commande."
+
+msgid "See the offers"
+msgstr "Voir les offres"
+
+msgid "What the offer includes"
+msgstr "Contenu de l'offre"
+
+msgid "Order"
+msgstr "Commande"
+
+msgid "Access open"
+msgstr "Accès ouvert"
+
+msgid "You already have an open order for this offer."
+msgstr "Vous avez déjà une commande en cours pour cette offre."
+
+msgid "See my order"
+msgstr "Voir ma commande"
+
+msgid ""
+"No online payment is available yet. Your order is recorded at the price "
+"shown; access opens only after an administrator confirms the payment."
+msgstr "Aucun paiement en ligne n'est encore proposé. Votre commande est enregistrée au prix affiché ; l'accès s'ouvre seulement après la confirmation du paiement par un administrateur."
+
+msgid "Place the order"
+msgstr "Passer la commande"
+
+msgid "Your role does not allow ordering."
+msgstr "Votre rôle ne permet pas de commander."
+
+msgid "Order in progress: see its status"
+msgstr "Commande en cours : voir son statut"
+
+msgid "See the offer"
+msgstr "Voir l'offre"
+
+msgid "No offer is open for ordering yet."
+msgstr "Aucune offre n'est encore ouverte à la commande."
+
+msgid "Orders"
+msgstr "Commandes"
+
+#, python-format
+msgid "No. %(n)s"
+msgstr "N° %(n)s"
+
+msgid "Payment confirmed by hand by an administrator, no provider connected"
+msgstr "Paiement confirmé manuellement par un administrateur, aucun prestataire connecté"
+
+#, python-format
+msgid ""
+"Partial refund recorded: %(amount)s %(currency)s. Access is unchanged; no "
+"rule is applied automatically."
+msgstr "Remboursement partiel enregistré : %(amount)s %(currency)s. L'accès est inchangé ; aucune règle n'est appliquée automatiquement."
+
+msgid "Buyer"
+msgstr "Acheteur"
+
+msgid "Price at order time"
+msgstr "Prix à la commande"
+
+msgid "Not provided"
+msgstr "Non renseigné"
+
+msgid "Notice accepted"
+msgstr "Avertissement accepté"
+
+#, python-format
+msgid "Risk notice, version %(v)s"
+msgstr "Avertissement sur les risques, version %(v)s"
+
+msgid "Confirm the payment"
+msgstr "Confirmer le paiement"
+
+msgid ""
+"Confirm only after checking that the money was received. The confirmation "
+"opens access to the offer and is recorded with your name, the date, the "
+"amount and your note."
+msgstr "Confirmez seulement après avoir vérifié la réception des fonds. La confirmation ouvre l'accès à l'offre et est enregistrée avec votre nom, la date, le montant et votre note."
+
+msgid "Confirm this payment and open access?"
+msgstr "Confirmer ce paiement et ouvrir l'accès ?"
+
+msgid "Record a refund"
+msgstr "Enregistrer un remboursement"
+
+msgid "Record this refund? A full refund removes access immediately."
+msgstr "Enregistrer ce remboursement ? Un remboursement intégral retire l'accès immédiatement."
+
+msgid "Record the refund"
+msgstr "Enregistrer le remboursement"
+
+#, python-format
+msgid "%(n)s payment to check"
+msgid_plural "%(n)s payments to check"
+msgstr[0] "%(n)s paiement à vérifier"
+msgstr[1] "%(n)s paiements à vérifier"
+
+msgid ""
+"No payment provider is connected. An order is paid only when an "
+"administrator confirms the payment by hand, with a note."
+msgstr "Aucun prestataire de paiement n'est connecté. Une commande n'est payée que lorsqu'un administrateur confirme le paiement manuellement, avec une note."
+
+msgid "Filter orders"
+msgstr "Filtrer les commandes"
+
+msgid "Filter"
+msgstr "Filtrer"
+
+msgid "Reset"
+msgstr "Réinitialiser"
+
+#, python-format
+msgid "%(amount)s refunded"
+msgstr "%(amount)s remboursés"
+
+msgid "No order matches these criteria."
+msgstr "Aucune commande ne correspond à ces critères."
+
+msgid "You are not allowed to perform this action."
+msgstr "Vous n'êtes pas autorisé à effectuer cette action."
+
+msgid ""
+"Your order is recorded. No access is opened before the payment is confirmed."
+msgstr "Votre commande est enregistrée. Aucun accès n'est ouvert avant la confirmation du paiement."
+
+msgid "The order has been cancelled."
+msgstr "La commande a été annulée."
+
+msgid "Payment confirmed. Access to the offer is open."
+msgstr "Paiement confirmé. L'accès à l'offre est ouvert."
+
+msgid "This order was already confirmed. Nothing was changed."
+msgstr "Cette commande était déjà confirmée. Rien n'a été modifié."
+
+msgid "Full refund recorded. Access has been removed."
+msgstr "Remboursement intégral enregistré. L'accès a été retiré."
+
+msgid "Partial refund recorded. Access is unchanged."
+msgstr "Remboursement partiel enregistré. L'accès est inchangé."
 
 msgid "Robot management"
 msgstr "Gestion des robots"
@@ -283,12 +650,6 @@ msgstr "Le maximum doit être supérieur ou égal au minimum."
 
 msgid "Search"
 msgstr "Recherche"
-
-msgid "Status"
-msgstr "Statut"
-
-msgid "All statuses"
-msgstr "Tous les statuts"
 
 msgid "Robot"
 msgstr "Robot"
@@ -504,9 +865,6 @@ msgstr "Seul un administrateur CRM peut corriger une déclaration de compte rée
 msgid "Unknown status."
 msgstr "Statut inconnu."
 
-msgid "A reason is required."
-msgstr "Un motif est obligatoire."
-
 msgid "This status is already set."
 msgstr "Ce statut est déjà en place."
 
@@ -527,9 +885,6 @@ msgstr "Associer un robot"
 
 msgid "Robot record"
 msgstr "Fiche robot"
-
-msgid "Breadcrumb"
-msgstr "Fil d'Ariane"
 
 msgid "Robot users"
 msgstr "Utilisateurs de robots"
@@ -559,9 +914,6 @@ msgstr "Oui"
 
 msgid "No"
 msgstr "Non"
-
-msgid "Not provided"
-msgstr "Non renseigné"
 
 msgid "Last declared application"
 msgstr "Dernière application déclarée"
@@ -609,10 +961,6 @@ msgstr "Motif de la réactivation"
 
 msgid "Status history"
 msgstr "Historique des statuts"
-
-#, python-format
-msgid "%(date)s, by %(person)s"
-msgstr "le %(date)s, par %(person)s"
 
 msgid "Configuration"
 msgstr "Configuration"
@@ -722,12 +1070,6 @@ msgstr "Registre administratif uniquement. La plateforme ne se connecte jamais a
 
 msgid "Filter robot users"
 msgstr "Filtrer les utilisateurs de robots"
-
-msgid "Filter"
-msgstr "Filtrer"
-
-msgid "Reset"
-msgstr "Réinitialiser"
 
 msgid "Declared status"
 msgstr "Statut déclaré"
@@ -900,9 +1242,6 @@ msgstr "Valider et verrouiller"
 
 msgid "Back to the draft"
 msgstr "Retour au brouillon"
-
-msgid "You are not allowed to perform this action."
-msgstr "Vous n'êtes pas autorisé à effectuer cette action."
 
 msgid "The robot record has been created."
 msgstr "La fiche robot a été créée."
@@ -1105,9 +1444,6 @@ msgstr "Personne"
 
 msgid "Action"
 msgstr "Action"
-
-msgid "Details"
-msgstr "Détails"
 
 msgid "Not identified"
 msgstr "Non identifié"
@@ -1318,6 +1654,9 @@ msgstr "liens de parrainage"
 msgid "Prospect"
 msgstr "Prospect"
 
+msgid "Active"
+msgstr "Actif"
+
 msgid "Not started"
 msgstr "Non commencée"
 
@@ -1329,6 +1668,9 @@ msgstr "Compte Deriv créé (déclaré)"
 
 msgid "Not requested"
 msgstr "Non demandée"
+
+msgid "Requested"
+msgstr "Demandée"
 
 msgid "In progress"
 msgstr "En cours"
@@ -1709,11 +2051,23 @@ msgstr "Changer d'organisation"
 msgid "OK"
 msgstr "OK"
 
-msgid "Programmes"
-msgstr "Programmes"
-
 msgid "Administration"
 msgstr "Administration"
 
 msgid "Administrative records only. No connection to the VPS."
 msgstr "Fiches administratives uniquement. Aucune connexion au VPS."
+
+#~ msgid "Completed"
+#~ msgstr "Terminée"
+
+#~ msgid "Suspended"
+#~ msgstr "Suspendue"
+
+#~ msgid ""
+#~ "Module in preparation. The data structure (programmes, courses, lessons, "
+#~ "enrolments) is in place; the learner experience will come in a later "
+#~ "phase."
+#~ msgstr ""
+#~ "Module en préparation. La structure des données (programmes, cours, "
+#~ "leçons, inscriptions) est en place ; l'espace apprenant viendra dans une "
+#~ "phase ultérieure."

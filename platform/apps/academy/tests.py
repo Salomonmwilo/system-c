@@ -9,13 +9,15 @@ from pathlib import Path
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.core.files.base import ContentFile
-from django.core.management import call_command
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.management import CommandError, call_command
 from django.db import DatabaseError, IntegrityError, connection, transaction
 from django.db.migrations.executor import MigrationExecutor
 from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
+from apps.academy import services
 from apps.academy.access import active_enrollments, can_access_resource
 from apps.academy.models import (
     Course,
@@ -32,7 +34,8 @@ from apps.academy.models import (
 )
 from apps.bots.models import BotUser
 from apps.core.models import Role
-from apps.core.testing import login, make_org, make_user
+from apps.core.models import AuditLog, Membership, User
+from apps.core.testing import fake_request, login, make_org, make_user
 from apps.partners.models import Affiliate
 from apps.partners.tests import make_affiliate
 
@@ -72,15 +75,23 @@ class AcademyTestCase(TestCase):
         return res
 
     def buy(self, offer, status=Order.Status.PAID, user=None):
+        """Commande payée : confirmée par le service, comme dans l'application.
+
+        Commande non payée : créée telle quelle avec une inscription active, pour
+        vérifier que l'inscription seule ne donne aucun accès.
+        """
         user = user or self.buyer
-        order = Order.objects.create(organization=offer.program.organization, user=user, offer=offer, status=status)
+        org = offer.program.organization
+        if status == Order.Status.PAID:
+            order = Order.objects.create(organization=org, user=user, offer=offer, status=Order.Status.AWAITING_PAYMENT)
+            admin = self.admin if org == self.org else make_user(org, R.ORG_ADMIN)
+            order, _ = services.confirm_payment(
+                request=fake_request(admin, org), order=order, note="Test : réception vérifiée.", reference="TEST-1"
+            )
+            return order, order.enrollments.get()
+        order = Order.objects.create(organization=org, user=user, offer=offer, status=status)
         enrollment = Enrollment.objects.create(
-            organization=offer.program.organization,
-            program=offer.program,
-            user=user,
-            offer=offer,
-            order=order,
-            status=Enrollment.Status.ACTIVE,
+            organization=org, program=offer.program, user=user, offer=offer, order=order, status=Enrollment.Status.ACTIVE
         )
         return order, enrollment
 
@@ -115,18 +126,20 @@ class AccessScenarioTests(AcademyTestCase):
         self.assertFalse(can_access_resource(starter_user, self.complete_res))
 
     def test_cancelled_or_refunded_order_removes_access(self):
-        for status in (Order.Status.CANCELLED, Order.Status.REFUNDED):
-            with self.subTest(status=status):
-                user = make_user(self.org, R.ACADEMY_STUDENT)
-                order, enrollment = self.buy(self.complete, user=user)
-                self.assertTrue(can_access_resource(user, self.complete_res))
-                order.status = status
-                order.save()
-                enrollment.refresh_from_db()
-                self.assertFalse(enrollment.is_access_valid())
-                self.assertFalse(can_access_resource(user, self.complete_res))
-                # L'historique d'inscription reste en place.
-                self.assertTrue(Enrollment.objects.filter(pk=enrollment.pk, order=order).exists())
+        request = fake_request(self.admin, self.org)
+        user = make_user(self.org, R.ACADEMY_STUDENT)
+        order, enrollment = self.buy(self.complete, user=user, status=Order.Status.AWAITING_PAYMENT)
+        services.cancel_order(request=request, order=order, reason="Test")
+        self.assertFalse(can_access_resource(user, self.complete_res))
+        user = make_user(self.org, R.ACADEMY_STUDENT)
+        order, enrollment = self.buy(self.complete, user=user)
+        self.assertTrue(can_access_resource(user, self.complete_res))
+        services.refund(request=request, order=order, amount=order.price, reason="Test")
+        enrollment.refresh_from_db()
+        self.assertFalse(enrollment.is_access_valid())
+        self.assertFalse(can_access_resource(user, self.complete_res))
+        # L'historique d'inscription reste en place.
+        self.assertTrue(Enrollment.objects.filter(pk=enrollment.pk, order=order).exists())
 
     def test_expired_or_suspended_enrollment_gives_no_access(self):
         _, enrollment = self.buy(self.complete)
@@ -179,16 +192,8 @@ class OrderIntegrityTests(AcademyTestCase):
 
     def test_order_history_is_append_only(self):
         order, _ = self.buy(self.complete)
-        entry = OrderAudit.objects.create(
-            order=order,
-            action=OrderAudit.Action.PAYMENT_VERIFIED,
-            old_status=Order.Status.PAYMENT_PENDING,
-            new_status=Order.Status.PAID,
-            actor=self.admin,
-            reference="PSP-2026-0001",
-            notes="Virement vérifié sur le relevé.",
-        )
-        self.assertEqual((entry.actor, entry.reference), (self.admin, "PSP-2026-0001"))
+        entry = order.audit_log.get(action=OrderAudit.Action.PAYMENT_VERIFIED)
+        self.assertEqual((entry.actor, entry.reference), (self.admin, "TEST-1"))
         with self.assertRaises(PermissionError):
             entry.save()
         with self.assertRaises(PermissionError):
@@ -199,7 +204,7 @@ class OrderIntegrityTests(AcademyTestCase):
             OrderAudit.objects.filter(pk=entry.pk).delete()
 
     def test_enrollment_must_match_its_order(self):
-        order = Order.objects.create(organization=self.org, user=self.buyer, offer=self.complete, status=Order.Status.PAID)
+        order = Order.objects.create(organization=self.org, user=self.buyer, offer=self.complete)
         intruder = make_user(self.org, R.ACADEMY_STUDENT)
         cases = {
             "autre acheteur": {"user": intruder, "offer": self.complete},
@@ -436,6 +441,7 @@ class MigrationTests(TransactionTestCase):
         executor = MigrationExecutor(connection)
         executor.migrate(self.after)
         new = executor.loader.project_state(self.after).apps
+        self.addCleanup(lambda: MigrationExecutor(connection).migrate(MigrationExecutor(connection).loader.graph.leaf_nodes()))
         course = new.get_model("academy", "Course").objects.get()
         self.assertEqual((course.title_fr, course.title_en), ("Décider", "Decide"))
         lesson = new.get_model("academy", "Lesson").objects.get()
@@ -446,3 +452,302 @@ class MigrationTests(TransactionTestCase):
         order = new.get_model("academy", "Order").objects.get()
         self.assertEqual((order.price, order.currency), (Decimal("29.00"), "USD"))
         self.assertEqual(new.get_model("academy", "OrderAudit").objects.get().actor_id, user.pk)
+
+
+class PublishedOfferMixin:
+    """Programme et offres publiés : seuls ceux-là peuvent être commandés."""
+
+    def publish(self):
+        Program.objects.filter(pk=self.program.pk).update(is_published=True)
+        ProgramOffer.objects.filter(pk__in=[self.complete.pk, self.guided.pk]).update(status=ProgramOffer.Status.PUBLISHED)
+        self.program.refresh_from_db()
+        self.complete.refresh_from_db()
+
+
+class PaymentConfirmationTests(PublishedOfferMixin, AcademyTestCase):
+    """D1 et D6 : confirmation manuelle, réservée à payments.confirm_order."""
+
+    def setUp(self):
+        super().setUp()
+        self.publish()
+        self.order = Order.objects.create(organization=self.org, user=self.buyer, offer=self.complete, status=Order.Status.AWAITING_PAYMENT)
+        self.url = reverse("academy:order_confirm", args=[self.order.pk])
+        self.data = {"confirm-received": "on", "confirm-reference": "VIR-2026-11-0042", "confirm-note": "Virement lu sur le relevé du 11/11."}
+
+    def test_only_org_admin_holds_the_permission(self):
+        from apps.core.permissions import PERMISSIONS
+
+        self.assertEqual(PERMISSIONS["payments.confirm_order"], frozenset({R.ORG_ADMIN}))
+
+    def test_unauthorised_roles_cannot_confirm(self):
+        for role in (R.CRM_ADMIN, R.CRM_OPERATOR, R.ACADEMY_INSTRUCTOR, R.ACADEMY_STUDENT):
+            with self.subTest(role=role):
+                user = make_user(self.org, role)
+                login(self.client, user, self.org)
+                self.assertEqual(self.client.post(self.url, self.data).status_code, 403)
+                with self.assertRaises(PermissionDenied):
+                    services.confirm_payment(request=fake_request(user, self.org), order=self.order, note="x")
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.AWAITING_PAYMENT)
+
+    def test_superuser_gets_no_payment_permission(self):
+        root = User.objects.create_superuser(email="root@example.org", password="Root-Password-2026!", full_name="Root")
+        Membership.objects.create(user=root, organization=self.org, role=R.ACADEMY_STUDENT)
+        login(self.client, root, self.org)
+        self.assertEqual(self.client.post(self.url, self.data).status_code, 403)
+        self.assertEqual(self.client.get(reverse("academy:order_list")).status_code, 403)
+
+    def test_admin_of_another_organization_cannot_confirm(self):
+        other = make_org()
+        foreign_admin = make_user(other, R.ORG_ADMIN)
+        login(self.client, foreign_admin, other)
+        self.assertEqual(self.client.post(self.url, self.data).status_code, 404)
+        self.assertEqual(self.client.get(reverse("academy:order_detail", args=[self.order.pk])).status_code, 404)
+        with self.assertRaises(PermissionDenied):
+            services.confirm_payment(request=fake_request(foreign_admin, other), order=self.order, note="x")
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.AWAITING_PAYMENT)
+
+    def test_confirmation_is_audited_and_opens_only_the_offer(self):
+        login(self.client, self.admin, self.org)
+        response = self.client.post(self.url, self.data)
+        self.assertRedirects(response, reverse("academy:order_detail", args=[self.order.pk]))
+        self.order.refresh_from_db()
+        self.assertEqual((self.order.status, self.order.transaction_ref), (Order.Status.PAID, "VIR-2026-11-0042"))
+        entry = self.order.audit_log.get(action=OrderAudit.Action.PAYMENT_VERIFIED)
+        self.assertEqual(
+            (entry.actor, entry.amount, entry.currency, entry.reference, entry.old_status, entry.new_status),
+            (self.admin, Decimal("29.00"), "USD", "VIR-2026-11-0042", Order.Status.AWAITING_PAYMENT, Order.Status.PAID),
+        )
+        self.assertEqual(entry.notes, "Virement lu sur le relevé du 11/11.")
+        self.assertIsNotNone(entry.created_at)
+        log = AuditLog.objects.get(action="academy_payment_confirmed", target_id=str(self.order.pk))
+        self.assertEqual((log.actor, log.summary["amount"], log.summary["currency"]), (self.admin, "29.00", "USD"))
+        self.assertTrue(can_access_resource(self.buyer, self.complete_res))
+        self.assertFalse(can_access_resource(self.buyer, self.guided_res))
+
+    def test_repeated_confirmation_creates_no_duplicate(self):
+        login(self.client, self.admin, self.org)
+        self.client.post(self.url, self.data)
+        self.client.post(self.url, self.data)
+        _, confirmed = services.confirm_payment(request=fake_request(self.admin, self.org), order=self.order, note="encore")
+        self.assertFalse(confirmed)
+        self.assertEqual(self.order.audit_log.filter(action=OrderAudit.Action.PAYMENT_VERIFIED).count(), 1)
+        self.assertEqual(Enrollment.objects.filter(order=self.order).count(), 1)
+        self.assertEqual(AuditLog.objects.filter(action="academy_payment_confirmed").count(), 1)
+
+    def test_note_and_receipt_check_are_required(self):
+        login(self.client, self.admin, self.org)
+        for missing in ("confirm-note", "confirm-received"):
+            with self.subTest(missing=missing):
+                data = {k: v for k, v in self.data.items() if k != missing}
+                self.assertEqual(self.client.post(self.url, data).status_code, 400)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.AWAITING_PAYMENT)
+        with self.assertRaises(ValidationError):
+            services.confirm_payment(request=fake_request(self.admin, self.org), order=self.order, note="  ")
+
+    def test_database_refuses_a_payment_without_history(self):
+        with self.assertRaises(DatabaseError), transaction.atomic():
+            Order.objects.create(organization=self.org, user=self.buyer, offer=self.complete, status=Order.Status.PAID)
+        with self.assertRaises(DatabaseError), transaction.atomic():
+            Order.objects.filter(pk=self.order.pk).update(status=Order.Status.PAID)
+
+
+class RefundTests(PublishedOfferMixin, AcademyTestCase):
+    """D2 et D6 : remboursement intégral et partiel."""
+
+    def setUp(self):
+        super().setUp()
+        self.publish()
+        self.request = fake_request(self.admin, self.org)
+        self.order, self.enrollment = self.buy(self.complete)
+        lesson = Lesson.objects.create(
+            course=Course.objects.create(program=self.program, title_fr="Comprendre", title_en="Understand"),
+            title_fr="Leçon", title_en="Lesson",
+        )
+        self.progress = LessonProgress.objects.create(enrollment=self.enrollment, lesson=lesson, completed_at=timezone.now())
+
+    def test_full_refund_removes_access_immediately_and_keeps_everything(self):
+        self.assertTrue(can_access_resource(self.buyer, self.complete_res))
+        services.refund(request=self.request, order=self.order, amount="29.00", reason="Demande dans le délai.", reference="RB-1")
+        self.order.refresh_from_db()
+        self.enrollment.refresh_from_db()
+        self.assertEqual((self.order.status, self.order.refunded_amount), (Order.Status.REFUNDED, Decimal("29.00")))
+        self.assertFalse(can_access_resource(self.buyer, self.complete_res))
+        self.assertEqual(self.enrollment.status, Enrollment.Status.CANCELLED)
+        self.assertTrue(LessonProgress.objects.filter(pk=self.progress.pk, completed_at__isnull=False).exists())
+        entry = self.order.audit_log.get(action=OrderAudit.Action.REFUNDED)
+        self.assertEqual((entry.actor, entry.amount, entry.currency, entry.notes, entry.reference),
+                         (self.admin, Decimal("29.00"), "USD", "Demande dans le délai.", "RB-1"))
+        self.assertEqual(self.order.audit_log.count(), 2, "confirmation et remboursement sont conservés")
+
+    def test_rights_cannot_be_reactivated_after_a_full_refund(self):
+        services.refund(request=self.request, order=self.order, amount="29.00", reason="Remboursé")
+        with self.assertRaises(ValidationError):
+            services.confirm_payment(request=self.request, order=self.order, note="erreur")
+        with self.assertRaises(DatabaseError), transaction.atomic():
+            Enrollment.objects.filter(pk=self.enrollment.pk).update(status=Enrollment.Status.ACTIVE)
+        for status in (Order.Status.PAID, Order.Status.AWAITING_PAYMENT):
+            with self.subTest(status=status), self.assertRaises(DatabaseError), transaction.atomic():
+                Order.objects.filter(pk=self.order.pk).update(status=status)
+
+    def test_partial_refund_keeps_access_and_is_recorded(self):
+        services.refund(request=self.request, order=self.order, amount="10.00", reason="Geste partiel")
+        self.order.refresh_from_db()
+        self.assertEqual((self.order.status, self.order.refunded_amount), (Order.Status.PAID, Decimal("10.00")))
+        self.assertTrue(self.order.has_partial_refund)
+        self.assertTrue(can_access_resource(self.buyer, self.complete_res))
+        self.assertEqual(self.order.audit_log.filter(action=OrderAudit.Action.PARTIAL_REFUND).get().amount, Decimal("10.00"))
+        # Le solde rembourse intégralement la commande.
+        services.refund(request=self.request, order=self.order, amount="19.00", reason="Solde")
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.REFUNDED)
+        self.assertFalse(can_access_resource(self.buyer, self.complete_res))
+
+    def test_refund_limits(self):
+        for amount in ("0", "-1", "29.01", "abc"):
+            with self.subTest(amount=amount), self.assertRaises(ValidationError):
+                services.refund(request=self.request, order=self.order, amount=amount, reason="x")
+        with self.assertRaises(ValidationError):
+            services.refund(request=self.request, order=self.order, amount="5", reason=" ")
+        student = make_user(self.org, R.ACADEMY_STUDENT)
+        with self.assertRaises(PermissionDenied):
+            services.refund(request=fake_request(student, self.org), order=self.order, amount="5", reason="x")
+        with self.assertRaises(DatabaseError), transaction.atomic():
+            Order.objects.filter(pk=self.order.pk).update(refunded_amount=Decimal("5"))
+
+    def test_refund_page_records_a_full_refund(self):
+        login(self.client, self.admin, self.org)
+        url = reverse("academy:order_refund", args=[self.order.pk])
+        self.assertEqual(self.client.post(url, {"refund-amount": "30", "refund-reason": "x"}).status_code, 400)
+        response = self.client.post(url, {"refund-amount": "29.00", "refund-reason": "Rétractation"})
+        self.assertRedirects(response, reverse("academy:order_detail", args=[self.order.pk]))
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.REFUNDED)
+
+
+class BuyerJourneyTests(PublishedOfferMixin, AcademyTestCase):
+    def test_draft_offer_or_unpublished_programme_cannot_be_ordered(self):
+        login(self.client, self.buyer, self.org)
+        self.assertEqual(self.client.get(reverse("academy:offer_detail", args=[self.complete.pk])).status_code, 404)
+        self.assertEqual(self.client.post(reverse("academy:order_create", args=[self.complete.pk]), {"acknowledge": "on"}).status_code, 404)
+        ProgramOffer.objects.filter(pk=self.complete.pk).update(status=ProgramOffer.Status.PUBLISHED)
+        self.assertEqual(self.client.get(reverse("academy:offer_detail", args=[self.complete.pk])).status_code, 404, "programme non publié")
+        with self.assertRaises(ValidationError):
+            services.place_order(request=fake_request(self.buyer, self.org), offer=self.complete)
+        self.assertFalse(Order.objects.exists())
+
+    def test_order_needs_the_notice_and_is_not_duplicated(self):
+        self.publish()
+        login(self.client, self.buyer, self.org)
+        url = reverse("academy:order_create", args=[self.complete.pk])
+        self.assertEqual(self.client.post(url, {}).status_code, 400)
+        self.assertFalse(Order.objects.exists())
+        response = self.client.post(url, {"acknowledge": "on"})
+        order = Order.objects.get()
+        self.assertRedirects(response, reverse("academy:my_order_detail", args=[order.pk]))
+        self.assertEqual((order.status, order.price, order.currency), (Order.Status.AWAITING_PAYMENT, Decimal("29.00"), "USD"))
+        self.assertEqual((order.risk_notice_version, order.terms_version), (settings.SYSTEMC_RISK_NOTICE_VERSION, ""))
+        self.client.post(url, {"acknowledge": "on"})
+        self.assertEqual(Order.objects.count(), 1)
+        page = self.client.get(reverse("academy:my_order_detail", args=[order.pk]))
+        self.assertContains(page, "29,00")
+        self.assertFalse(can_access_resource(self.buyer, self.complete_res))
+
+    def test_offer_pages_show_the_risk_notice_and_real_availability(self):
+        self.publish()
+        self.resource("Guide à venir", offers=[self.complete], status=Resource.Status.DRAFT)
+        login(self.client, self.buyer, self.org)
+        for url in (reverse("academy:offer_list"), reverse("academy:offer_detail", args=[self.complete.pk])):
+            with self.subTest(url=url):
+                self.assertContains(self.client.get(url), "Aucun résultat financier n'est garanti")
+        page = self.client.get(reverse("academy:offer_detail", args=[self.complete.pk]))
+        self.assertContains(page, "En préparation")
+        self.assertNotContains(page, "Support d&#x27;atelier", msg_prefix="ressource réservée à Guided")
+
+    def test_buyer_sees_and_cancels_only_own_orders(self):
+        self.publish()
+        order, _ = services.place_order(request=fake_request(self.buyer, self.org), offer=self.complete)
+        other = make_user(self.org, R.ACADEMY_STUDENT)
+        login(self.client, other, self.org)
+        self.assertEqual(self.client.get(reverse("academy:my_order_detail", args=[order.pk])).status_code, 404)
+        self.assertEqual(self.client.post(reverse("academy:my_order_cancel", args=[order.pk])).status_code, 404)
+        login(self.client, self.buyer, self.org)
+        self.client.post(reverse("academy:my_order_cancel", args=[order.pk]), {"cancel-reason": ""})
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.Status.CANCELLED)
+        self.assertEqual(order.audit_log.get(action=OrderAudit.Action.CANCELLED).actor, self.buyer)
+
+    def test_paid_order_cannot_be_cancelled(self):
+        self.publish()
+        order, _ = self.buy(self.complete)
+        with self.assertRaises(ValidationError):
+            services.cancel_order(request=fake_request(self.buyer, self.org), order=order)
+        with self.assertRaises(ValidationError):
+            services.cancel_order(request=fake_request(self.admin, self.org), order=order, reason="x")
+
+    def test_offers_of_another_organization_are_invisible(self):
+        self.publish()
+        other = make_org()
+        stranger = make_user(other, R.ACADEMY_STUDENT)
+        login(self.client, stranger, other)
+        self.assertEqual(self.client.get(reverse("academy:offer_detail", args=[self.complete.pk])).status_code, 404)
+        self.assertNotContains(self.client.get(reverse("academy:offer_list")), "complete")
+
+
+class OrderAdminPageTests(PublishedOfferMixin, AcademyTestCase):
+    def test_order_list_is_scoped_and_restricted(self):
+        self.publish()
+        services.place_order(request=fake_request(self.buyer, self.org), offer=self.complete)
+        other = make_org()
+        program_b = Program.objects.create(organization=other, title_fr="B", title_en="B", is_published=True)
+        offer_b = ProgramOffer.objects.create(program=program_b, slug="b", name_fr="Offre étrangère", name_en="Foreign", price=Decimal("1"), status="published")
+        foreign_buyer = make_user(other, R.ACADEMY_STUDENT, email="etranger@example.org")
+        services.place_order(request=fake_request(foreign_buyer, other), offer=offer_b)
+        login(self.client, self.admin, self.org)
+        page = self.client.get(reverse("academy:order_list"))
+        self.assertContains(page, self.buyer.email)
+        self.assertNotContains(page, "etranger@example.org")
+        self.assertContains(self.client.get(reverse("academy:order_list") + "?status=awaiting_payment"), self.buyer.email)
+        login(self.client, self.buyer, self.org)
+        self.assertEqual(self.client.get(reverse("academy:order_list")).status_code, 403)
+
+
+class LessonUniquenessTests(AcademyTestCase):
+    @staticmethod
+    def checked(create):
+        """Les contraintes de position sont différées : on force leur vérification immédiate."""
+        with transaction.atomic():
+            create()
+            with connection.cursor() as cursor:
+                cursor.execute("SET CONSTRAINTS ALL IMMEDIATE")
+
+    def test_no_duplicate_lesson_in_a_step(self):
+        course = Course.objects.create(program=self.program, title_fr="Comprendre", title_en="Understand", position=1)
+        Lesson.objects.create(course=course, title_fr="A", title_en="A", position=1)
+        cases = {
+            "même position": lambda: Lesson.objects.create(course=course, title_fr="B", title_en="B", position=1),
+            "même titre": lambda: Lesson.objects.create(course=course, title_fr="A", title_en="A", position=2),
+            "même étape": lambda: Course.objects.create(program=self.program, title_fr="Doublon", title_en="Duplicate", position=1),
+        }
+        for label, create in cases.items():
+            with self.subTest(label), self.assertRaises(IntegrityError):
+                self.checked(create)
+
+
+class AcademyDemoCommandTests(TestCase):
+    def test_refused_outside_debug(self):
+        org = make_org()
+        with self.assertRaises(CommandError):
+            call_command("seed_academy_demo", organization=org.slug, yes=True, stdout=StringIO())
+
+    @override_settings(DEBUG=True)
+    def test_creates_only_labelled_demo_data(self):
+        org = make_org()
+        call_command("seed_academy_demo", organization=org.slug, yes=True, stdout=StringIO())
+        offer = ProgramOffer.objects.get(program__organization=org)
+        self.assertTrue(offer.name_fr.startswith("[Démo]") and offer.program.title_fr.startswith("[Démo]"))
+        self.assertEqual(offer.status, ProgramOffer.Status.PUBLISHED)
+        self.assertFalse(Order.objects.exists(), "aucune commande ni aucun paiement simulé")
+        self.assertTrue(all(r.external_url.startswith("https://example.org/") for r in Resource.objects.all()))
