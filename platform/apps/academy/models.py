@@ -1,18 +1,60 @@
-"""Structure initiale du module academy (fonctionnalités complètes à venir).
+"""Module academy : programmes éducatifs, dont SYSTEM-C Method.
 
-Les contenus sont bilingues dès la conception (champs _fr et _en). Une
-inscription peut référencer la fiche affilié de partners, sans copie.
+Six domaines restent séparés :
+1. catalogue : ``Program`` ;
+2. contenu pédagogique : ``Course`` (une étape), ``Lesson``, ``Resource`` ;
+3. offres commerciales : ``ProgramOffer`` (prix et devise configurables) ;
+4. commandes : ``Order`` et son historique en ajout seul ``OrderAudit`` ;
+5. droits d'accès : ``Enrollment`` ;
+6. progression : ``LessonProgress``.
+
+L'organisation d'une étape, d'une leçon, d'une ressource ou d'une offre est celle
+de son programme. Les cohérences d'organisation, l'immuabilité des montants
+commandés et l'historique en ajout seul sont aussi garantis en base de données
+(migration 0005). Un affilié n'est jamais copié ici : seule une référence vers
+``partners.Affiliate`` est conservée.
 """
 
 import uuid
+from decimal import Decimal
 
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
 
-from apps.core.models import Organization
+from apps.core.models import AppendOnlyModel, Language, Organization
+
+
+def _localized(obj, base: str) -> str:
+    english = getattr(obj, f"{base}_en", "")
+    if (get_language() or "fr").startswith("en") and english:
+        return english
+    return getattr(obj, f"{base}_fr", "")
+
+
+class PrivateStorage(FileSystemStorage):
+    """Stockage sans URL publique : un fichier n'est lisible que par une vue qui vérifie les droits."""
+
+    def url(self, name):
+        raise NotImplementedError("Fichier privé : aucune URL publique.")
+
+
+def private_storage():
+    return PrivateStorage(location=settings.SYSTEMC_PRIVATE_MEDIA_ROOT, base_url=None)
+
+
+currency_validator = RegexValidator(r"^[A-Z]{3}$", _("Use a three-letter ISO currency code, for example USD."))
+
+
+class PublicationStatus(models.TextChoices):
+    DRAFT = "draft", _("Draft")
+    PUBLISHED = "published", _("Published")
+    ARCHIVED = "archived", _("Archived")
 
 
 class BilingualTitleMixin(models.Model):
@@ -24,7 +66,7 @@ class BilingualTitleMixin(models.Model):
 
     @property
     def title(self) -> str:
-        return self.title_en if (get_language() or "fr").startswith("en") and self.title_en else self.title_fr
+        return _localized(self, "title")
 
 
 class Program(BilingualTitleMixin):
@@ -43,6 +85,8 @@ class Program(BilingualTitleMixin):
 
 
 class Course(BilingualTitleMixin):
+    """Une étape du programme (pour SYSTEM-C Method : Comprendre, Préparer, Décider, Documenter, Évaluer)."""
+
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name="courses")
     position = models.PositiveSmallIntegerField(default=1)
 
@@ -51,31 +95,50 @@ class Course(BilingualTitleMixin):
 
 
 class Lesson(BilingualTitleMixin):
+    """Leçon d'une étape. Le résumé décrit l'objectif ; le contenu est le texte pédagogique rédigé."""
+
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lessons")
     position = models.PositiveSmallIntegerField(default=1)
-    body_fr = models.TextField(blank=True)
-    body_en = models.TextField(blank=True)
+    summary_fr = models.TextField(_("summary (French)"), blank=True)
+    summary_en = models.TextField(_("summary (English)"), blank=True)
+    body_fr = models.TextField(_("content (French)"), blank=True)
+    body_en = models.TextField(_("content (English)"), blank=True)
+    is_published = models.BooleanField(_("published"), default=False)
 
     class Meta:
         ordering = ["position"]
+        constraints = [
+            # Une leçon sans contenu rédigé ne peut pas être présentée comme disponible.
+            models.CheckConstraint(
+                condition=Q(is_published=False) | ~Q(body_fr=""), name="academy_lesson_published_has_content"
+            ),
+        ]
+
+    @property
+    def summary(self) -> str:
+        return _localized(self, "summary")
+
+    @property
+    def has_english_content(self) -> bool:
+        return bool(self.body_en.strip())
 
 
 class ProgramOffer(models.Model):
-    """Offre commerciale d'un programme (ex: Starter, Complete, Guided pour SYSTEM-C Method)."""
+    """Offre commerciale d'un programme. Le prix n'est jamais écrit dans le code des vues ou des gabarits."""
 
-    class Status(models.TextChoices):
-        DRAFT = "draft", _("Draft")
-        PUBLISHED = "published", _("Published")
-        ARCHIVED = "archived", _("Archived")
+    Status = PublicationStatus
 
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name="offers")
-    slug = models.SlugField(max_length=100)  # starter, complete, guided
+    slug = models.SlugField(max_length=100)
     name_fr = models.CharField(_("name (French)"), max_length=200)
     name_en = models.CharField(_("name (English)"), max_length=200)
     description_fr = models.TextField(_("description (French)"), blank=True)
     description_en = models.TextField(_("description (English)"), blank=True)
-    price_usd = models.DecimalField(_("price (USD)"), max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=16, choices=Status.choices, default=Status.DRAFT)
+    price = models.DecimalField(
+        _("price"), max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0"))]
+    )
+    currency = models.CharField(_("currency"), max_length=3, default="USD", validators=[currency_validator])
+    status = models.CharField(_("status"), max_length=16, choices=Status.choices, default=Status.DRAFT)
     position = models.PositiveSmallIntegerField(default=1)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -83,64 +146,107 @@ class ProgramOffer(models.Model):
     class Meta:
         ordering = ["position"]
         constraints = [
-            models.UniqueConstraint(fields=["program", "slug"], name="unique_program_offer_slug")
+            models.UniqueConstraint(fields=["program", "slug"], name="unique_program_offer_slug"),
+            models.CheckConstraint(condition=Q(price__gte=0), name="academy_offer_price_not_negative"),
         ]
 
     def __str__(self) -> str:
-        return f"{self.program.title} — {self.name_fr}"
+        return f"{self.program.title}, {self.name_fr}"
 
     @property
     def name(self) -> str:
-        return self.name_en if (get_language() or "fr").startswith("en") and self.name_en else self.name_fr
+        return _localized(self, "name")
 
 
 class Resource(models.Model):
-    """Ressource pédagogique : guide, vidéo, feuille de calcul, etc."""
+    """Ressource pédagogique : document, feuille, vidéo ou exercice.
 
-    class Status(models.TextChoices):
-        DRAFT = "draft", _("Draft")
-        PUBLISHED = "published", _("Published")
-        ARCHIVED = "archived", _("Archived")
+    Une ressource publiée a forcément un fichier ou une adresse. Une ressource
+    « offres » n'est accessible qu'aux inscriptions actives sur l'une des offres
+    qui l'incluent (voir ``apps.academy.access``).
+    """
 
-    class ResourceType(models.TextChoices):
+    Status = PublicationStatus
+
+    class Category(models.TextChoices):
         GUIDE = "guide", _("Guide")
-        VIDEO = "video", _("Video")
-        WORKSHEET = "worksheet", _("Worksheet")
-        CHECKLIST = "checklist", _("Checklist")
-        EXERCISE = "exercise", _("Exercise")
-        OTHER = "other", _("Other")
+        JOURNAL = "journal", _("Tracking journal")
+        RISK_SHEET = "risk_sheet", _("Capital and risk sheet")
+        CHECKLIST = "checklist", _("Decision checklist")
+        LEARNING_PLAN = "learning_plan", _("Learning plan")
+        VIDEO = "video", _("Short video")
+        EXERCISE = "exercise", _("Exercise or reflection sheet")
+        DISCOVERY = "discovery", _("Free discovery resource")
+
+    class Visibility(models.TextChoices):
+        PUBLIC = "public", _("Free, no purchase needed")
+        OFFERS = "offers", _("Included in selected offers")
 
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name="resources")
     title_fr = models.CharField(_("title (French)"), max_length=200)
     title_en = models.CharField(_("title (English)"), max_length=200)
     description_fr = models.TextField(_("description (French)"), blank=True)
     description_en = models.TextField(_("description (English)"), blank=True)
-    resource_type = models.CharField(max_length=20, choices=ResourceType.choices, default=ResourceType.GUIDE)
-    file_path = models.FileField(_("file"), upload_to="academy/resources/%Y/%m/", blank=True)
-    external_url = models.URLField(_("external URL"), blank=True)
-    status = models.CharField(max_length=16, choices=Status.choices, default=Status.DRAFT)
+    category = models.CharField(_("category"), max_length=20, choices=Category.choices, default=Category.GUIDE)
+    language = models.CharField(_("language"), max_length=2, choices=Language.choices, default=Language.FR)
+    version = models.PositiveSmallIntegerField(_("version"), default=1)
+    file = models.FileField(_("file"), upload_to="academy/resources/%Y/%m/", storage=private_storage, blank=True)
+    external_url = models.URLField(_("external address"), blank=True)
+    visibility = models.CharField(
+        _("visibility"), max_length=10, choices=Visibility.choices, default=Visibility.OFFERS
+    )
+    offers = models.ManyToManyField(
+        ProgramOffer, related_name="resources", blank=True, verbose_name=_("included in offers")
+    )
+    status = models.CharField(_("status"), max_length=16, choices=Status.choices, default=Status.DRAFT)
+    published_at = models.DateTimeField(_("publication date"), null=True, blank=True)
     position = models.PositiveSmallIntegerField(default=1)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["position"]
+        constraints = [
+            # Aucune ressource n'est présentée comme disponible sans fichier ni adresse.
+            models.CheckConstraint(
+                condition=~Q(status="published") | ~Q(file="") | ~Q(external_url=""),
+                name="academy_resource_published_has_content",
+            ),
+            models.CheckConstraint(
+                condition=~Q(status="published") | Q(published_at__isnull=False),
+                name="academy_resource_published_has_date",
+            ),
+        ]
 
     def __str__(self) -> str:
         return self.title
 
     @property
     def title(self) -> str:
-        return self.title_en if (get_language() or "fr").startswith("en") and self.title_en else self.title_fr
+        return _localized(self, "title")
+
+    @property
+    def has_content(self) -> bool:
+        return bool(self.file) or bool(self.external_url)
+
+    def save(self, *args, **kwargs):
+        if self.status == self.Status.PUBLISHED and self.published_at is None:
+            self.published_at = timezone.now()
+        super().save(*args, **kwargs)
 
 
 class Order(models.Model):
-    """Commande d'une offre (achat du programme)."""
+    """Commande d'une offre.
+
+    Le prix et la devise sont copiés de l'offre à la création, puis ne changent
+    plus (garanti en base). Aucune donnée bancaire n'est enregistrée : la
+    référence de transaction est celle que communique le prestataire.
+    """
 
     class Status(models.TextChoices):
         DRAFT = "draft", _("Draft")
         AWAITING_PAYMENT = "awaiting_payment", _("Awaiting payment")
-        PAYMENT_PENDING = "payment_pending", _("Payment pending verification")
+        PAYMENT_PENDING = "payment_pending", _("Payment to verify")
         PAID = "paid", _("Paid and confirmed")
         CANCELLED = "cancelled", _("Cancelled")
         REFUNDED = "refunded", _("Refunded")
@@ -148,22 +254,44 @@ class Order(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name="academy_orders")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="academy_orders")
     offer = models.ForeignKey(ProgramOffer, on_delete=models.PROTECT, related_name="orders")
-    price_usd = models.DecimalField(_("price at purchase (USD)"), max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
-    transaction_ref = models.CharField(_("transaction reference"), max_length=100, blank=True)
-    notes = models.TextField(_("admin notes"), blank=True)
+    price = models.DecimalField(
+        _("price at the time of the order"),
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0"))],
+    )
+    currency = models.CharField(_("currency"), max_length=3, validators=[currency_validator])
+    status = models.CharField(_("status"), max_length=20, choices=Status.choices, default=Status.DRAFT)
+    transaction_ref = models.CharField(
+        _("transaction reference"),
+        max_length=100,
+        blank=True,
+        help_text=_("Reference given by the payment provider. Never a card number or bank details."),
+    )
+    notes = models.TextField(_("administrative note"), blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["-created_at"]
+        constraints = [
+            models.CheckConstraint(condition=Q(price__gte=0), name="academy_order_price_not_negative"),
+        ]
 
     def __str__(self) -> str:
-        return f"Order {self.id} — {self.user.email} — {self.offer.name_fr}"
+        return f"{self.pk} {self.offer.slug} {self.status}"
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            if self.price is None:
+                self.price = self.offer.price
+            if not self.currency:
+                self.currency = self.offer.currency
+        super().save(*args, **kwargs)
 
 
-class OrderAudit(models.Model):
-    """Trace des modifications de commande pour la conformité et l'audit."""
+class OrderAudit(AppendOnlyModel):
+    """Historique d'une commande, en ajout seul (ni modification ni suppression, renforcé en base)."""
 
     class Action(models.TextChoices):
         CREATED = "created", _("Created")
@@ -172,20 +300,26 @@ class OrderAudit(models.Model):
         REFUNDED = "refunded", _("Refunded")
         CANCELLED = "cancelled", _("Cancelled")
 
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="audit_log")
+    order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name="audit_log")
     action = models.CharField(max_length=30, choices=Action.choices)
     old_status = models.CharField(max_length=20, blank=True)
     new_status = models.CharField(max_length=20, blank=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name="+")
+    reference = models.CharField(_("transaction reference"), max_length=100, blank=True)
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["-created_at", "-id"]
 
 
 class Enrollment(models.Model):
-    """Inscription à un programme avec accès basé sur l'offre achetée."""
+    """Droit d'accès d'une personne à un programme, selon l'offre achetée.
+
+    Une inscription liée à une commande ne donne accès que si la commande est
+    payée et confirmée : une commande en attente, annulée ou remboursée ne donne
+    aucun accès, quel que soit le statut de l'inscription.
+    """
 
     class Status(models.TextChoices):
         REQUESTED = "requested", _("Requested")
@@ -196,10 +330,11 @@ class Enrollment(models.Model):
 
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name="+")
     program = models.ForeignKey(Program, on_delete=models.PROTECT, related_name="enrollments")
+    # Référence vers la fiche principale de partners si l'apprenant est aussi affilié.
     affiliate = models.ForeignKey("partners.Affiliate", on_delete=models.PROTECT, null=True, blank=True, related_name="+")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name="+")
     offer = models.ForeignKey(ProgramOffer, on_delete=models.PROTECT, null=True, blank=True, related_name="enrollments")
-    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True, related_name="enrollments")
+    order = models.ForeignKey(Order, on_delete=models.PROTECT, null=True, blank=True, related_name="enrollments")
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.REQUESTED)
     access_until = models.DateTimeField(_("access expires"), null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
@@ -209,14 +344,19 @@ class Enrollment(models.Model):
             models.CheckConstraint(
                 condition=models.Q(affiliate__isnull=False) | models.Q(user__isnull=False),
                 name="academy_enrollment_has_person",
-            )
+            ),
+            # Une commande ouvre au plus une inscription.
+            models.UniqueConstraint(
+                fields=["order"], condition=Q(order__isnull=False), name="academy_enrollment_one_per_order"
+            ),
         ]
 
     def is_access_valid(self) -> bool:
-        """Vérifier si l'accès est toujours valide."""
         if self.status != self.Status.ACTIVE:
             return False
-        if self.access_until and timezone.now() > self.access_until:
+        if self.access_until and timezone.now() >= self.access_until:
+            return False
+        if self.order_id is not None and self.order.status != Order.Status.PAID:
             return False
         return True
 

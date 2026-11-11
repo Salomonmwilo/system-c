@@ -1,345 +1,250 @@
-"""Initialize SYSTEM-C Method program with 5 steps, lessons, resources and offers.
+"""Installe ou complète la structure de SYSTEM-C Method dans une organisation.
 
-Usage:
     python manage.py seed_system_c_method --organization system-c --yes
+
+La commande est rejouable : elle crée ce qui manque et ne modifie jamais un
+élément existant. Elle ne rédige aucun contenu pédagogique :
+- les 25 leçons reçoivent un titre et un résumé de l'objectif, sans contenu,
+  et restent non publiées ;
+- les ressources sont créées en brouillon, sans fichier ;
+- les offres restent en brouillon, avec un prix indicatif modifiable.
+Le rattachement des ressources aux offres suit le cahier des charges ; il n'est
+posé que sur une ressource qui n'en a encore aucun.
 """
 
 from decimal import Decimal
 
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
+from django.db.models import Max
 
-from apps.academy.models import Course, Enrollment, Lesson, Program, ProgramOffer, Resource
+from apps.academy.models import Course, Lesson, Program, ProgramOffer, Resource
 from apps.core.models import Organization
+
+PROGRAM = {
+    "title_fr": "SYSTEM-C Method",
+    "title_en": "SYSTEM-C Method",
+    "description_fr": (
+        "Un programme éducatif pour structurer son apprentissage du trading, organiser ses décisions "
+        "et développer une approche consciente des risques."
+    ),
+    "description_en": (
+        "An educational programme to structure how you learn about trading, organise your decisions "
+        "and build a risk-aware approach."
+    ),
+}
+
+# (titre FR, titre EN, [(titre FR, titre EN, résumé FR, résumé EN), ...])
+STEPS = [
+    ("Comprendre", "Understand", [
+        ("Les bases de l'apprentissage du trading", "The basics of learning to trade",
+         "Comprendre comment s'apprend une discipline nouvelle, étape par étape.",
+         "Understand how a new discipline is learned, step by step."),
+        ("La notion de risque", "The notion of risk",
+         "Risque financier, psychologique et méthodologique.",
+         "Financial, psychological and methodological risk."),
+        ("Information, hypothèse et décision", "Information, hypothesis and decision",
+         "Distinguer ce que l'on sait, ce que l'on pense et ce que l'on décide.",
+         "Tell apart what you know, what you think and what you decide."),
+        ("Identifier les limites de ses connaissances", "Recognising the limits of your knowledge",
+         "Repérer ce que l'on ne sait pas encore et en tenir compte avant d'agir.",
+         "Notice what you do not know yet and take it into account before acting."),
+        ("Comprendre pourquoi aucune méthode ne garantit un résultat", "Why no method guarantees a result",
+         "Une méthode organise le travail ; elle ne supprime ni l'incertitude ni le risque de perte.",
+         "A method organises the work; it removes neither uncertainty nor the risk of loss."),
+    ]),
+    ("Préparer", "Prepare", [
+        ("Définir ses objectifs d'apprentissage", "Setting your learning goals",
+         "Savoir ce que l'on veut apprendre, et pourquoi.",
+         "Know what you want to learn, and why."),
+        ("Établir un cadre personnel de travail", "Setting a personal working framework",
+         "Règles, horaires et discipline de travail.",
+         "Rules, schedule and working discipline."),
+        ("Comprendre les limites du capital exposé", "Understanding the limits of exposed capital",
+         "Ne jamais exposer une somme dont la perte mettrait en difficulté.",
+         "Never expose money whose loss would put you in difficulty."),
+        ("Définir des règles de prudence", "Setting rules of caution",
+         "Fixer à l'avance les limites que l'on s'engage à respecter.",
+         "Set in advance the limits you commit to respecting."),
+        ("Préparer son environnement d'apprentissage", "Preparing your learning environment",
+         "Organiser le temps, les outils et le lieu consacrés à l'apprentissage.",
+         "Organise the time, tools and place set aside for learning."),
+    ]),
+    ("Décider", "Decide", [
+        ("Utiliser une checklist avant une décision", "Using a checklist before a decision",
+         "Vérifier chaque critère avant d'agir, toujours dans le même ordre.",
+         "Check each criterion before acting, always in the same order."),
+        ("Identifier les informations disponibles", "Identifying the information available",
+         "Distinguer les données, les analyses et les opinions.",
+         "Tell apart data, analyses and opinions."),
+        ("Examiner les raisons d'une décision", "Examining the reasons for a decision",
+         "Vérifier que chaque décision repose sur des raisons explicites.",
+         "Check that each decision rests on explicit reasons."),
+        ("Identifier les décisions impulsives", "Recognising impulsive decisions",
+         "Reconnaître la peur, la cupidité et les biais.",
+         "Recognise fear, greed and biases."),
+        ("Savoir s'abstenir lorsque les conditions ne sont pas réunies", "Knowing when to abstain",
+         "Considérer l'abstention comme une décision à part entière.",
+         "Treat not acting as a decision in its own right."),
+    ]),
+    ("Documenter", "Document", [
+        ("Tenir un journal de décisions", "Keeping a decision journal",
+         "Noter chaque décision et ses raisons.",
+         "Record each decision and its reasons."),
+        ("Consigner ses émotions", "Recording your emotions",
+         "Observer le rôle des émotions dans ses décisions.",
+         "Observe the part emotions play in your decisions."),
+        ("Documenter ses erreurs", "Documenting your mistakes",
+         "Décrire une erreur pour pouvoir la reconnaître la fois suivante.",
+         "Describe a mistake so you can recognise it next time."),
+        ("Noter ses observations", "Writing down your observations",
+         "Consigner ce que l'on observe, séparément de ce que l'on en conclut.",
+         "Record what you observe, separately from what you conclude."),
+        ("Distinguer respect du processus et résultat financier", "Process versus financial outcome",
+         "Juger une décision sur le respect de sa méthode, pas seulement sur son résultat.",
+         "Judge a decision on whether you followed your method, not only on its outcome."),
+    ]),
+    ("Évaluer", "Evaluate", [
+        ("Faire un bilan hebdomadaire", "Holding a weekly review",
+         "Examiner ce qui a été respecté et ce qui ne l'a pas été.",
+         "Review what was followed and what was not."),
+        ("Identifier les habitudes à corriger", "Identifying habits to correct",
+         "Reconnaître les comportements qui se répètent.",
+         "Recognise behaviours that repeat."),
+        ("Examiner les erreurs récurrentes", "Examining recurring mistakes",
+         "Repérer les erreurs qui reviennent d'une semaine à l'autre.",
+         "Spot the mistakes that come back week after week."),
+        ("Définir les prochains objectifs d'apprentissage", "Setting the next learning goals",
+         "Choisir ce que l'on travaillera ensuite.",
+         "Choose what to work on next."),
+        ("Construire un plan personnel d'amélioration", "Building a personal improvement plan",
+         "Transformer le bilan en quelques actions concrètes pour la période suivante.",
+         "Turn the review into a few concrete actions for the next period."),
+    ]),
+]
+
+# (slug, nom FR, nom EN, prix indicatif, description FR, description EN)
+OFFERS = [
+    ("starter", "Starter Kit", "Starter Kit", Decimal("9.00"),
+     "Guide introductif, checklist, journal simplifié, feuille de suivi du risque et vidéo d'introduction.",
+     "Introductory guide, checklist, simplified journal, risk tracking sheet and introduction video."),
+    ("complete", "Complete", "Complete", Decimal("29.00"),
+     "Guide principal, journal de suivi sur 30 jours, feuille de gestion du capital et du risque, checklist "
+     "complète, plan d'apprentissage de quatre semaines, mini-vidéos et exercices.",
+     "Main guide, 30-day tracking journal, capital and risk management sheet, full checklist, four-week "
+     "learning plan, short videos and exercises."),
+    ("guided", "Guided", "Guided", Decimal("79.00"),
+     "Tout le contenu Complete, deux ateliers collectifs, un parcours guidé de quatre semaines et un groupe "
+     "privé temporaire et modéré.",
+     "Everything in Complete, two group workshops, a four-week guided path and a temporary, moderated "
+     "private group."),
+]
+
+C = Resource.Category
+PUBLIC, OFFERS_ONLY = Resource.Visibility.PUBLIC, Resource.Visibility.OFFERS
+ALL = ("starter", "complete", "guided")
+FULL = ("complete", "guided")
+
+# (titre FR, titre EN, catégorie, visibilité, description FR, description EN, offres)
+RESOURCES = [
+    ("Guide principal SYSTEM-C Method", "SYSTEM-C Method main guide", C.GUIDE, OFFERS_ONLY,
+     "Guide de référence du programme, organisé selon les cinq étapes.",
+     "The programme's reference guide, organised around the five steps.", FULL),
+    ("Guide introductif", "Introductory guide", C.GUIDE, OFFERS_ONLY,
+     "Présentation courte du programme et de ses cinq étapes.",
+     "A short introduction to the programme and its five steps.", ("starter",)),
+    ("Journal de suivi sur 30 jours", "30-day tracking journal", C.JOURNAL, OFFERS_ONLY,
+     "Journal personnel pour consigner décisions, raisons et émotions pendant 30 jours.",
+     "A personal journal to record decisions, reasons and emotions over 30 days.", FULL),
+    ("Journal simplifié", "Simplified journal", C.JOURNAL, OFFERS_ONLY,
+     "Version courte du journal de décisions.",
+     "A short version of the decision journal.", ("starter",)),
+    ("Feuille de gestion du capital et du risque", "Capital and risk management sheet", C.RISK_SHEET, OFFERS_ONLY,
+     "Feuille pour fixer et suivre ses limites de capital exposé et de perte.",
+     "A sheet to set and follow your limits on exposed capital and losses.", ALL),
+    ("Checklist avant une décision", "Pre-decision checklist", C.CHECKLIST, OFFERS_ONLY,
+     "Questions à vérifier avant chaque décision.",
+     "Questions to check before each decision.", ALL),
+    ("Plan d'apprentissage de quatre semaines", "Four-week learning plan", C.LEARNING_PLAN, OFFERS_ONLY,
+     "Progression semaine par semaine à travers les cinq étapes.",
+     "A week-by-week path through the five steps.", FULL),
+    ("Vidéo d'introduction", "Introduction video", C.VIDEO, OFFERS_ONLY,
+     "Présentation du programme en vidéo.",
+     "A video introduction to the programme.", ("starter",)),
+    ("Exercices et feuilles de réflexion", "Exercises and reflection sheets", C.EXERCISE, OFFERS_ONLY,
+     "Exercices associés aux leçons.",
+     "Exercises that go with the lessons.", FULL),
+    ("7 questions à se poser avant une décision de trading", "7 questions to ask before a trading decision",
+     C.DISCOVERY, PUBLIC,
+     "Ressource gratuite pour découvrir la démarche SYSTEM-C Method.",
+     "A free resource to discover the SYSTEM-C Method approach.", ()),
+]
 
 
 class Command(BaseCommand):
-    help = "Initialize SYSTEM-C Method program with full curriculum and offers"
+    help = "Installe ou complète la structure de SYSTEM-C Method (étapes, leçons, ressources, offres)."
 
     def add_arguments(self, parser):
-        parser.add_argument("--organization", type=str, required=True, help="Organization slug")
-        parser.add_argument("--yes", action="store_true", help="Skip confirmation")
+        parser.add_argument("--organization", required=True, help="Identifiant de l'organisation")
+        parser.add_argument("--yes", action="store_true", help="Ne pas demander de confirmation")
 
     def handle(self, *args, **options):
-        org_slug = options["organization"]
-        confirmed = options.get("yes", False)
-
         try:
-            org = Organization.objects.get(slug=org_slug)
-        except Organization.DoesNotExist:
-            raise CommandError(f"Organization '{org_slug}' not found")
+            org = Organization.objects.get(slug=options["organization"])
+        except Organization.DoesNotExist as exc:
+            raise CommandError(f"Organisation « {options['organization']} » introuvable.") from exc
 
-        self.stdout.write(f"Initializing SYSTEM-C Method for {org.name}...")
-
-        if not confirmed:
-            self.stdout.write(
-                "This will create:\n"
-                "  - 1 Program: SYSTEM-C Method\n"
-                "  - 5 Courses (steps)\n"
-                "  - 15 Lessons\n"
-                "  - 7 Resources (draft)\n"
-                "  - 3 Offers (Starter, Complete, Guided)\n"
-            )
-            response = input("Continue? (y/n): ")
-            if response.lower() != "y":
-                self.stdout.write("Cancelled.")
+        if not options["yes"]:
+            answer = input(f"Compléter la structure de SYSTEM-C Method pour « {org.name} » ? (o/n) ")
+            if answer.strip().lower() not in ("o", "oui", "y", "yes"):
+                self.stdout.write("Annulé.")
                 return
 
-        # Create program
-        program, created = Program.objects.get_or_create(
-            organization=org,
-            title_fr="SYSTEM-C Method",
-            defaults={
-                "title_en": "SYSTEM-C Method",
-                "description_fr": "Un programme éducatif pour structurer son apprentissage du trading, organiser ses décisions et développer une approche consciente des risques.",
-                "description_en": "An educational program to structure your trading education, organize your decisions, and develop a conscious approach to risk.",
-                "is_published": False,
-            },
-        )
-
-        if not created:
-            self.stdout.write(self.style.WARNING(f"Program '{program.title}' already exists"))
-            return
-
-        self.stdout.write(self.style.SUCCESS(f"✓ Created program: {program.title}"))
-
-        # Create 5 steps (courses)
-        steps_data = [
-            {
-                "slug": "comprendre",
-                "title_fr": "Étape 1 — COMPRENDRE",
-                "title_en": "Step 1 — UNDERSTAND",
-                "lessons": [
-                    {
-                        "title_fr": "Les bases de l'apprentissage du trading",
-                        "title_en": "The Basics of Trading Education",
-                        "body_fr": "Comprendre comment on apprend et pourquoi aucune méthode ne garantit un résultat.",
-                        "body_en": "Understand how we learn and why no method guarantees a result.",
-                    },
-                    {
-                        "title_fr": "La notion de risque",
-                        "title_en": "The Notion of Risk",
-                        "body_fr": "Risque financier, psychologique et méthodologique.",
-                        "body_en": "Financial, psychological and methodological risk.",
-                    },
-                    {
-                        "title_fr": "Information, hypothèse et décision",
-                        "title_en": "Information, Hypothesis and Decision",
-                        "body_fr": "Distinguer ce que vous savez, ce que vous pensez, et ce que vous décidez.",
-                        "body_en": "Distinguish what you know, what you think, and what you decide.",
-                    },
-                ]
-            },
-            {
-                "slug": "preparer",
-                "title_fr": "Étape 2 — PRÉPARER",
-                "title_en": "Step 2 — PREPARE",
-                "lessons": [
-                    {
-                        "title_fr": "Définir ses objectifs d'apprentissage",
-                        "title_en": "Define Your Learning Goals",
-                        "body_fr": "Savoir ce qu'on veut apprendre et pourquoi.",
-                        "body_en": "Know what you want to learn and why.",
-                    },
-                    {
-                        "title_fr": "Établir un cadre personnel de travail",
-                        "title_en": "Establish Your Personal Work Framework",
-                        "body_fr": "Règles, horaires, discipline.",
-                        "body_en": "Rules, schedules, discipline.",
-                    },
-                    {
-                        "title_fr": "Comprendre les limites du capital exposé",
-                        "title_en": "Understand Capital Limits",
-                        "body_fr": "Ne jamais risquer plus que ce qu'on peut se permettre de perdre.",
-                        "body_en": "Never risk more than you can afford to lose.",
-                    },
-                ]
-            },
-            {
-                "slug": "decider",
-                "title_fr": "Étape 3 — DÉCIDER",
-                "title_en": "Step 3 — DECIDE",
-                "lessons": [
-                    {
-                        "title_fr": "Utiliser une checklist avant une décision",
-                        "title_en": "Use a Checklist Before a Decision",
-                        "body_fr": "Vérifier systématiquement tous les critères.",
-                        "body_en": "Systematically verify all criteria.",
-                    },
-                    {
-                        "title_fr": "Identifier les informations disponibles",
-                        "title_en": "Identify Available Information",
-                        "body_fr": "Différencier les données, les analyses et les opinions.",
-                        "body_en": "Differentiate data, analyses and opinions.",
-                    },
-                    {
-                        "title_fr": "Identifier les décisions impulsives",
-                        "title_en": "Identify Impulse Decisions",
-                        "body_fr": "Reconnaître la peur, la cupidité et les biais.",
-                        "body_en": "Recognize fear, greed and biases.",
-                    },
-                ]
-            },
-            {
-                "slug": "documenter",
-                "title_fr": "Étape 4 — DOCUMENTER",
-                "title_en": "Step 4 — DOCUMENT",
-                "lessons": [
-                    {
-                        "title_fr": "Tenir un journal de décisions",
-                        "title_en": "Keep a Decision Journal",
-                        "body_fr": "Noter chaque décision et ses raisons.",
-                        "body_en": "Record each decision and its reasons.",
-                    },
-                    {
-                        "title_fr": "Consigner ses émotions",
-                        "title_en": "Record Your Emotions",
-                        "body_fr": "Comprendre le rôle des émotions dans vos décisions.",
-                        "body_en": "Understand the role of emotions in your decisions.",
-                    },
-                    {
-                        "title_fr": "Documenter ses erreurs",
-                        "title_en": "Document Your Mistakes",
-                        "body_fr": "Apprendre de ses erreurs sans les répéter.",
-                        "body_en": "Learn from your mistakes without repeating them.",
-                    },
-                ]
-            },
-            {
-                "slug": "evaluer",
-                "title_fr": "Étape 5 — ÉVALUER",
-                "title_en": "Step 5 — EVALUATE",
-                "lessons": [
-                    {
-                        "title_fr": "Faire un bilan hebdomadaire",
-                        "title_en": "Make a Weekly Review",
-                        "body_fr": "Analyser ce qui a fonctionné et ce qui ne fonctionne pas.",
-                        "body_en": "Analyze what worked and what did not.",
-                    },
-                    {
-                        "title_fr": "Identifier les habitudes à corriger",
-                        "title_en": "Identify Habits to Correct",
-                        "body_fr": "Reconnaître les schémas répétitifs.",
-                        "body_en": "Recognize repetitive patterns.",
-                    },
-                    {
-                        "title_fr": "Définir les prochains objectifs",
-                        "title_en": "Define Next Goals",
-                        "body_fr": "Construire un plan d'amélioration.",
-                        "body_en": "Build an improvement plan.",
-                    },
-                ]
-            },
-        ]
-
-        courses = {}
-        for position, step in enumerate(steps_data, 1):
-            course, _ = Course.objects.get_or_create(
-                program=program,
-                position=position,
-                defaults={
-                    "title_fr": step["title_fr"],
-                    "title_en": step["title_en"],
-                },
+        counts = {"étapes": 0, "leçons": 0, "ressources": 0, "offres": 0, "rattachements": 0}
+        with transaction.atomic():
+            program, _ = Program.objects.get_or_create(
+                organization=org, title_fr=PROGRAM["title_fr"], defaults={k: v for k, v in PROGRAM.items() if k != "title_fr"}
             )
-            courses[step["slug"]] = course
-            self.stdout.write(f"✓ Created course: {course.title_fr}")
+            for position, (title_fr, title_en, lessons) in enumerate(STEPS, 1):
+                course, created = Course.objects.get_or_create(
+                    program=program, position=position, defaults={"title_fr": title_fr, "title_en": title_en}
+                )
+                counts["étapes"] += created
+                for lesson_position, (l_fr, l_en, s_fr, s_en) in enumerate(lessons, 1):
+                    _, created = Lesson.objects.get_or_create(
+                        course=course,
+                        title_fr=l_fr,
+                        defaults={"title_en": l_en, "summary_fr": s_fr, "summary_en": s_en, "position": lesson_position},
+                    )
+                    counts["leçons"] += created
 
-            for lesson_pos, lesson_data in enumerate(step["lessons"], 1):
-                Lesson.objects.get_or_create(
-                    course=course,
-                    position=lesson_pos,
+            offers = {}
+            for position, (slug, name_fr, name_en, price, desc_fr, desc_en) in enumerate(OFFERS, 1):
+                offers[slug], created = ProgramOffer.objects.get_or_create(
+                    program=program,
+                    slug=slug,
                     defaults={
-                        "title_fr": lesson_data["title_fr"],
-                        "title_en": lesson_data["title_en"],
-                        "body_fr": lesson_data["body_fr"],
-                        "body_en": lesson_data["body_en"],
+                        "name_fr": name_fr, "name_en": name_en, "price": price, "currency": "USD",
+                        "description_fr": desc_fr, "description_en": desc_en, "position": position,
                     },
                 )
+                counts["offres"] += created
 
-        self.stdout.write(self.style.SUCCESS("✓ Created 15 lessons"))
+            for title_fr, title_en, category, visibility, desc_fr, desc_en, offer_slugs in RESOURCES:
+                resource = Resource.objects.filter(program=program, title_fr=title_fr).first()
+                if resource is None:
+                    last = program.resources.aggregate(m=Max("position"))["m"] or 0
+                    resource = Resource.objects.create(
+                        program=program, title_fr=title_fr, title_en=title_en, category=category,
+                        visibility=visibility, description_fr=desc_fr, description_en=desc_en, position=last + 1,
+                    )
+                    counts["ressources"] += 1
+                if resource.visibility == OFFERS_ONLY and offer_slugs and not resource.offers.exists():
+                    resource.offers.set([offers[s] for s in offer_slugs])
+                    counts["rattachements"] += 1
 
-        # Create resources (draft, no files)
-        resources_data = [
-            {
-                "title_fr": "Guide SYSTEM-C Method",
-                "title_en": "SYSTEM-C Method Guide",
-                "resource_type": "guide",
-                "description_fr": "Guide complet du programme (35-50 pages)",
-                "description_en": "Complete program guide (35-50 pages)",
-            },
-            {
-                "title_fr": "Journal de suivi 30 jours",
-                "title_en": "30-Day Tracking Journal",
-                "resource_type": "worksheet",
-                "description_fr": "Journal personnel pour documenter vos décisions",
-                "description_en": "Personal journal to document your decisions",
-            },
-            {
-                "title_fr": "Feuille de gestion du risque",
-                "title_en": "Risk Management Sheet",
-                "resource_type": "worksheet",
-                "description_fr": "Suivi du capital et des limites",
-                "description_en": "Track capital and limits",
-            },
-            {
-                "title_fr": "Checklist avant une décision",
-                "title_en": "Decision Checklist",
-                "resource_type": "checklist",
-                "description_fr": "7 points à vérifier avant chaque décision",
-                "description_en": "7 points to check before each decision",
-            },
-            {
-                "title_fr": "Plan d'apprentissage 4 semaines",
-                "title_en": "4-Week Learning Plan",
-                "resource_type": "guide",
-                "description_fr": "Progression structurée sur 4 semaines",
-                "description_en": "Structured progression over 4 weeks",
-            },
-            {
-                "title_fr": "Introduction vidéo",
-                "title_en": "Introduction Video",
-                "resource_type": "video",
-                "description_fr": "Présentation du programme (à créer)",
-                "description_en": "Program overview (to create)",
-            },
-            {
-                "title_fr": "7 questions avant une décision (gratuit)",
-                "title_en": "7 Questions Before a Decision (free)",
-                "resource_type": "guide",
-                "description_fr": "Ressource gratuite de découverte",
-                "description_en": "Free discovery resource",
-            },
-        ]
-
-        for position, resource_data in enumerate(resources_data, 1):
-            Resource.objects.get_or_create(
-                program=program,
-                title_fr=resource_data["title_fr"],
-                defaults={
-                    "title_en": resource_data["title_en"],
-                    "resource_type": resource_data["resource_type"],
-                    "description_fr": resource_data["description_fr"],
-                    "description_en": resource_data["description_en"],
-                    "status": Resource.Status.DRAFT,
-                    "position": position,
-                },
-            )
-
-        self.stdout.write(self.style.SUCCESS("✓ Created 7 resources (draft)"))
-
-        # Create offers
-        offers_data = [
-            {
-                "slug": "starter",
-                "name_fr": "Starter Kit",
-                "name_en": "Starter Kit",
-                "description_fr": "Introduction au programme avec ressources essentielles",
-                "description_en": "Introduction to the program with essential resources",
-                "price_usd": Decimal("9.00"),
-                "position": 1,
-            },
-            {
-                "slug": "complete",
-                "name_fr": "Complete",
-                "name_en": "Complete",
-                "description_fr": "Offre principale : guide complet, journal, checklist, plan d'apprentissage et vidéos",
-                "description_en": "Main offer: complete guide, journal, checklist, learning plan and videos",
-                "price_usd": Decimal("29.00"),
-                "position": 2,
-            },
-            {
-                "slug": "guided",
-                "name_fr": "Guided",
-                "name_en": "Guided",
-                "description_fr": "Accompagnement : tout le contenu Complete + ateliers et groupe privé (en préparation)",
-                "description_en": "Guided: all Complete content + workshops and private group (in preparation)",
-                "price_usd": Decimal("79.00"),
-                "position": 3,
-            },
-        ]
-
-        for offer_data in offers_data:
-            ProgramOffer.objects.get_or_create(
-                program=program,
-                slug=offer_data["slug"],
-                defaults={
-                    "name_fr": offer_data["name_fr"],
-                    "name_en": offer_data["name_en"],
-                    "description_fr": offer_data["description_fr"],
-                    "description_en": offer_data["description_en"],
-                    "price_usd": offer_data["price_usd"],
-                    "status": ProgramOffer.Status.DRAFT,
-                    "position": offer_data["position"],
-                },
-            )
-
-        self.stdout.write(self.style.SUCCESS("✓ Created 3 offers (Starter, Complete, Guided)"))
-
-        self.stdout.write(self.style.SUCCESS("\n✓ SYSTEM-C Method initialized successfully!"))
+        created = ", ".join(f"{n} {label}" for label, n in counts.items())
+        self.stdout.write(self.style.SUCCESS(f"SYSTEM-C Method pour « {org.name} » : créé {created}."))
         self.stdout.write(
-            "\nNext steps:\n"
-            "  1. Edit program and resources in Django admin\n"
-            "  2. Upload actual files to resources (guides, videos, etc.)\n"
-            "  3. Publish offers when content is ready\n"
-            "  4. Create public enrollment pages\n"
+            "Rien n'est publié : leçons sans contenu rédigé, ressources sans fichier, offres en brouillon."
         )

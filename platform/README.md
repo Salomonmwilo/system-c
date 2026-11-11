@@ -72,6 +72,18 @@ python manage.py seed_demo_data --organization system-c --admin-email admin@exam
 
 Crée six fiches fictives préfixées « [Démo] ». La commande est refusée hors mode `DEBUG`.
 
+### Structure de SYSTEM-C Method
+
+```bash
+python manage.py seed_system_c_method --organization system-c --yes
+```
+
+Crée ou complète le programme : 5 étapes, 25 leçons (titre et résumé, sans contenu rédigé), 10 ressources en brouillon sans fichier et 3 offres en brouillon (prix indicatifs 9, 29 et 79 USD). La commande peut être relancée : elle ajoute ce qui manque et ne modifie jamais un élément existant. Rien n'est publié.
+
+Les fichiers des ressources sont enregistrés dans `private_media/` (ou `SYSTEMC_PRIVATE_MEDIA_ROOT`), hors des fichiers statiques, sans adresse publique et ignorés par Git.
+
+L'administration Django (`/admin`) reste désactivée : elle contournerait l'isolation par organisation. Voir `docs/platform/SYSTEM_C_METHOD_AUDIT.md`.
+
 ## Tests
 
 ```bash
@@ -101,7 +113,7 @@ platform/
 │   ├── core/          utilisateurs, organisations, rôles, permissions, audit, seuils, tableau de bord
 │   ├── partners/      affiliés (fiche principale), parcours Deriv, interactions, relances, liens
 │   ├── bots/          CRM : fiches robot, versions immuables, déclarations, liste blanche
-│   └── academy/       structure initiale (programmes, cours, leçons, inscriptions)
+│   └── academy/       programmes (SYSTEM-C Method) : étapes, leçons, ressources, offres, commandes, inscriptions
 ├── templates/         gabarit de base, navigation, composants
 ├── static/            thème noir et or, logo, Bootstrap local
 └── locale/fr/         catalogue français

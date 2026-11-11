@@ -28,7 +28,6 @@ ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1" if DEBUG 
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -175,3 +174,8 @@ LOGGING = {
 
 # Valeurs par défaut propres à la plateforme.
 SYSTEMC_DEFAULT_CURRENCY = env("SYSTEMC_DEFAULT_CURRENCY", "USD")
+
+# Fichiers privés (ressources payantes d'Academy) : hors du code source et des
+# fichiers statiques, sans URL publique. Ils ne seront servis que par une vue
+# qui vérifie les droits d'accès.
+SYSTEMC_PRIVATE_MEDIA_ROOT = Path(env("SYSTEMC_PRIVATE_MEDIA_ROOT", str(BASE_DIR / "private_media")))
