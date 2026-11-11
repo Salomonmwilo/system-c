@@ -32,6 +32,10 @@ class AffiliateForm(BootstrapFormMixin, forms.ModelForm):
         self.fields["referral_link"].queryset = ReferralLink.objects.filter(organization=organization, is_active=True)
         self.fields["assigned_to"].queryset = organization_members(organization)
         self.fields["country"].widget.attrs.update({"maxlength": 2, "autocomplete": "off"})
+        # Saisie pour une autre personne : pas de remplissage automatique avec les données de l'administrateur.
+        self.fields["email"].widget.attrs.update({"autocomplete": "off", "spellcheck": "false"})
+        self.fields["phone"].widget.input_type = "tel"
+        self.fields["phone"].widget.attrs.update({"autocomplete": "off", "inputmode": "tel"})
 
     def clean_country(self):
         return (self.cleaned_data.get("country") or "").strip().upper()

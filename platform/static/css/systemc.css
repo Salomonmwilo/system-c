@@ -280,3 +280,16 @@ dl.sc-dl dd { margin: 0; overflow-wrap: anywhere; }
 .sc-error-summary:focus { outline: 3px solid var(--sc-stop); outline-offset: 2px; }
 .sc-error-summary ul { margin: var(--sc-space-1) 0 0; padding-left: 1.25rem; }
 .sc-error-summary a { color: inherit; }
+
+/* Academy : listes de ressources d'une offre */
+.min-w-0 { min-width: 0; }
+.sc-resource-list li + li { border-top: 1px solid var(--sc-rule); }
+.sc-resource-list .min-w-0 { overflow-wrap: anywhere; }
+
+/* Les libellés masqués (position absolue) d'un tableau défilant restent dans son cadre :
+   sans cela, ils élargissent la page et un téléphone la dézoome (WCAG 1.4.10). */
+.table-responsive { position: relative; }
+
+/* Revue web-interface-guidelines : titres sans mot orphelin, pas de délai de double tape. */
+h1, h2, h3, .h3, .h5 { text-wrap: balance; }
+a, button, summary, label, input, select, textarea { touch-action: manipulation; }

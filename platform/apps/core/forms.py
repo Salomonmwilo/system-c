@@ -119,8 +119,8 @@ ROLE_CHOICES = Role.choices
 
 
 class MemberCreateForm(BootstrapFormMixin, forms.Form):
-    email = forms.EmailField(label=_("Email address"))
-    full_name = forms.CharField(label=_("Full name"), max_length=150)
+    email = forms.EmailField(label=_("Email address"), widget=forms.EmailInput(attrs={"autocomplete": "off", "spellcheck": "false"}))
+    full_name = forms.CharField(label=_("Full name"), max_length=150, widget=forms.TextInput(attrs={"autocomplete": "off"}))
     preferred_language = forms.ChoiceField(label=_("Language"), choices=Language.choices, initial=Language.FR)
     roles = forms.MultipleChoiceField(
         label=_("Roles"), choices=ROLE_CHOICES, widget=forms.CheckboxSelectMultiple, required=True
