@@ -156,7 +156,7 @@ class BotUser(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f"{self.affiliate} · {self.get_robot_type_display() or '—'}"
+        return f"{self.affiliate} · {self.get_robot_type_display() or _('Not chosen yet')}"
 
 
 class ConfigurationVersion(models.Model):

@@ -1,6 +1,6 @@
 > **Produit actif : SYSTEM-C Platform, dans le dossier [`platform/`](platform/README.md).** Le site vitrine décrit ci-dessous (`public/`) est conservé pour mémoire et n'est plus maintenu.
 
-# System-C — site vitrine
+# System-C : site vitrine
 
 Site statique responsive bilingue (français / anglais), conçu pour un déploiement sur Netlify.
 
@@ -26,7 +26,7 @@ Ouvrir `public/index.html` dans un navigateur. Pour un test plus fidèle, lancer
 4. Choisir le dépôt. Le répertoire de publication (`public`) est lu depuis `netlify.toml`; aucune commande de build n'est requise.
 5. Déployer et tester les liens sur mobile et ordinateur.
 
-## Avant publication — important
+## Avant publication : important
 1. Les conditions Deriv pour les affiliés demandent un avertissement de risque visible et peuvent exiger que le site promotionnel soit examiné/approuvé avant mise en ligne. Confirmer les exigences applicables à votre compte et pays avec votre Partner Manager.
 2. Le lien affilié est fourni par le propriétaire du site : `https://t.deriv.link?t=L9CTBT5XUH3M`.
 3. La carte d'électeur de RDC n'est pas présentée comme document accepté : le candidat doit confirmer l'acceptation auprès de Deriv. Les règles peuvent varier.
@@ -41,7 +41,7 @@ Modifier les traductions dans `script.js`. Mettre à jour les liens uniquement a
 - Après le premier déploiement, ajouter l'URL définitive dans `og:image` (URL absolue recommandée par certains réseaux) et ajouter une balise `canonical` si un domaine personnalisé est utilisé.
 - Ajouter `.netlify` au `.gitignore` (déjà fait) si le site est lié via la CLI.
 
-## Version 3 — décisions du responsable
+## Version 3 : décisions du responsable
 - Avertissement de risque : texte anglais officiel (Deriv Affiliates Terms R26|03, §1.10) et traduction française affichés ensemble ; l'anglais fait foi.
 - Slogan validé par le responsable : « Solus cum plenitudine, inopi est alia ».
 - Questionnaire : âge légal, pays autorisé, document accepté par Deriv, appareil, fonds (argent emprunté/essentiel/perdable), compréhension du risque. Trois issues : favorable / à vérifier / ne pas poursuivre.
@@ -51,7 +51,7 @@ Modifier les traductions dans `script.js`. Mettre à jour les liens uniquement a
 - Approbation Deriv : en cours de demande auprès du responsable pays après mise en ligne.
 - Si un domaine personnalisé est utilisé, mettre à jour `canonical`, `og:url` et `og:image` dans `index.html`.
 
-## Version 4 — confidentialité
+## Version 4 : confidentialité
 - Google Fonts retiré : le site n'appelle plus aucun service externe au chargement (polices système : Georgia pour les titres, police système pour le texte). CSP stricte (`'self'` uniquement).
 - Mémorisation de la langue (`localStorage`) supprimée : le site ne stocke rien sur l'appareil. La langue initiale suit la langue du navigateur (lue localement).
 - Question FAQ « IA Deriv » supprimée.
@@ -90,7 +90,7 @@ Corrections d'accessibilité issues de l'audit, corroborées par la base UX du s
 - Page 404 réparée. Aucune dépendance externe, aucun stockage.
 
 ## Déploiement Netlify
-Publish directory : `public` — aucune commande de build (voir `netlify.toml`).
+Publish directory : `public`, sans commande de build (voir `netlify.toml`).
 
 ## Version 9
 - Nouvelle section `#module` : « Match/Differs, huit séquences, zéro promesse » (définitions du trading et de Deriv, 3 illustrations FR/EN, 8 séquences dépliables, versets, avertissement de risque).

@@ -1,6 +1,6 @@
-# SYSTEM-C Platform — Spécification du CRM BOT MANAGEMENT
+# SYSTEM-C Platform : spécification du CRM BOT MANAGEMENT
 
-Statut : **spécification de conception, révision 3 — à valider avant implémentation.**
+Statut : **spécification de conception, révision 3, à valider avant implémentation.**
 
 Ce document détaille les décisions validées pour les affiliés, les utilisateurs de robots et leurs configurations. Il complète `NEW_PROJECT_DIRECTION.md` (révision 3). Il ne décrit aucun contrôle technique du VPS.
 
@@ -347,11 +347,11 @@ Chaque organisation règle ses seuils dans `core.alert_threshold`, avec des born
 
 | Clé | Catégorie | Défaut proposé | Bornes |
 |---|---|---|---|
-| `contact_stale_days` | Dernier contact | 30 | 7 – 180 |
-| `modification_pending_days` | Modification en attente | 7 | 1 – 60 |
-| `configuration_review_days` | Configuration appliquée | 30 | 7 – 365 |
-| `registration_stuck_days` | Inscription inachevée | 7 | 1 – 60 |
-| `verification_stuck_days` | Vérification inachevée | 14 | 1 – 90 |
+| `contact_stale_days` | Dernier contact | 30 | 7 à 180 |
+| `modification_pending_days` | Modification en attente | 7 | 1 à 60 |
+| `configuration_review_days` | Configuration appliquée | 30 | 7 à 365 |
+| `registration_stuck_days` | Inscription inachevée | 7 | 1 à 60 |
+| `verification_stuck_days` | Vérification inachevée | 14 | 1 à 90 |
 
 Règles :
 - Modifier un seuil est une action de `crm_admin`, journalisée (ancienne et nouvelle valeur).
@@ -422,23 +422,23 @@ Légende : **✔** autorisé · **✖** interdit · **C** autorisé avec confirm
 
 Chaque scénario indique les données créées et les permissions utilisées.
 
-### S1 — Nouvel affilié
+### S1 : nouvel affilié
 1. `partner_manager` crée la fiche affilié (`partners.affiliate`).
 2. Il enregistre la piste inscription : `declared_by_affiliate`, source `affiliate`.
 3. Aucune fiche robot n'est créée.
 - **Données** : 1 affilié, 1 événement de piste.
 
-### S2 — Vérification validée
+### S2 : vérification validée
 1. `partner_manager` enregistre `verification = validated`, source `deriv_support`, date fournie.
 2. Un événement crée une tâche « Décider si la fiche robot est ouverte » (`core.task`).
 - **Données** : événement de piste, tâche.
 
-### S3 — L'affilié souhaite un robot
+### S3 : l'affilié souhaite un robot
 1. `crm_operator` crée `bot_user` avec `wants_bot = true` et `robot_type = DIFFERS`.
 2. Statut calculé : **À configurer**.
 - **Données** : 1 fiche robot. Pas de version.
 
-### S4 — Première configuration (démo)
+### S4 : première configuration (démo)
 1. `crm_operator` crée un brouillon de version `demo` avec les paramètres autorisés et le capital de référence déclaré.
 2. `crm_admin` valide la version : elle devient immuable.
 3. Hors plateforme, l'administrateur applique la configuration sur le VPS.
@@ -446,7 +446,7 @@ Chaque scénario indique les données créées et les permissions utilisées.
 5. Statut calculé : **Configuration appliquée**.
 - **Données** : version validée, paramètres, déclaration.
 
-### S5 — Modification de la mise
+### S5 : modification de la mise
 1. `crm_operator` crée une nouvelle version (copie de la précédente, à modifier). L'ancienne version reste intacte.
 2. `crm_operator` ne peut pas valider une version démo ; `crm_admin` valide.
 3. Statut calculé : **Modification demandée**, alerte après `modification_pending_days`.
@@ -454,45 +454,45 @@ Chaque scénario indique les données créées et les permissions utilisées.
 5. Déclaration `applied` pour la nouvelle version. Statut : **Configuration appliquée**.
 - **Données** : deux versions, deux déclarations.
 
-### S6 — Erreur de déclaration
+### S6 : erreur de déclaration
 1. Une déclaration `applied` est saisie pour la mauvaise date ou la mauvaise version.
 2. `crm_operator` (démo) ou `crm_admin` (réel) enregistre une `correction` avec motif.
 3. Le statut est recalculé. La ligne d'origine reste dans l'historique.
 
-### S7 — Passage en compte réel
+### S7 : passage en compte réel
 1. `crm_admin` crée un brouillon de version `real`. Un `crm_operator` ne peut pas le faire.
 2. `crm_admin` coche la confirmation, indique la date et une note. Une entrée d'audit est créée.
 3. Validation : demandée à un second `crm_admin` si la double validation est retenue (§5.2).
 4. Aucune commande n'est envoyée au VPS. L'administrateur applique la configuration à la main, puis déclare l'application.
 
-### S8 — Pause
+### S8 : pause
 1. `crm_operator` met la fiche en pause avec un motif.
 2. Statut : **En pause**. L'historique est conservé.
 3. Réactivation par `crm_admin` : retour au statut calculé.
 
-### S9 — Désactivation
+### S9 : désactivation
 1. `crm_admin` désactive la fiche avec un motif. Statut : **Désactivé**.
 2. Aucune nouvelle version ne peut être validée tant que la fiche est désactivée.
 
-### S10 — Alerte de contact
+### S10 : alerte de contact
 1. Aucun contact depuis `contact_stale_days` jours.
 2. L'alerte « Dernier contact » apparaît au tableau de bord.
 3. L'administrateur crée une tâche de relance, ou enregistre un contact qui clôt l'alerte.
 
-### S11 — Affilié devenu apprenant
+### S11 : affilié devenu apprenant
 1. Un affilié s'inscrit à ACADEMY. `academy.enrollment.affiliate_id` référence sa fiche.
 2. Aucune donnée personnelle n'est copiée. Le parcours pédagogique reste dans `academy`.
 
-### S12 — Tentative de saisie d'un secret
+### S12 : tentative de saisie d'un secret
 1. Un utilisateur saisit une clé API dans la note.
 2. La note est enregistrée **uniquement si l'administrateur confirme**, avec un avertissement qui explique que la plateforme ne doit contenir aucun secret.
 3. Un signalement est journalisé. Ce mécanisme est un **rappel**, pas une protection : la protection réelle est l'absence de champ destiné aux secrets (§9).
 
-### S13 — Export
+### S13 : export
 1. `crm_admin` exporte la liste des fiches robots au format CSV.
 2. L'export est journalisé, sans contenu des notes.
 
-### S14 — Inscription inachevée
+### S14 : inscription inachevée
 1. La piste de vérification reste `requested` plus de `verification_stuck_days` jours.
 2. Une alerte apparaît. L'administrateur crée une tâche de relance.
 

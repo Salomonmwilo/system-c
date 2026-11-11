@@ -1,4 +1,4 @@
-# SYSTEM-C — État actuel du dépôt (Phase 0, audit)
+# SYSTEM-C : état actuel du dépôt (Phase 0, audit)
 
 Date de l'audit : 2026-11-09 · Branche : `claude/zealous-fermi-lxtqkl` (identique à `main`, 3 commits) · Auteur unique des commits.
 

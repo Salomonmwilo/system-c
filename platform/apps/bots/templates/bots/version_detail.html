@@ -26,10 +26,10 @@
     <div class="sc-card mb-3"><div class="sc-card-header"><h2>{% translate "Declaration" %}</h2></div><div class="sc-card-body"><dl class="sc-dl">
       <dt>{% translate "Robot" %}</dt><dd>{{ version.get_robot_type_display }}</dd>
       <dt>{% translate "Account type" %}</dt><dd>{{ version.get_account_type_display }}</dd>
-      <dt>{% translate "Reference capital" %}</dt><dd>{% if version.reference_capital is not None %}{{ version.reference_capital|floatformat:"2g" }} {{ version.currency }}{% else %}—{% endif %}</dd>
+      <dt>{% translate "Reference capital" %}</dt><dd>{% if version.reference_capital is not None %}{{ version.reference_capital|floatformat:"2g" }} {{ version.currency }}{% else %}{% translate "Not provided" %}{% endif %}</dd>
       <dt>{% translate "Created" %}</dt><dd>{% blocktranslate with date=version.created_at|date:"SHORT_DATETIME_FORMAT" person=version.created_by %}{{ date }}, by {{ person }}{% endblocktranslate %}</dd>
-      <dt>{% translate "Validated" %}</dt><dd>{% if version.validated_at %}{% blocktranslate with date=version.validated_at|date:"SHORT_DATETIME_FORMAT" person=version.validated_by %}{{ date }}, by {{ person }}{% endblocktranslate %}{% else %}—{% endif %}</dd>
-      <dt>{% translate "Note" %}</dt><dd>{{ version.admin_note|linebreaksbr|default:"—" }}</dd>
+      <dt>{% translate "Validated" %}</dt><dd>{% if version.validated_at %}{% blocktranslate with date=version.validated_at|date:"SHORT_DATETIME_FORMAT" person=version.validated_by %}{{ date }}, by {{ person }}{% endblocktranslate %}{% else %}{% translate "Not validated yet" %}{% endif %}</dd>
+      <dt>{% translate "Note" %}</dt><dd>{{ version.admin_note|linebreaksbr|default:_("Not provided") }}</dd>
     </dl></div></div>
     {% if version.real_confirmed_at %}
     <div class="sc-card mb-3"><div class="sc-card-header"><h2>{% translate "Real account declaration" %}</h2></div><div class="sc-card-body"><dl class="sc-dl">
@@ -55,7 +55,7 @@
         <ul class="sc-timeline mb-3">{% for d in declarations %}<li>
           <div class="sc-meta">{% blocktranslate with date=d.recorded_at|date:"SHORT_DATETIME_FORMAT" person=d.recorded_by %}{{ date }}, by {{ person }}{% endblocktranslate %}</div>
           {% if d.kind == "applied" %}
-            <div><strong>{% blocktranslate with date=d.applied_on|date:"SHORT_DATE_FORMAT" %}Declared applied on {{ date }}{% endblocktranslate %}</strong>{% if d.note %} — {{ d.note }}{% endif %}</div>
+            <div><strong>{% blocktranslate with date=d.applied_on|date:"SHORT_DATE_FORMAT" %}Declared applied on {{ date }}{% endblocktranslate %}</strong></div>{% if d.note %}<div class="small">{{ d.note }}</div>{% endif %}
             {% if can_correct and not d.correction %}{% if not version.is_real or can_real %}
             <details class="sc-details mt-2"><summary>{% translate "Correct this declaration" %}</summary>
               <form method="post" action="{% url 'bots:declaration_correct' d.pk %}" class="mt-2" novalidate data-confirm="{% translate 'Record a correction? The original declaration stays in the history.' %}">{% csrf_token %}

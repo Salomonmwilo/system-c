@@ -4,11 +4,11 @@
 
 > **Amendement rév. 3 (2026-11-09).** Porte bloquante avant la phase 4 : la liste blanche des réglages (`BOT_CRM_SPEC.md` §0 et §4) doit être vérifiée contre les fichiers réels, sans exposer de valeur ni de secret. Sans cette vérification, aucun champ de configuration n'est créé. La phase 4 suit les tests de `BOT_CRM_SPEC.md` §11.
 
-# SYSTEM-C — Feuille de route par phases
+# SYSTEM-C : feuille de route par phases
 
 Découpage en phases livrables, chacune avec un critère de sortie vérifiable. Les phases 1 et 2 peuvent commencer dès approbation ; les suivantes dépendent des décisions listées en fin de document.
 
-Complexité : **S** (≤ 2 jours), **M** (≈ 1 semaine), **L** (2–4 semaines), **XL** (> 1 mois). Estimations pour une personne ; à recalibrer après la phase 1.
+Complexité : **S** (≤ 2 jours), **M** (≈ 1 semaine), **L** (2 à 4 semaines), **XL** (> 1 mois). Estimations pour une personne ; à recalibrer après la phase 1.
 
 Ce document ne modifie aucun code. Il n'a pas de caractère contractuel.
 
@@ -18,7 +18,7 @@ Ce document ne modifie aucun code. Il n'a pas de caractère contractuel.
 
 | Phase | Titre | Durée indicative | Dépend de | Impact sur la vitrine |
 |---|---|---|---|---|
-| 0 | Audit et documentation (ce document) | Terminée | — | Aucun |
+| 0 | Audit et documentation (ce document) | Terminée | Aucune | Aucun |
 | 1 | Stabiliser la vitrine et poser le filet de sécurité | 2 à 3 semaines | Approbation | Correction S1 visible pour les visiteurs sans JS |
 | 2 | Socle plateforme : application, base, authentification, RBAC, isolation | 4 à 6 semaines | Phase 1 (tests) ; décision d'hébergement | Aucun |
 | 3 | ACADEMY : contenu, inscription, exercices, progression | 4 à 6 semaines | Phase 2 | Aucun (lien vers l'espace membre en fin de phase) |
@@ -31,7 +31,7 @@ Ordre des modules recommandé : **ACADEMY** (valeur immédiate, contenu prêt, r
 
 ---
 
-## Phase 0 — Audit (terminée)
+## Phase 0 : Audit (terminée)
 
 - **Livrables** : `CURRENT_STATE.md`, `GAP_ANALYSIS.md`, `PROPOSED_ARCHITECTURE.md`, `MIGRATION_PLAN.md`, `IMPLEMENTATION_ROADMAP.md`, dans `docs/platform/`.
 - **Fichiers modifiés** : aucun fichier de `public/`, de configuration ou de workflow.
@@ -39,20 +39,20 @@ Ordre des modules recommandé : **ACADEMY** (valeur immédiate, contenu prêt, r
 
 ---
 
-## Phase 1 — Stabiliser la vitrine
+## Phase 1 : Stabiliser la vitrine
 
 **Objectif** : corriger les constats de sécurité et de confidentialité, et poser le filet de tests avant toute évolution.
 
 | Tâche | Réf. migration | Fichiers | Cplx | Cassant ? | Sécurité |
 |---|---|---|---|---|---|
-| Captures de référence et tag `v9-baseline` | M-0 | aucun dans `public/` | S | Non | — |
+| Captures de référence et tag `v9-baseline` | M-0 | aucun dans `public/` | S | Non | Aucun |
 | Tests de fumée Playwright (FR/EN, mobile, sans JS, aucune requête externe) | M-1 | `tests/site/*` | M | Non | Garde-fou confidentialité |
 | Masquer le formulaire sans JS et ajouter `<noscript>` (S1) | M-2 | `public/styles.css`, `public/index.html` | S | **Oui, visible sans JS** | Supprime la fuite des réponses dans l'URL |
 | Décider de `pages.yml` (S2, S3) | M-3 | `.github/workflows/pages.yml` | S | Possible (liens GitHub Pages) | Une seule politique d'en-têtes |
 | Épingler les actions GitHub par SHA | R-DEBT-4 | `.github/workflows/*.yml` | S | Non | Chaîne d'approvisionnement |
-| Consolider les tokens de thème | M-6 | `public/styles.css` | S | Non si identique | — |
-| Nettoyage documentaire (README, `robots.txt`, `sitemap.xml`, clés inutilisées) | M-7 | `README.md`, `public/robots.txt`, `public/sitemap.xml` | S | Non | — |
-| Validation HTML en CI | R-DEBT-3 | `.github/workflows/ci.yml` | S | Non | — |
+| Consolider les tokens de thème | M-6 | `public/styles.css` | S | Non si identique | Aucun |
+| Nettoyage documentaire (README, `robots.txt`, `sitemap.xml`, clés inutilisées) | M-7 | `README.md`, `public/robots.txt`, `public/sitemap.xml` | S | Non | Aucun |
+| Validation HTML en CI | R-DEBT-3 | `.github/workflows/ci.yml` | S | Non | Aucun |
 
 **Critères de sortie** :
 - Tous les tests M-1 passent, y compris « sans JS, aucune réponse dans l'URL ».
@@ -64,7 +64,7 @@ Ordre des modules recommandé : **ACADEMY** (valeur immédiate, contenu prêt, r
 
 ---
 
-## Phase 2 — Socle de la plateforme
+## Phase 2 : Socle de la plateforme
 
 **Objectif** : une application vide mais sûre : authentification, organisations, rôles, isolation testée, base PostgreSQL, CI.
 
@@ -78,7 +78,7 @@ Ordre des modules recommandé : **ACADEMY** (valeur immédiate, contenu prêt, r
 | 2.4 Autorisation | RBAC avec refus par défaut, décorateur ou dépendance `authorize`, test qui échoue si une route n'a pas de permission | `platform/app/auth/policy.py`, `platform/tests/test_policy.py` | M |
 | 2.5 Multi-organisation | `organization_id` partout, clés composites, contexte d'organisation résolu côté serveur, tests d'isolation | `platform/app/services/tenancy.py`, `platform/tests/test_isolation.py` | L |
 | 2.6 Sécurité HTTP | En-têtes, CSP propre à l'application, CSRF, cookies, vérification `Origin` | `platform/app/middleware/*` | S |
-| 2.7 i18n serveur | Lecture de `shared/i18n/*.json`, bascule FR/EN de l'application (cookie non-traceur ou paramètre d'URL — à décider) | `platform/app/i18n.py`, `shared/i18n/*` | M |
+| 2.7 i18n serveur | Lecture de `shared/i18n/*.json`, bascule FR/EN de l'application (cookie non-traceur ou paramètre d'URL, à décider) | `platform/app/i18n.py`, `shared/i18n/*` | M |
 | 2.8 Hébergement | Déploiement de test sur sous-domaine `app.` (option A VPS ou option B PaaS) | `docs/platform/OPERATIONS.md` (à créer) | M |
 
 **Critères de sortie** :
@@ -92,7 +92,7 @@ Ordre des modules recommandé : **ACADEMY** (valeur immédiate, contenu prêt, r
 
 ---
 
-## Phase 3 — ACADEMY
+## Phase 3 : ACADEMY
 
 **Objectif** : des étudiants inscrits suivent un programme, font des exercices, et leur progression est suivie.
 
@@ -116,7 +116,7 @@ Ordre des modules recommandé : **ACADEMY** (valeur immédiate, contenu prêt, r
 
 ---
 
-## Phase 4 — PARTNERS
+## Phase 4 : PARTNERS
 
 **Objectif** : gérer les prospects issus du site, leur onboarding et leurs relances, avec consentement et traçabilité.
 
@@ -140,7 +140,7 @@ Ordre des modules recommandé : **ACADEMY** (valeur immédiate, contenu prêt, r
 
 ---
 
-## Phase 5 — BOT MANAGEMENT (lecture seule)
+## Phase 5 : BOT MANAGEMENT (lecture seule)
 
 **Objectif** : voir l'état des bots et les incidents, sans rien modifier à distance.
 
@@ -165,7 +165,7 @@ Ordre des modules recommandé : **ACADEMY** (valeur immédiate, contenu prêt, r
 
 ---
 
-## Phase 6 — BOT MANAGEMENT (configuration)
+## Phase 6 : BOT MANAGEMENT (configuration)
 
 **Objectif** : modifier la configuration des bots de façon versionnée, approuvée et traçable.
 
@@ -186,7 +186,7 @@ Ordre des modules recommandé : **ACADEMY** (valeur immédiate, contenu prêt, r
 
 ---
 
-## Phase 7 — Durcissement
+## Phase 7 : Durcissement
 
 | Lot | Contenu | Fichiers | Cplx |
 |---|---|---|---|

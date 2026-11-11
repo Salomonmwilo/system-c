@@ -12,7 +12,7 @@
   {% for entry in page %}
     <tr>
       <td class="text-nowrap">{{ entry.created_at|date:"SHORT_DATETIME_FORMAT" }}</td>
-      <td>{{ entry.actor|default:"—" }}</td>
+      <td>{{ entry.actor|default:_("Not identified") }}</td>
       <td><code>{{ entry.action }}</code></td>
       <td class="small">{% for key, value in entry.summary.items %}<span class="me-2"><span class="text-body-secondary">{{ key }}</span>: {{ value }}</span>{% endfor %}</td>
     </tr>

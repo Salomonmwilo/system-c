@@ -1,6 +1,6 @@
-# SYSTEM-C Platform — Nouvelle orientation et architecture cible
+# SYSTEM-C Platform : nouvelle orientation et architecture cible
 
-Statut : **révision 2 — proposition à approuver**. Aucun code n'est écrit à ce stade. Aucun fichier existant n'est supprimé ni modifié.
+Statut : **révision 2, proposition à approuver**. Aucun code n'est écrit à ce stade. Aucun fichier existant n'est supprimé ni modifié.
 
 Historique :
 - Révision 1 (2026-11-09) : plateforme SaaS à trois modules.
@@ -86,7 +86,7 @@ Réutiliser signifie : récupérer la **donnée ou la décision** (texte validé
 | Principes « pas de promesses » | `script.js` (`trans1Title` à `trans4Title`) | **Réutiliser tels quels** |
 | Mention d'indépendance | `footerDisclaimer` | Adapter : « Plateforme éducative et administrative indépendante. Deriv est une marque distincte. » |
 | Avertissement de risque officiel | `index.html` (texte anglais, Deriv Affiliates Terms, section 1.10) | **Réutiliser verbatim** en anglais ; traduction française séparée, marquée « non officielle ; la version anglaise fait foi » |
-| Politique de confidentialité | — | **À réécrire** : la plateforme collecte des données de prospects, d'affiliés et d'utilisateurs de robots |
+| Politique de confidentialité | Aucun | **À réécrire** : la plateforme collecte des données de prospects, d'affiliés et d'utilisateurs de robots |
 
 ### 2.3 Traductions FR et EN
 
@@ -184,10 +184,10 @@ Pourquoi pas des microservices : trois modules, équipe réduite, besoins transa
    bots Python, reglages.env,      et MET À JOUR LA FICHE à la main dans la
    tokens, systemd, journaux       plateforme (registre déclaratif)
 
-   * « affiliés » : entité possédée par partners ou bots — voir §4.3
+   * « affiliés » : entité possédée par partners ou bots (voir §4.3)
 ```
 
-### 4.3 Propriété de la fiche affilié **[rév. 2]** — décision à prendre
+### 4.3 Propriété de la fiche affilié **[rév. 2]** : décision à prendre
 
 La demande initiale donne aux deux modules PARTNERS et BOT MANAGEMENT la gestion des affiliés et de leur parcours d'inscription et de vérification. Il faut éviter deux fiches pour une même personne.
 
@@ -265,8 +265,8 @@ Rôles proposés :
 | Tâches et rappels **[rév. 2]** | Tâches planifiées (commande de gestion) qui créent des rappels dans l'application et, si activé, par courriel | Pas de file de messages au départ |
 | Exports **[rév. 2]** | CSV et PDF générés à la demande, journalisés | Données personnelles : export réservé à `crm_admin` |
 | Courriel | Fournisseur transactionnel (à choisir) | Rappels, réinitialisation |
-| Tests | pytest, pytest-django, Playwright (FR/EN), import-linter, tests d'autorisation et d'isolation | — |
-| Qualité | ruff, mypy progressif, scan de dépendances, scan de secrets | — |
+| Tests | pytest, pytest-django, Playwright (FR/EN), import-linter, tests d'autorisation et d'isolation | Aucune |
+| Qualité | ruff, mypy progressif, scan de dépendances, scan de secrets | Aucune |
 | Hébergement | Conteneur, reverse proxy TLS, PostgreSQL privé | Hébergement séparé du VPS recommandé (§11) |
 
 **Retiré [rév. 2]** : signatures HMAC, nonces, protocole d'agent, file de tâches distribuée, Redis.
@@ -291,7 +291,7 @@ Identité, profils, organisations, appartenances, rôles, permissions, **tâches
 | Interactions et relances | Journal en ajout seul |
 | Conformité | Export, suppression, durée de conservation |
 
-**Étapes du parcours** **[rév. 2]** — statuts déclarés par l'administrateur, **jamais de pièce d'identité** :
+**Étapes du parcours** **[rév. 2]**. Statuts déclarés par l'administrateur, **jamais de pièce d'identité** :
 
 | Étape | Valeurs possibles |
 |---|---|
@@ -305,7 +305,7 @@ Chaque changement est daté et annoté. La source (« affilié », « administra
 
 Programmes, cours et leçons (bilingues), inscriptions, pré-évaluation d'admissibilité (référentiel versionné), exercices, évaluations, progression, attestation interne. La notation ne dépend jamais du solde d'un compte.
 
-### 6.4 `bots` — CRM administratif **[rév. 2]**
+### 6.4 `bots` : CRM administratif **[rév. 2]**
 
 Ce module est un **registre administratif**. Il ne communique avec aucun robot. Chaque donnée est une **déclaration** de l'administrateur.
 
@@ -480,7 +480,7 @@ Les risques liés au VPS (tokens, reglages.env, systemd, trading) **sont hors du
 
 Chaque phase a un critère de sortie vérifiable. Aucune phase ne commence sans approbation de la précédente. Estimations pour une personne à temps plein, indicatives.
 
-### Phase 1 — Fondations (3 à 4 semaines)
+### Phase 1 : Fondations (3 à 4 semaines)
 - Squelette, Docker, PostgreSQL, CI, règles d'import, tests.
 - Identité, sessions, TOTP, organisations, rôles, permissions, refus par défaut.
 - Journal d'audit. Internationalisation FR/EN avec parité en CI.
@@ -489,13 +489,13 @@ Chaque phase a un critère de sortie vérifiable. Aucune phase ne commence sans 
 
 **Sortie** : tests d'authentification et d'isolation verts ; FR et EN complets ; déploiement de test ; revue de sécurité interne.
 
-### Phase 2 — ACADEMY (4 à 6 semaines)
+### Phase 2 : ACADEMY (4 à 6 semaines)
 - Programmes, cours, leçons bilingues ; import des huit séquences après relecture.
 - Inscriptions, pré-évaluation, exercices, progression, attestation interne.
 
 **Sortie** : parcours complet en FR et EN ; isolation testée ; contenus validés.
 
-### Phase 3 — PARTNERS : prospects, affiliés et parcours (3 à 5 semaines)
+### Phase 3 : PARTNERS : prospects, affiliés et parcours (3 à 5 semaines)
 - Liens d'affiliation, attribution par jeton signé.
 - Prospects avec consentement ; conversion en affilié (§4.3).
 - **Parcours d'inscription et de vérification** (§6.2), sans pièce d'identité.
@@ -503,7 +503,7 @@ Chaque phase a un critère de sortie vérifiable. Aucune phase ne commence sans 
 
 **Sortie** : validation juridique écrite ; tests de consentement ; export et suppression vérifiés.
 
-### Phase 4 — BOT MANAGEMENT : CRM des utilisateurs de robots (4 à 5 semaines) **[rév. 2]**
+### Phase 4 : BOT MANAGEMENT : CRM des utilisateurs de robots (4 à 5 semaines) **[rév. 2]**
 - Fiche utilisateur de robot liée à l'affilié : souhaite un robot, type DIFFERS ou OVER/UNDER.
 - Capital de référence déclaré, avec historique.
 - Versions de configuration immuables, réglages déclarés selon modèle par type.
@@ -513,7 +513,7 @@ Chaque phase a un critère de sortie vérifiable. Aucune phase ne commence sans 
 
 **Sortie** : tests de `BOT_CRM_SPEC.md` §11 verts (statuts, immuabilité, permissions, déclaration réelle, schéma sans secret, import) ; liste blanche validée contre les fichiers réels ; aucune dépendance vers le VPS.
 
-### Phase 5 — Tableau de bord, tâches et rappels (3 à 4 semaines) **[rév. 2]**
+### Phase 5 : Tableau de bord, tâches et rappels (3 à 4 semaines) **[rév. 2]**
 - Vue d'ensemble par affilié et par utilisateur de robot, filtres, alertes.
 - Tâches, rappels dans l'application et par courriel, vue « Mes tâches ».
 - Exports CSV et PDF journalisés, avec neutralisation des formules.
@@ -521,7 +521,7 @@ Chaque phase a un critère de sortie vérifiable. Aucune phase ne commence sans 
 
 **Sortie** : alertes correctes sur jeux de test ; exports contrôlés ; charge acceptable sur un jeu de données réaliste.
 
-### Phase 6 — Durcissement et exploitation (3 à 4 semaines)
+### Phase 6 : Durcissement et exploitation (3 à 4 semaines)
 - Politiques de ligne PostgreSQL.
 - Test d'intrusion de l'application.
 - Sauvegardes chiffrées, restauration testée.
@@ -558,7 +558,7 @@ Le contenu pédagogique et la saisie initiale des fiches sont souvent le goulot 
 
 ---
 
-## 11. Décisions — état après révision 3
+## 11. Décisions : état après révision 3
 
 **Validées [rév. 3]** : 4 (propriété `partners`), 5 (fiches robots sans compte), 7 (capital déclaré manuellement), 9 (mode réel par `crm_admin`). **Non tranchée** : 1 (framework : Django recommandé, décision toujours ouverte). **Bloquante** : 6 (liste des réglages, non vérifiée, `BOT_CRM_SPEC.md` §0). Les autres restent ouvertes. Détail des décisions propres au CRM : `BOT_CRM_SPEC.md` §10.
 

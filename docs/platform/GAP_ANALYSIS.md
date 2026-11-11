@@ -1,10 +1,10 @@
-# SYSTEM-C — Analyse des écarts (vision SYSTEM-C Platform)
+# SYSTEM-C : analyse des écarts (vision SYSTEM-C Platform)
 > **Amendement rév. 2 (2026-11-09).** Le §2.3 (BOT MANAGEMENT) décrivait un agent, des commandes et une intégration technique. Ces lignes sont **retirées** : le module est un CRM administratif (`NEW_PROJECT_DIRECTION.md` §6.4). Les écarts restants sont la gestion des affiliés, des configurations déclarées, des interventions et des tâches.
 
 
 Compare l'existant décrit dans `CURRENT_STATE.md` à la vision produit : trois modules (ACADEMY, PARTNERS, BOT MANAGEMENT) et les objectifs techniques transverses.
 
-Légende de complexité : **S** (≤ 2 jours), **M** (≈ 1 semaine), **L** (2–4 semaines), **XL** (> 1 mois). Estimations indicatives pour une personne, à affiner en phase de cadrage.
+Légende de complexité : **S** (≤ 2 jours), **M** (≈ 1 semaine), **L** (2 à 4 semaines), **XL** (> 1 mois). Estimations indicatives pour une personne, à affiner en phase de cadrage.
 
 ---
 
@@ -15,13 +15,13 @@ Légende de complexité : **S** (≤ 2 jours), **M** (≈ 1 semaine), **L** (2�
 | ACADEMY | Contenu pédagogique rédigé (8 séquences Match/Differs, 6 compétences, guide) dans la page | Aucun modèle de cours, leçons, inscription, exercices, évaluations ou suivi | Contenu, ton, structure en séquences |
 | PARTNERS | Lien d'affiliation codé en dur, bouton WhatsApp | Aucune gestion de prospects, de statuts, de relances, ni de liens multiples | Lien d'affiliation (à externaliser), mentions de transparence |
 | BOT MANAGEMENT | Néant (seulement du contenu sur Differs / Over-Under) | Tout : utilisateurs-bots, environnements démo/réel, configuration, supervision, rapports, incidents, communication avec le VPS | Vocabulaire et avertissements |
-| Authentification | Néant | Tout | — |
-| Base de données | Néant | Tout (PostgreSQL) | — |
-| Multi-organisation | Néant | Tout | — |
-| RBAC | Néant | Tout | — |
+| Authentification | Néant | Tout | Rien |
+| Base de données | Néant | Tout (PostgreSQL) | Rien |
+| Multi-organisation | Néant | Tout | Rien |
+| RBAC | Néant | Tout | Rien |
 | Français / anglais | Oui, côté client, 219 clés | Externalisation des contenus, traductions de données dynamiques | Dictionnaire FR/EN, logique de bascule |
 | Responsive | Oui (points de rupture 950/700/420 px) | Vérification des vues d'administration | Feuilles de style, tokens |
-| Intégration bots Python | Néant | Tout | — |
+| Intégration bots Python | Néant | Tout | Rien |
 
 **Lecture globale** : les écarts sont structurels (aucun backend), pas de qualité. La partie vitrine est un actif à préserver ; la plateforme doit être ajoutée à côté, sans transformer la page actuelle.
 
@@ -50,7 +50,7 @@ Légende de complexité : **S** (≤ 2 jours), **M** (≈ 1 semaine), **L** (2�
 | Gestion des liens Deriv | Lien codé en dur (`t.deriv.link?t=…`) dans le HTML | Pas de registre de liens, pas de campagnes ni de suivi | Table `referral_link` (libellé, code, pays, actif, date de révision) ; affichage piloté par configuration | M |
 | Suivi d'onboarding | Néant | Statuts (nouveau, contacté, éligible, inscrit, vérifié, démo actif, abandonné) | Table `onboarding_status` avec historique immuable | M |
 | Historique de relances | Néant | Journal de suivi par prospect | Table `follow_up` (auteur, date, canal, résultat) ; jamais de modification, seulement ajout | S |
-| Rôles | Néant | Accès restreint aux données personnelles de prospects | RBAC (voir §3) | — |
+| Rôles | Néant | Accès restreint aux données personnelles de prospects | RBAC (voir §3) | Sans objet |
 
 **Point d'attention majeur** : la politique actuelle (« rien n'est stocké ») est une **promesse publique**. La capture de prospects est une rupture à communiquer clairement, avec un nouvel avis de confidentialité. Ne pas réutiliser le questionnaire existant comme point de capture sans consentement distinct.
 
@@ -65,7 +65,7 @@ Légende de complexité : **S** (≤ 2 jours), **M** (≈ 1 semaine), **L** (2�
 | Supervision de service | Néant | Heartbeat, état, dernière activité, latence | Ingestion de heartbeats signés depuis le VPS ; vue d'état | L |
 | Rapports autorisés | Néant | Rapports exportables, périmètre limité | Rapports en lecture seule, filtrés par organisation et rôle | M |
 | Incidents | Néant | Ouverture, gravité, suivi, clôture, journal | Table `incident` + `incident_event` | M |
-| Communication sécurisée avec le VPS Ubuntu | Néant ; VPS absent du dépôt | Pas d'interface, pas de contrat d'API, pas de modèle de menace | Agent poussé depuis le VPS vers la plateforme (sortant uniquement), requêtes signées (HMAC, horodatage, anti-rejeu) — voir `PROPOSED_ARCHITECTURE.md` | L |
+| Communication sécurisée avec le VPS Ubuntu | Néant ; VPS absent du dépôt | Pas d'interface, pas de contrat d'API, pas de modèle de menace | Agent poussé depuis le VPS vers la plateforme (sortant uniquement), requêtes signées (HMAC, horodatage, anti-rejeu) (voir `PROPOSED_ARCHITECTURE.md`) | L |
 | Intégration avec bots Python existants | Néant | Pas de SDK ni de format de message | Petit paquet Python `systemc-agent` (client HTTP signé, sans dépendance lourde) | M |
 
 **Point d'attention critique** : les identifiants de l'API Deriv (jetons) donnent accès à des comptes financiers. La plateforme ne doit **jamais** les stocker en clair ni les afficher. Voir la recommandation R-SEC-3 dans `PROPOSED_ARCHITECTURE.md`.
@@ -93,7 +93,7 @@ Légende de complexité : **S** (≤ 2 jours), **M** (≈ 1 semaine), **L** (2�
 |---|---|---|---|---|
 | Dépendances | Aucune | Pas de manifeste, pas de verrouillage | `pyproject.toml` (plateforme) et `package.json` **uniquement** si un outil front l'exige ; lockfiles commités | S |
 | Build | Aucun | Pas de build pour la plateforme | Image Docker multi-étapes ; site vitrine inchangé (`publish = "public"`) | M |
-| Tests | Aucun | Tout | pytest (serveur), tests d'intégration PostgreSQL, Playwright (parcours FR/EN, mobile) — le site vitrine gagne aussi des tests de fumée | M |
+| Tests | Aucun | Tout | pytest (serveur), tests d'intégration PostgreSQL, Playwright (parcours FR/EN, mobile) ; le site vitrine gagne aussi des tests de fumée | M |
 | Qualité | Aucune | Lint, format, typage | ruff, mypy (progressif), pre-commit ; HTML validé en CI pour le site vitrine | S |
 | CI | GitHub Pages uniquement | Pipeline de tests, scan de dépendances, scan de secrets | GitHub Actions : tests, `pip-audit`, scan de secrets, build d'image | M |
 | Sauvegardes | Non applicable | Sauvegardes PostgreSQL chiffrées, test de restauration | `pg_dump` chiffré hors machine, rétention, test trimestriel | M |

@@ -2,7 +2,7 @@
 
 > **Amendement rév. 2 (2026-11-09).** Les étapes M-17 (agent VPS) et M-18 (configuration applicative par l'agent) sont **retirées**. BOT MANAGEMENT devient un CRM administratif : voir `NEW_PROJECT_DIRECTION.md` §6.4 et §9 (phases 4 et 5). Aucune étape de migration ne concerne le VPS.
 
-# SYSTEM-C — Plan de migration
+# SYSTEM-C : plan de migration
 
 Objectif : faire évoluer le projet vers SYSTEM-C Platform **sans casser la vitrine actuelle**, en gardant chaque étape réversible.
 
@@ -19,7 +19,7 @@ Chaque étape indique : **pourquoi**, **fichiers concernés**, **changements cas
 
 ## 1. Filet de sécurité avant toute modification
 
-### M-0 — Figer le comportement actuel
+### M-0 : Figer le comportement actuel
 - **Pourquoi** : sans référence, impossible de prouver qu'une modification n'a rien cassé. Le projet n'a aucun test.
 - **Actions** :
   - capturer des captures d'écran de référence (FR et EN, thème clair et sombre, 390 px, 768 px, 1440 px) ;
@@ -30,7 +30,7 @@ Chaque étape indique : **pourquoi**, **fichiers concernés**, **changements cas
 - **Complexité** : S.
 - **Sécurité** : aucune donnée sensible dans les captures (site public).
 
-### M-1 — Tests de fumée du site vitrine
+### M-1 : Tests de fumée du site vitrine
 - **Pourquoi** : garantir que chaque étape suivante laisse le site fonctionnel.
 - **Détail** : Playwright (`--trace off` par défaut) sur `public/` servi localement. Vérifications :
   - chargement FR et EN, pas d'erreur console ;
@@ -44,7 +44,7 @@ Chaque étape indique : **pourquoi**, **fichiers concernés**, **changements cas
 - **Complexité** : M.
 - **Sécurité** : le test d'absence de requête externe est un garde-fou de confidentialité.
 
-### M-2 — Corriger S1 (réponses dans l'URL sans JavaScript)
+### M-2 : Corriger S1 (réponses dans l'URL sans JavaScript)
 - **Pourquoi** : la page affirme que les réponses ne sont pas transmises à un serveur ; sans JavaScript, c'est faux.
 - **Option retenue** : masquer le formulaire sans JavaScript et afficher un message `<noscript>` qui oriente vers le guide et le groupe, plutôt que de laisser le navigateur soumettre.
   - `styles.css` : `html:not(.js) .eligibility-form { display: none; }` et une règle pour le message.
@@ -56,7 +56,7 @@ Chaque étape indique : **pourquoi**, **fichiers concernés**, **changements cas
 - **Sécurité** : supprime une fuite de réponses vers les journaux de l'hébergeur.
 - **Vérification** : `M-1` passe ; capture sans JS ; vérification que la classe `js` est bien posée au chargement normal (sinon le formulaire serait masqué à tort).
 
-### M-3 — Choisir la cible de publication (R-SEC-2)
+### M-3 : Choisir la cible de publication (R-SEC-2)
 - **Pourquoi** : S2 et S3.
 - **Actions** : confirmer si `pages.yml` est actif et si une URL GitHub Pages est utilisée publiquement. Si non : désactiver le workflow (déclenchement manuel conservé, ou suppression) après validation du responsable.
 - **Fichiers concernés** : `.github/workflows/pages.yml`.
@@ -68,7 +68,7 @@ Chaque étape indique : **pourquoi**, **fichiers concernés**, **changements cas
 
 ## 2. Consolidation de la vitrine (sans changement visible)
 
-### M-4 — Extraire les traductions vers des fichiers de données
+### M-4 : Extraire les traductions vers des fichiers de données
 - **Pourquoi** : D1 et D2 ; prérequis au partage FR/EN avec la plateforme (R-I18N-1).
 - **Détail** :
   - créer `shared/i18n/fr.json` et `shared/i18n/en.json` à partir de `translations` (clés inchangées) ;
@@ -82,7 +82,7 @@ Chaque étape indique : **pourquoi**, **fichiers concernés**, **changements cas
 - **Complexité** : M.
 - **Sécurité** : le HTML des traductions (`<em>`) reste statique et versionné.
 
-### M-5 — Supprimer la duplication FR (HTML et traductions)
+### M-5 : Supprimer la duplication FR (HTML et traductions)
 - **Pourquoi** : D1 ; la divergence est l'erreur la plus probable.
 - **Détail** : test de cohérence qui compare le texte du HTML (`data-i18n`) et `fr.json`. Si identique, retirer le texte en double ou le garder comme repli, selon l'avis du responsable. **Ne pas supprimer le repli sans test de rendu sans JavaScript.**
 - **Fichiers concernés** : `public/index.html` (`data-i18n` et texte), `scripts/check_i18n.py` (nouveau), `tests/site/`.
@@ -90,7 +90,7 @@ Chaque étape indique : **pourquoi**, **fichiers concernés**, **changements cas
 - **Complexité** : M.
 - **Sécurité** : aucune.
 
-### M-6 — Consolider les tokens de thème (R-DEBT-2)
+### M-6 : Consolider les tokens de thème (R-DEBT-2)
 - **Pourquoi** : D3.
 - **Détail** : un seul bloc `:root` de base, les surcharges n'énumèrent que les variables qui changent ; comparaison visuelle avec les captures M-0 (tolérance nulle).
 - **Fichiers concernés** : `public/styles.css` (lignes 2-4).
@@ -98,14 +98,14 @@ Chaque étape indique : **pourquoi**, **fichiers concernés**, **changements cas
 - **Complexité** : S.
 - **Sécurité** : aucune.
 
-### M-7 — Nettoyage documentaire et de contenu (R-DEBT-5)
+### M-7 : Nettoyage documentaire et de contenu (R-DEBT-5)
 - **Actions** : corriger la mention `favicon.svg` dans le README ; séparer dans le README « déployé » et « aperçu » ; vérifier et retirer `closingButton` et `modWord` si inutilisés ; ajouter `sitemap.xml` et sa référence dans `robots.txt`.
 - **Fichiers concernés** : `README.md`, `public/robots.txt`, `public/sitemap.xml` (nouveau), `shared/i18n/*.json`.
 - **Changements cassants** : aucun.
 - **Complexité** : S.
 - **Sécurité** : aucune.
 
-### M-8 — Mettre à jour le texte de confidentialité **avant** toute capture de données
+### M-8 : Mettre à jour le texte de confidentialité **avant** toute capture de données
 - **Pourquoi** : la promesse « rien n'est stocké » sera fausse dès la phase Partners.
 - **Détail** : ne pas modifier le texte tant qu'aucune capture n'existe ; le modifier au moment de la mise en service du formulaire de contact, dans la même version.
 - **Fichiers concernés** : `shared/i18n/*.json`, `public/index.html` (`privacyNote`, `footerPrivacy`).
@@ -117,7 +117,7 @@ Chaque étape indique : **pourquoi**, **fichiers concernés**, **changements cas
 
 ## 3. Socle de la plateforme (aucun impact sur la vitrine)
 
-### M-9 — Créer le squelette `platform/`
+### M-9 : Créer le squelette `platform/`
 - **Pourquoi** : poser l'architecture sans toucher au site.
 - **Détail** : FastAPI (`/healthz` seulement), configuration par variables d'environnement, Dockerfile, `compose.yml` avec PostgreSQL privé, Alembic initialisé, pytest et ruff en CI.
 - **Fichiers concernés** : `platform/**` (nouveau), `.github/workflows/ci.yml` (nouveau), `.gitignore` (`.env`, `*.pem`, `*.key`, `platform/.venv`).
@@ -125,7 +125,7 @@ Chaque étape indique : **pourquoi**, **fichiers concernés**, **changements cas
 - **Complexité** : M.
 - **Sécurité** : `.env` ignoré ; `.env.example` sans valeurs ; image non-root ; `/healthz` ne révèle aucune version.
 
-### M-10 — Base de données et migration initiale
+### M-10 : Base de données et migration initiale
 - **Pourquoi** : démarrer le modèle de données (R-DATA-1) sans données réelles.
 - **Détail** : migration `0001` (identité, organisations, rôles) et `0002` (audit, append-only).
 - **Fichiers concernés** : `platform/migrations/versions/0001_*.py`, `0002_*.py`, `platform/app/models/*.py`.
@@ -133,14 +133,14 @@ Chaque étape indique : **pourquoi**, **fichiers concernés**, **changements cas
 - **Complexité** : M.
 - **Sécurité** : utilisateur de base applicatif sans droits `UPDATE`/`DELETE` sur `audit_log`.
 
-### M-11 — Authentification, sessions, RBAC
+### M-11 : Authentification, sessions, RBAC
 - **Détail** : voir R-SEC-A, R-SEC-B, R-SEC-C ; tests d'autorisation et d'isolation dès l'introduction.
 - **Fichiers concernés** : `platform/app/auth/*`, `platform/app/middleware/*`, `platform/tests/test_auth.py`, `platform/tests/test_isolation.py`.
 - **Changements cassants** : aucun.
 - **Complexité** : L.
 - **Sécurité** : critère de sortie de la phase 2 : aucun test d'isolation en échec, aucune route sans permission déclarée.
 
-### M-12 — Lien entre la plateforme et la vitrine
+### M-12 : Lien entre la plateforme et la vitrine
 - **Pourquoi** : la vitrine doit pouvoir renvoyer vers l'espace connecté sans partager de cookies.
 - **Détail** : bouton « Espace membre » dans l'en-tête **uniquement** après mise en service de `app.` ; lien en dur vers le sous-domaine ; aucune requête de la vitrine vers la plateforme.
 - **Fichiers concernés** : `public/index.html`, `shared/i18n/*.json`, `public/styles.css` (si besoin).
@@ -154,7 +154,7 @@ Chaque étape indique : **pourquoi**, **fichiers concernés**, **changements cas
 
 Chaque module suit le même cycle : modèle → migration → services avec autorisation → routes → templates FR/EN → tests (autorisation, isolation, parcours) → activation derrière un indicateur de configuration.
 
-### M-13 — ACADEMY : contenu et inscription
+### M-13 : ACADEMY : contenu et inscription
 - **Pourquoi** : premier module à valeur pour les étudiants ; le contenu Match/Differs existe déjà.
 - **Détail** : import des 8 séquences depuis `index.html` (section `#module`) vers `course` / `lesson` par script ; le HTML public reste inchangé dans un premier temps.
 - **Fichiers concernés** : `platform/app/models/academy.py`, `platform/app/services/academy.py`, `platform/app/routes/academy.py`, `platform/scripts/import_module_content.py`.
@@ -162,13 +162,13 @@ Chaque module suit le même cycle : modèle → migration → services avec auto
 - **Complexité** : L.
 - **Sécurité** : contrôle d'accès sur chaque leçon ; pas de contenu réservé dans la vitrine publique.
 
-### M-14 — ACADEMY : exercices, progression, évaluation
+### M-14 : ACADEMY : exercices, progression, évaluation
 - **Détail** : correction déterministe ; notation indépendante du solde du compte démo (cohérent avec le texte public « Assessment »).
 - **Changements cassants** : aucun.
 - **Complexité** : L.
 - **Sécurité** : réponses stockées avec horodatage ; pas de correction côté client.
 
-### M-15 — PARTNERS : liens et prospects (après M-8)
+### M-15 : PARTNERS : liens et prospects (après M-8)
 - **Pourquoi** : remplace la constante en dur par un registre piloté.
 - **Détail** : `referral_link` ; formulaire de contact séparé avec consentement daté ; statuts d'onboarding ; relances.
 - **Fichiers concernés** : `platform/app/models/partners.py`, `platform/app/services/partners.py`, `platform/app/routes/partners.py`, `public/index.html` (lien de contact seulement).
@@ -176,21 +176,21 @@ Chaque module suit le même cycle : modèle → migration → services avec auto
 - **Complexité** : L.
 - **Sécurité** : données personnelles : minimisation, consentement, durée de conservation, droit d'effacement (`GAP_ANALYSIS.md` §6).
 
-### M-16 — Lien d'affiliation piloté par configuration (optionnel)
+### M-16 : Lien d'affiliation piloté par configuration (optionnel)
 - **Détail** : la vitrine lit un fichier `public/config.json` généré depuis le registre ; ou le lien reste statique et est modifié par une revue. **Recommandation : rester statique tant que le volume de liens est faible.**
 - **Fichiers concernés** : `public/index.html` (lignes 224, 226 si d'autres liens), `public/script.js`.
 - **Changements cassants** : changement de lien = changement de contenu promotionnel ; revue obligatoire.
 - **Complexité** : S (statique) / M (dynamique).
 - **Sécurité** : le lien reste public par nature ; ne jamais y mettre de secret.
 
-### M-17 — BOT MANAGEMENT : registre et supervision en lecture seule
+### M-17 : BOT MANAGEMENT : registre et supervision en lecture seule
 - **Détail** : `bot_user`, `bot_environment`, `bot_type` ; agent sortant signé (R-BOT-1, R-BOT-2) ; heartbeats ; incidents.
 - **Fichiers concernés** : `platform/app/models/bots.py`, `platform/app/api/agent.py`, `platform/agent/systemc_agent/*`, `platform/app/services/bots.py`.
 - **Changements cassants** : aucun.
 - **Complexité** : L.
 - **Sécurité** : R-SEC-3 appliqué (aucun jeton stocké) ; signatures et anti-rejeu testés ; aucune commande d'écriture.
 
-### M-18 — BOT MANAGEMENT : configuration versionnée (après gouvernance)
+### M-18 : BOT MANAGEMENT : configuration versionnée (après gouvernance)
 - **Détail** : `bot_config_version` immuable ; approbation à deux personnes pour `real` ; application par l'agent sur signature valide uniquement (R-BOT-3).
 - **Changements cassants** : aucun.
 - **Complexité** : L.

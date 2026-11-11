@@ -2,7 +2,7 @@
 
 > **Amendement rév. 2 (2026-11-09).** Le module BOT MANAGEMENT est désormais un **CRM administratif** (sans contrôle technique, sans lien avec le VPS). Retirés : R-BOT-1 (agent), R-BOT-2 (requêtes signées), R-BOT-3 (écriture de configuration), la communication VPS du schéma et l'arborescence `agent/`, R-OPS-1 (placement de l'agent), et R-SEC-3 remplacé par l'interdiction totale de stocker des tokens (`NEW_PROJECT_DIRECTION.md` §7.4). Référence actuelle : `NEW_PROJECT_DIRECTION.md` §4 et §6.4.
 
-# SYSTEM-C — Architecture proposée
+# SYSTEM-C : architecture proposée
 
 Objectif : faire évoluer SYSTEM-C vers SYSTEM-C Platform en **réutilisant le maximum de l'existant**, sans réécrire la vitrine ni remplacer l'architecture sans justification.
 
@@ -42,7 +42,7 @@ Principe directeur : **le site vitrine reste un site statique isolé** ; la plat
 
 ## 2. Organisation du dépôt
 
-### R-ARCH-1 — Garder le site vitrine à l'emplacement actuel et ajouter la plateforme à côté
+### R-ARCH-1 : Garder le site vitrine à l'emplacement actuel et ajouter la plateforme à côté
 - **Pourquoi** : `netlify.toml` pointe sur `public/`. Déplacer la vitrine casserait le déploiement, les URL et le SEO. Ajouter un dossier séparé est le moyen le moins risqué de respecter « ne rien supprimer ».
 - **Fichiers concernés** : création de `platform/` (application), `docs/platform/` (documentation, déjà créée), `platform/Dockerfile`, `platform/pyproject.toml`, `platform/tests/`. Aucun fichier de `public/` modifié.
 - **Changements cassants** : aucun.
@@ -72,7 +72,7 @@ system-c/
 
 ## 3. Choix technologiques
 
-### R-ARCH-2 — Python (FastAPI) + Jinja2 rendu serveur + PostgreSQL
+### R-ARCH-2 : Python (FastAPI) + Jinja2 rendu serveur + PostgreSQL
 - **Pourquoi** :
   - Les bots existants sont en **Python** : une seule langue pour la plateforme, l'agent et les scripts d'import.
   - Le rendu serveur (Jinja2) permet de **réutiliser `styles.css` et `script.js` tels quels**, garde un HTML lisible, et évite un bundle JavaScript lourd.
@@ -86,7 +86,7 @@ system-c/
 
 Dépendances initiales proposées (à valider) : `fastapi`, `uvicorn`, `sqlalchemy`, `alembic`, `psycopg[binary]`, `jinja2`, `argon2-cffi`, `pydantic-settings`. Tests : `pytest`, `httpx`, `playwright` (en développement seulement). Aucun ORM ou framework supplémentaire.
 
-### R-ARCH-3 — Rendu HTML plutôt que SPA, JavaScript progressif
+### R-ARCH-3 : Rendu HTML plutôt que SPA, JavaScript progressif
 - **Pourquoi** : la vitrine est indexée ; une SPA dégraderait le SEO et le mode sans JavaScript (cf. S1). Le besoin interactif de la plateforme (tableaux, filtres) se couvre par des formulaires classiques et, si nécessaire, un peu de JavaScript.
 - **Fichiers concernés** : `platform/templates/*`, `platform/static/app.js` (optionnel, limité).
 - **Changements cassants** : aucun.
@@ -97,7 +97,7 @@ Dépendances initiales proposées (à valider) : `fastapi`, `uvicorn`, `sqlalche
 
 ## 4. Données et multi-organisation
 
-### R-DATA-1 — Modèle de données initial (version 1)
+### R-DATA-1 : Modèle de données initial (version 1)
 - **Pourquoi** : couvrir les trois modules sans sur-concevoir ; chaque table locataire porte `organization_id`.
 - **Fichiers concernés** : `platform/app/models/*.py`, `platform/migrations/versions/0001_*.py`.
 - **Changements cassants** : aucun.
@@ -117,7 +117,7 @@ Tables proposées :
 
 Règles : clés étrangères **composites** `(organization_id, id)` pour empêcher qu'une ligne d'une organisation référence une ligne d'une autre ; `audit_log` sans mise à jour ni suppression (droits de la base).
 
-### R-DATA-2 — Multi-organisation par colonne partagée, isolation applicative puis RLS
+### R-DATA-2 : Multi-organisation par colonne partagée, isolation applicative puis RLS
 - **Pourquoi** : une base par organisation complique les migrations et les sauvegardes à ce stade. Une base partagée avec `organization_id` est standard ; l'isolation est renforcée par des tests et, à terme, par la RLS PostgreSQL.
 - **Fichiers concernés** : `platform/app/services/tenancy.py`, `platform/tests/test_isolation.py`, migrations de RLS (phase 7).
 - **Changements cassants** : aucun.
@@ -128,7 +128,7 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 
 ## 5. Authentification, rôles, sécurité
 
-### R-SEC-A — Authentification par sessions serveur
+### R-SEC-A : Authentification par sessions serveur
 - **Pourquoi** : révocation immédiate, pas de jeton longue durée côté navigateur.
 - **Détail** : cookie `__Host-session` (`HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/`), identifiant aléatoire de 256 bits stocké haché, expiration glissante, rotation à la connexion.
 - **Mots de passe** : Argon2id (`argon2-cffi`), politique de longueur minimale, vérification contre les fuites connues optionnelle.
@@ -139,7 +139,7 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 - **Complexité** : L.
 - **Sécurité** : c'est le cœur du risque. Tests dédiés (fixation de session, réutilisation après déconnexion, expiration).
 
-### R-SEC-B — Contrôle d'accès basé sur les rôles (RBAC) avec refus par défaut
+### R-SEC-B : Contrôle d'accès basé sur les rôles (RBAC) avec refus par défaut
 - **Pourquoi** : les rôles de la vision (plateforme, organisation, partenaire, instructeur, étudiant, opérateur bot, lecteur) se combinent par organisation.
 - **Détail** : une seule fonction `authorize(user, action, resource)` appelée par chaque service ; aucune route ne contourne le service ; une route sans permission déclarée échoue au démarrage (test).
 - **Fichiers concernés** : `platform/app/auth/policy.py`, `platform/tests/test_policy.py`.
@@ -147,7 +147,7 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 - **Complexité** : M.
 - **Sécurité** : principe du moindre privilège ; séparation des rôles « partenaire » (prospects) et « opérateur bot » (exploitation).
 
-### R-SEC-C — En-têtes et protection CSRF pour la plateforme
+### R-SEC-C : En-têtes et protection CSRF pour la plateforme
 - **Pourquoi** : la plateforme gère des données personnelles et des actions d'écriture.
 - **Détail** : CSP propre à la plateforme (nonces pour les rares scripts ; `frame-ancestors 'none'`), HSTS, `Referrer-Policy`, `X-Content-Type-Options`, jeton CSRF sur tous les formulaires POST, vérification `Origin` pour les requêtes d'écriture.
 - **Fichiers concernés** : `platform/app/middleware/security.py`, `platform/app/middleware/csrf.py`.
@@ -155,7 +155,7 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 - **Complexité** : S.
 - **Sécurité** : prévient le détournement de session et le clickjacking.
 
-### R-SEC-2 — Clarifier la cible de publication du site vitrine (Netlify ou GitHub Pages)
+### R-SEC-2 : Clarifier la cible de publication du site vitrine (Netlify ou GitHub Pages)
 - **Pourquoi** : constat S2 et S3. GitHub Pages ne lit pas `netlify.toml` (pas de CSP ni HSTS) et crée une seconde URL.
 - **Options** :
   - (a) **Recommandée** : Netlify seul. Désactiver ou supprimer `pages.yml` après confirmation que Pages n'est pas utilisé comme lien public.
@@ -165,7 +165,7 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 - **Complexité** : S.
 - **Sécurité** : une seule politique de sécurité à maintenir.
 
-### R-SEC-3 — Ne jamais stocker les jetons de compte Deriv en clair
+### R-SEC-3 : Ne jamais stocker les jetons de compte Deriv en clair
 - **Pourquoi** : un jeton d'API Deriv donne accès à un compte financier. Une fuite de la base serait critique.
 - **Détail** :
   - Préférer que les jetons restent **sur le VPS**, dans l'environnement de l'agent (fichier `0600`, utilisateur dédié), jamais envoyés à la plateforme.
@@ -177,7 +177,7 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 - **Complexité** : M.
 - **Sécurité** : c'est la protection principale des fonds des utilisateurs. À valider avant toute intégration réelle.
 
-### R-SEC-4 — Gestion des secrets hors dépôt
+### R-SEC-4 : Gestion des secrets hors dépôt
 - **Pourquoi** : aucun secret n'existe aujourd'hui, mais la plateforme en aura (clé de session, clé de signature de l'agent, base).
 - **Détail** : variables d'environnement injectées par l'hébergeur ou fichier hors dépôt ; `.env.example` sans valeurs ; détection de secrets en CI (`gitleaks` ou équivalent) ; `.gitignore` étendu (`.env`, `*.pem`, `*.key`).
 - **Fichiers concernés** : `.gitignore`, `platform/.env.example`, `.github/workflows/ci.yml`.
@@ -185,7 +185,7 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 - **Complexité** : S.
 - **Sécurité** : réduit le risque de fuite par commit.
 
-### R-SEC-5 — Journal d'audit en ajout seul
+### R-SEC-5 : Journal d'audit en ajout seul
 - **Pourquoi** : la vision exige des rapports et une supervision d'incidents ; toute action d'administration ou de configuration de bot doit être traçable.
 - **Détail** : `audit_log` (acteur, organisation, action, cible, horodatage, résultat) ; droits PostgreSQL sans `UPDATE` ni `DELETE` pour l'application.
 - **Fichiers concernés** : `platform/app/services/audit.py`, migration `0002_audit`.
@@ -197,7 +197,7 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 
 ## 6. Communication avec le VPS et les bots
 
-### R-BOT-1 — Agent poussé depuis le VPS (sortant uniquement)
+### R-BOT-1 : Agent poussé depuis le VPS (sortant uniquement)
 - **Pourquoi** : le VPS n'ouvre aucun port entrant pour la plateforme ; réduit la surface d'attaque. Les bots restent sous le contrôle du VPS.
 - **Détail** : `systemc-agent` (paquet Python) envoie des heartbeats et des rapports en HTTPS vers `POST /api/agent/v1/...`. Mode **lecture seule** par défaut ; aucune commande de trading.
 - **Fichiers concernés** : `platform/agent/systemc_agent/*.py`, `platform/app/api/agent.py`.
@@ -205,7 +205,7 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 - **Complexité** : M.
 - **Sécurité** : voir R-BOT-2.
 
-### R-BOT-2 — Requêtes signées avec anti-rejeu
+### R-BOT-2 : Requêtes signées avec anti-rejeu
 - **Pourquoi** : empêcher l'usurpation d'un agent et le rejeu de messages.
 - **Détail** : HMAC-SHA256 sur `méthode + chemin + horodatage + nonce + empreinte du corps` ; secret propre à chaque agent, stocké haché côté plateforme ; fenêtre d'horodatage de 5 minutes ; nonce mémorisé ; révocation d'agent immédiate ; TLS obligatoire. mTLS possible en phase ultérieure.
 - **Fichiers concernés** : `platform/app/auth/agent_signature.py`, `platform/agent/systemc_agent/client.py`.
@@ -213,7 +213,7 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 - **Complexité** : M.
 - **Sécurité** : comparaison à temps constant ; journalisation des rejets.
 
-### R-BOT-3 — Commandes d'écriture désactivées par défaut
+### R-BOT-3 : Commandes d'écriture désactivées par défaut
 - **Pourquoi** : la gestion de configuration (vision) peut modifier des bots sur comptes réels. Tant que la gouvernance n'est pas en place, rien ne doit être exécuté côté VPS depuis la plateforme.
 - **Détail** : configuration versionnée et approuvée (deux personnes pour `real`) ; l'agent applique une configuration seulement si sa signature est valide et si la version est supérieure à la précédente.
 - **Fichiers concernés** : `platform/app/services/bot_config.py`, `platform/agent/systemc_agent/apply.py`.
@@ -225,7 +225,7 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 
 ## 7. Internationalisation
 
-### R-I18N-1 — Une seule source FR/EN pour la vitrine et la plateforme
+### R-I18N-1 : Une seule source FR/EN pour la vitrine et la plateforme
 - **Pourquoi** : aujourd'hui les textes FR sont dupliqués entre HTML et `script.js` (D1), et les 219 clés sont mélangées au code.
 - **Détail** : extraire `translations.fr` et `translations.en` vers `shared/i18n/fr.json` et `shared/i18n/en.json` ; `script.js` les charge via un petit fichier généré, ou un script de build les injecte ; la plateforme les lit côté serveur. Les contenus éditables (cours, liens) ont des champs `*_fr` / `*_en`.
 - **Fichiers concernés** : `public/script.js` (lignes 1-33), `shared/i18n/*.json`, `platform/app/i18n.py`, `scripts/build_i18n.py`.
@@ -237,7 +237,7 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 
 ## 8. Hébergement et exploitation
 
-### R-OPS-1 — Vitrine sur Netlify, plateforme dans un conteneur, base PostgreSQL privée
+### R-OPS-1 : Vitrine sur Netlify, plateforme dans un conteneur, base PostgreSQL privée
 - **Pourquoi** : la vitrine reste gratuite et statique ; la plateforme a besoin d'un processus et d'une base.
 - **Options** :
 
@@ -251,7 +251,7 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 - **Complexité** : M (A), M (B).
 - **Sécurité** : base non exposée publiquement ; secrets par variables d'environnement ; sauvegardes chiffrées ; restauration testée.
 
-### R-OPS-2 — Sous-domaines séparés
+### R-OPS-2 : Sous-domaines séparés
 - **Pourquoi** : isoler la vitrine (publique, statique) et la plateforme (privée, avec sessions) pour des politiques de cookies et d'en-têtes distinctes.
 - **Détail** : `www` / racine → vitrine (Netlify) ; `app` → plateforme ; le cookie de session n'est jamais posé sur le domaine de la vitrine.
 - **Fichiers concernés** : configuration DNS (hors dépôt), `netlify.toml` (inchangé), `platform/app/config.py`.
@@ -263,7 +263,7 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 
 ## 9. Qualité et tests
 
-### R-DEBT-3 — Outillage minimal et tests dès la phase 1
+### R-DEBT-3 : Outillage minimal et tests dès la phase 1
 - **Pourquoi** : le projet n'a aucun test (D4). Il faut un filet de sécurité avant de toucher à la vitrine.
 - **Détail** :
   - Vitrine : test de fumée Playwright (chargement FR/EN, bascule de langue, formulaire complet, menu mobile, absence de requêtes réseau externes, comportement sans JavaScript) ; validation HTML en CI.
@@ -273,7 +273,7 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 - **Complexité** : M.
 - **Sécurité** : le test « aucune requête externe » protège la promesse de confidentialité.
 
-### R-DEBT-2 — Consolider les tokens de thème
+### R-DEBT-2 : Consolider les tokens de thème
 - **Pourquoi** : trois blocs de variables dupliqués (D3).
 - **Détail** : un bloc de base et des surcharges ; vérifier le rendu identique par comparaison de captures d'écran (les deux thèmes, deux largeurs).
 - **Fichiers concernés** : `public/styles.css` (lignes 2-4).
@@ -281,14 +281,14 @@ Règles : clés étrangères **composites** `(organization_id, id)` pour empêch
 - **Complexité** : S.
 - **Sécurité** : aucune.
 
-### R-DEBT-4 — Épingler les actions GitHub
+### R-DEBT-4 : Épingler les actions GitHub
 - **Pourquoi** : S6.
 - **Fichiers concernés** : `.github/workflows/pages.yml`, futurs workflows.
 - **Changements cassants** : aucun.
 - **Complexité** : S.
 - **Sécurité** : réduit le risque de chaîne d'approvisionnement.
 
-### R-DEBT-5 — Nettoyage documentaire et technique
+### R-DEBT-5 : Nettoyage documentaire et technique
 - **Pourquoi** : D5, D6, D7.
 - **Détail** : corriger la mention de `favicon.svg` ; retirer ou confirmer `closingButton` et `modWord` ; ajouter `sitemap.xml` et sa référence dans `robots.txt` ; réécrire le README pour séparer ce qui est déployé de ce qui est en aperçu.
 - **Fichiers concernés** : `README.md`, `public/robots.txt`, `public/sitemap.xml` (nouveau), `public/script.js` (clés).

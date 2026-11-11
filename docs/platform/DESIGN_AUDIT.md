@@ -1,4 +1,4 @@
-# SYSTEM-C Platform — Audit d'ergonomie et plan de design
+# SYSTEM-C Platform : audit d'ergonomie et plan de design
 
 Date : 2026-11-09. Réalisé avec les skills du projet `frontend-design-audit` (15 principes d'ergonomie, sévérité de 0 à 4) et `frontend-design` (direction visuelle). Voir `.claude/skills/SOURCES.md`.
 

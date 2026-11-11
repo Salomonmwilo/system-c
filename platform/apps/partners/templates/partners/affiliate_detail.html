@@ -32,12 +32,12 @@
       <div class="sc-card-header"><h2>{% translate "Contact details" %}</h2></div>
       <div class="sc-card-body">
         <dl class="sc-dl">
-          <dt>{% translate "Email address" %}</dt><dd>{% if can_pii %}{{ affiliate.email|default:"—" }}{% else %}{{ affiliate.email|mask_email|default:"—" }}{% endif %}</dd>
-          <dt>{% translate "Phone" %}</dt><dd>{% if can_pii %}{{ affiliate.phone|default:"—" }}{% else %}{{ affiliate.phone|mask_text|default:"—" }}{% endif %}</dd>
-          <dt>{% translate "Country" %}</dt><dd>{{ affiliate.country|default:"—" }}</dd>
+          <dt>{% translate "Email address" %}</dt><dd>{% if can_pii %}{{ affiliate.email|default:_("Not provided") }}{% else %}{{ affiliate.email|mask_email|default:_("Not provided") }}{% endif %}</dd>
+          <dt>{% translate "Phone" %}</dt><dd>{% if can_pii %}{{ affiliate.phone|default:_("Not provided") }}{% else %}{{ affiliate.phone|mask_text|default:_("Not provided") }}{% endif %}</dd>
+          <dt>{% translate "Country" %}</dt><dd>{{ affiliate.country|default:_("Not provided") }}</dd>
           <dt>{% translate "Language" %}</dt><dd>{{ affiliate.get_preferred_language_display }}</dd>
-          <dt>{% translate "Referral link" %}</dt><dd>{{ affiliate.referral_link|default:"—" }}</dd>
-          <dt>{% translate "Assigned to" %}</dt><dd>{{ affiliate.assigned_to|default:"—" }}</dd>
+          <dt>{% translate "Referral link" %}</dt><dd>{{ affiliate.referral_link|default:_("Not provided") }}</dd>
+          <dt>{% translate "Assigned to" %}</dt><dd>{{ affiliate.assigned_to|default:_("Not provided") }}</dd>
           <dt>{% translate "Created" %}</dt><dd>{{ affiliate.created_at|date:"SHORT_DATE_FORMAT" }}</dd>
         </dl>
       </div>
@@ -79,7 +79,7 @@
           <tbody>{% for e in track_events %}<tr>
             <td class="text-nowrap">{{ e.declared_on|date:"SHORT_DATE_FORMAT" }}</td><td>{{ e.get_track_display }}</td>
             <td class="small">{{ e.previous_label }} <i class="bi bi-arrow-right" aria-hidden="true"></i><span class="visually-hidden">→</span> <strong>{{ e.value_label }}</strong></td>
-            <td class="small">{{ e.get_source_display }}</td><td class="small">{{ e.note|default:"—" }}</td><td class="small">{{ e.recorded_by }}</td>
+            <td class="small">{{ e.get_source_display }}</td><td class="small">{{ e.note|default:_("Not provided") }}</td><td class="small">{{ e.recorded_by }}</td>
           </tr>{% endfor %}</tbody>
         </table></div>
         {% endif %}

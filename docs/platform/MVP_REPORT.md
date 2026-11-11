@@ -1,4 +1,4 @@
-# SYSTEM-C Platform — Rapport de la première version (MVP)
+# SYSTEM-C Platform : rapport de la première version (MVP)
 
 Date : 2026-11-09 · Code : `platform/` · Référence de conception : `NEW_PROJECT_DIRECTION.md` (révision 3) et `BOT_CRM_SPEC.md`.
 
@@ -91,7 +91,7 @@ Thème noir et or (palette de l'identité SYSTEM-C) sur Bootstrap 5.3.8, fourni 
 | Seuils d'alerte | Contact 30 j, modification 7 j, revalidation 30 j, inscription 7 j, vérification 14 j | Page « Seuils d'alerte » |
 | Fuseau horaire | UTC | `TIME_ZONE` dans `.env` |
 | Une fiche robot par affilié | Oui (décision D3 recommandée) | `bots/models.py` |
-| Double validation des versions réelles | **Non implémentée** (décision D6 ouverte) | — |
+| Double validation des versions réelles | **Non implémentée** (décision D6 ouverte) | Sans objet |
 | Administration Django (`/admin`) | Désactivée : elle contournerait l'isolation par organisation | `config/settings.py` |
 
 ---
