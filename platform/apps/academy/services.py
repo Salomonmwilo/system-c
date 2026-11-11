@@ -10,7 +10,19 @@ Remboursements :
   est conservée, et l'accès est retiré immédiatement ;
 - partiel : le montant est enregistré, la commande reste « payée » et les droits
   ne changent pas. Aucune règle commerciale n'est appliquée automatiquement ;
-  la page de la commande le signale.
+  la page de la commande le signale. Retirer l'accès ensuite est une action
+  distincte (``revoke_access``), autorisée, motivée et auditée.
+
+Le cumul des remboursements ne dépasse jamais le montant payé (service,
+formulaire, contrainte et déclencheur en base).
+
+Personne ne confirme le paiement de sa propre commande. Seule exception : les
+programmes de démonstration (« [Démo] »), et seulement quand DEBUG est actif.
+Hors DEBUG, les offres de démonstration ne sont ni visibles ni commandables, et
+leurs commandes ne peuvent pas être confirmées.
+
+Durée d'accès : celle de l'offre au moment de la confirmation. Par défaut, sans
+date d'expiration ; l'accès porte sur le contenu de l'offre achetée.
 
 PostgreSQL vérifie aussi les transitions, l'historique et les montants
 (migration 0008).
@@ -23,6 +35,7 @@ from decimal import Decimal, InvalidOperation
 from django.conf import settings
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from apps.core import audit
@@ -34,12 +47,27 @@ S = Order.Status
 
 
 def purchasable_offers(organization):
-    """Offres publiées d'un programme publié : les seules qu'on peut commander."""
-    return ProgramOffer.objects.filter(
+    """Offres publiées d'un programme publié : les seules qu'on peut commander.
+
+    Les offres de démonstration n'en font partie que si DEBUG est actif.
+    """
+    offers = ProgramOffer.objects.filter(
         program__organization=organization,
         program__is_published=True,
         status=ProgramOffer.Status.PUBLISHED,
     ).select_related("program")
+    if not settings.DEBUG:
+        offers = offers.filter(program__is_demo=False)
+    return offers
+
+
+def is_demo_order(order: Order) -> bool:
+    return order.offer.program.is_demo
+
+
+def self_confirmation_allowed(order: Order) -> bool:
+    """Confirmer sa propre commande : seulement une commande de démonstration, en DEBUG."""
+    return settings.DEBUG and is_demo_order(order)
 
 
 def open_order_for(user, offer) -> Order | None:
@@ -127,6 +155,10 @@ def confirm_payment(*, request, order: Order, note: str, reference: str = "") ->
     """
     _require(request, "payments.confirm_order")
     _same_organization(request, order)
+    if is_demo_order(order) and not settings.DEBUG:
+        raise ValidationError(_("A demonstration order can only be confirmed in a local test environment."))
+    if order.user_id == request.user.pk and not self_confirmation_allowed(order):
+        raise ValidationError(_("You cannot confirm the payment of your own order. Another authorised person must do it."))
     note = _clean_text(note, 500)
     reference = _clean_text(reference, 100)
     if not note:
@@ -163,6 +195,8 @@ def confirm_payment(*, request, order: Order, note: str, reference: str = "") ->
                 "user": locked.user,
                 "offer": locked.offer,
                 "status": Enrollment.Status.ACTIVE,
+                "access_mode": locked.offer.access_mode,
+                "access_until": locked.offer.access_until_from(timezone.now()),
             },
         )
         audit.record(
@@ -270,3 +304,45 @@ def refund(*, request, order: Order, amount, reason: str, reference: str = "") -
             reference=reference,
         )
     return locked
+
+
+def revoke_access(*, request, order: Order, reason: str) -> Enrollment:
+    """Retire l'accès après un remboursement partiel : action distincte, motivée et auditée.
+
+    La commande reste « payée » et son historique est conservé ; l'inscription
+    passe à « accès révoqué » et ne peut plus redevenir active.
+    """
+    _require(request, "payments.revoke_access")
+    _same_organization(request, order)
+    reason = _clean_text(reason, 500)
+    if not reason:
+        raise ValidationError(_("A reason is required."))
+    with transaction.atomic():
+        locked = _lock(order)
+        if not locked.has_partial_refund:
+            raise ValidationError(_("Access can only be revoked here after a partial refund of a paid order."))
+        enrollment = Enrollment.objects.select_for_update().filter(order=locked).first()
+        if enrollment is None:
+            raise ValidationError(_("This order has no enrolment."))
+        if enrollment.status == Enrollment.Status.REVOKED:
+            return enrollment
+        OrderAudit.objects.create(
+            order=locked,
+            action=OrderAudit.Action.ACCESS_REVOKED,
+            old_status=locked.status,
+            new_status=locked.status,
+            actor=request.user,
+            notes=reason,
+        )
+        previous = enrollment.status
+        enrollment.status = Enrollment.Status.REVOKED
+        enrollment.save(update_fields=["status"])
+        audit.record(
+            "academy_access_revoked",
+            actor=request.user,
+            organization=locked.organization,
+            target=locked,
+            enrollment_status=previous,
+            refunded_total=locked.refunded_amount,
+        )
+    return enrollment

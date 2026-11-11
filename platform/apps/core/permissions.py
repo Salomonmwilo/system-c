@@ -70,6 +70,7 @@ PERMISSIONS: dict[str, frozenset[str]] = {
     "payments.confirm_order": frozenset({R.ORG_ADMIN}),
     "payments.cancel_order": frozenset({R.ORG_ADMIN}),
     "payments.refund_order": frozenset({R.ORG_ADMIN}),
+    "payments.revoke_access": frozenset({R.ORG_ADMIN}),
 }
 
 

@@ -88,7 +88,9 @@ Les fichiers des ressources sont enregistrés dans `private_media/` (ou `SYSTEMC
 python manage.py seed_academy_demo --organization system-c --yes
 ```
 
-Crée un programme et une offre d'essai publiés, marqués « [Démo] » (5,00 USD fictifs), avec des ressources qui pointent vers example.org. Refusé hors mode `DEBUG`. Aucune commande ni aucun paiement n'est simulé : commandez l'offre depuis « Offres », puis confirmez-la depuis « Commandes » avec une note. Les offres réelles de SYSTEM-C Method restent en brouillon et ne peuvent pas être commandées.
+Crée un programme et une offre d'essai publiés, marqués « [Démo] » (5,00 USD fictifs), avec des ressources qui pointent vers example.org. Refusé hors mode `DEBUG`. Aucune commande ni aucun paiement n'est simulé : commandez l'offre depuis « Offres », puis confirmez-la depuis « Commandes » avec une note. Personne ne peut confirmer sa propre commande, sauf une commande « [Démo] » en mode `DEBUG`. Hors `DEBUG`, les offres « [Démo] » ne sont ni visibles ni commandables. Les offres réelles de SYSTEM-C Method restent en brouillon et ne peuvent pas être commandées.
+
+L'accès acheté n'expire pas, sauf pour une offre réglée en « durée limitée ». Après un remboursement partiel, l'accès ne change pas ; le retirer est une action distincte (« Révoquer l'accès »), réservée à `org_admin` et motivée.
 
 L'administration Django (`/admin`) reste désactivée : elle contournerait l'isolation par organisation. Voir `docs/platform/SYSTEM_C_METHOD_AUDIT.md`.
 

@@ -2,9 +2,19 @@
 
     python manage.py seed_academy_demo --organization system-c --yes
 
-Refusé quand DEBUG est désactivé. Ne touche pas à SYSTEM-C Method. Aucune
-commande n'est créée et aucun paiement n'est simulé : pour essayer, commandez
-l'offre d'essai depuis l'interface, puis confirmez-la depuis « Commandes ».
+Garanties :
+- refusé quand DEBUG est désactivé ;
+- tout ce qui est créé porte « [Démo] » et le programme est marqué ``is_demo``
+  (une contrainte en base lie les deux, et l'indicateur ne change plus ensuite) ;
+- hors DEBUG, une offre de démonstration n'est ni visible ni commandable, et
+  sa commande ne peut pas être confirmée, même si les données existent en base ;
+- ne crée qu'un nouveau programme : aucune offre, ressource ou commande
+  existante n'est lue ni modifiée ;
+- aucune commande n'est créée et aucun paiement n'est simulé.
+
+Pour essayer : commandez l'offre d'essai depuis l'interface, puis confirmez-la
+depuis « Commandes ». En DEBUG, l'acheteur peut confirmer sa propre commande de
+démonstration ; jamais une commande réelle.
 Les ressources d'essai pointent vers example.org, un domaine réservé aux exemples.
 """
 
@@ -46,6 +56,7 @@ class Command(BaseCommand):
                     "description_fr": "Données fictives pour essayer le parcours de commande en local.",
                     "description_en": "Fictitious data to try the ordering flow locally.",
                     "is_published": True,
+                    "is_demo": True,
                 },
             )
             if not created:

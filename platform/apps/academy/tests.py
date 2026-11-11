@@ -19,7 +19,9 @@ from django.utils import timezone
 
 from apps.academy import services
 from apps.academy.access import active_enrollments, can_access_resource
+from apps.academy.forms import RefundForm
 from apps.academy.models import (
+    AccessMode,
     Course,
     Enrollment,
     Lesson,
@@ -143,9 +145,11 @@ class AccessScenarioTests(AcademyTestCase):
 
     def test_expired_or_suspended_enrollment_gives_no_access(self):
         _, enrollment = self.buy(self.complete)
+        enrollment.access_mode = AccessMode.LIMITED
         enrollment.access_until = timezone.now() - timedelta(minutes=1)
         enrollment.save()
         self.assertFalse(can_access_resource(self.buyer, self.complete_res))
+        enrollment.access_mode = AccessMode.PERMANENT
         enrollment.access_until = None
         enrollment.status = Enrollment.Status.SUSPENDED
         enrollment.save()
@@ -751,3 +755,198 @@ class AcademyDemoCommandTests(TestCase):
         self.assertEqual(offer.status, ProgramOffer.Status.PUBLISHED)
         self.assertFalse(Order.objects.exists(), "aucune commande ni aucun paiement simulé")
         self.assertTrue(all(r.external_url.startswith("https://example.org/") for r in Resource.objects.all()))
+
+
+
+def demo_program(org, **extra):
+    return Program.objects.create(
+        organization=org, title_fr="[Démo] Essai", title_en="[Demo] Trial", is_published=True, is_demo=True, **extra
+    )
+
+
+class SelfConfirmationTests(PublishedOfferMixin, AcademyTestCase):
+    """Personne ne confirme le paiement de sa propre commande, sauf démonstration en DEBUG."""
+
+    def test_buyer_cannot_confirm_own_real_order(self):
+        self.publish()
+        request = fake_request(self.admin, self.org)
+        order, _ = services.place_order(request=request, offer=self.complete)
+        with self.assertRaises(ValidationError):
+            services.confirm_payment(request=request, order=order, note="Je me confirme")
+        login(self.client, self.admin, self.org)
+        url = reverse("academy:order_confirm", args=[order.pk])
+        self.client.post(url, {"confirm-received": "on", "confirm-note": "Je me confirme"})
+        page = self.client.get(reverse("academy:order_detail", args=[order.pk]))
+        self.assertContains(page, "Vous ne pouvez pas confirmer le paiement de votre propre commande")
+        self.assertNotContains(page, 'action="%s"' % url)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.Status.AWAITING_PAYMENT)
+        with override_settings(DEBUG=True), self.assertRaises(ValidationError):
+            services.confirm_payment(request=request, order=order, note="Même en DEBUG")
+        # La base refuse aussi, même sans passer par le service.
+        with self.assertRaises(DatabaseError), transaction.atomic():
+            OrderAudit.objects.create(
+                order=order, action=OrderAudit.Action.PAYMENT_VERIFIED, old_status=order.status, new_status="paid",
+                actor=self.admin, notes="contournement", amount=order.price, currency=order.currency,
+            )
+
+    def test_another_admin_can_confirm(self):
+        self.publish()
+        order, _ = services.place_order(request=fake_request(self.admin, self.org), offer=self.complete)
+        second_admin = make_user(self.org, R.ORG_ADMIN)
+        order, confirmed = services.confirm_payment(request=fake_request(second_admin, self.org), order=order, note="Vérifié")
+        self.assertTrue(confirmed)
+        self.assertEqual(order.audit_log.get(action=OrderAudit.Action.PAYMENT_VERIFIED).actor, second_admin)
+
+    def test_demo_order_self_confirmation_only_in_debug(self):
+        program = demo_program(self.org)
+        offer = ProgramOffer.objects.create(program=program, slug="demo", name_fr="[Démo] Offre", name_en="[Demo] Offer",
+                                            price=Decimal("5"), status=ProgramOffer.Status.PUBLISHED)
+        request = fake_request(self.admin, self.org)
+        with override_settings(DEBUG=True):
+            order, _ = services.place_order(request=request, offer=offer)
+        with self.assertRaises(ValidationError):
+            services.confirm_payment(request=request, order=order, note="hors DEBUG")
+        with override_settings(DEBUG=True):
+            order, confirmed = services.confirm_payment(request=request, order=order, note="Essai local")
+        self.assertTrue(confirmed)
+        self.assertEqual(order.status, Order.Status.PAID)
+
+
+class DemoDataTests(PublishedOfferMixin, AcademyTestCase):
+    def test_demo_label_and_flag_go_together(self):
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Program.objects.create(organization=self.org, title_fr="[Démo] Faux", title_en="x")
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Program.objects.create(organization=self.org, title_fr="Vrai programme", title_en="x", is_demo=True)
+        with self.assertRaises(DatabaseError), transaction.atomic():
+            Program.objects.filter(pk=self.program.pk).update(is_demo=True, title_fr="[Démo] SYSTEM-C Method")
+
+    def test_demo_offer_is_not_purchasable_outside_debug(self):
+        program = demo_program(self.org)
+        offer = ProgramOffer.objects.create(program=program, slug="demo", name_fr="[Démo] Offre", name_en="[Demo] Offer",
+                                            price=Decimal("5"), status=ProgramOffer.Status.PUBLISHED)
+        self.assertFalse(services.purchasable_offers(self.org).filter(pk=offer.pk).exists())
+        with self.assertRaises(ValidationError):
+            services.place_order(request=fake_request(self.buyer, self.org), offer=offer)
+        login(self.client, self.buyer, self.org)
+        self.assertEqual(self.client.get(reverse("academy:offer_detail", args=[offer.pk])).status_code, 404)
+        self.assertNotContains(self.client.get(reverse("academy:offer_list")), "[Démo]")
+        with override_settings(DEBUG=True):
+            self.assertTrue(services.purchasable_offers(self.org).filter(pk=offer.pk).exists())
+
+    @override_settings(DEBUG=True)
+    def test_demo_seed_labels_everything_and_leaves_real_data_untouched(self):
+        self.publish()
+        call_command("seed_system_c_method", organization=self.org.slug, yes=True, stdout=StringIO())
+        order, _ = self.buy(self.complete)
+        snapshot = lambda: (  # noqa: E731
+            list(ProgramOffer.objects.order_by("pk").values()),
+            list(Order.objects.order_by("pk").values()),
+            list(Resource.objects.order_by("pk").values("pk", "title_fr", "status", "updated_at")),
+            list(Program.objects.order_by("pk").values()),
+        )
+        before = snapshot()
+        call_command("seed_academy_demo", organization=self.org.slug, yes=True, stdout=StringIO())
+        after = snapshot()
+        self.assertEqual(after[0][: len(before[0])], before[0])
+        self.assertEqual(after[1], before[1], "aucune commande créée ni modifiée")
+        self.assertEqual(after[2][: len(before[2])], before[2])
+        demo = Program.objects.get(is_demo=True)
+        self.assertTrue(demo.title_fr.startswith("[Démo]"))
+        self.assertTrue(all(o.name_fr.startswith("[Démo]") for o in demo.offers.all()))
+        self.assertTrue(all(r.title_fr.startswith("[Démo]") for r in demo.resources.all()))
+        self.assertEqual(Program.objects.filter(is_demo=False).count(), len(before[3]))
+
+
+class AccessDurationTests(PublishedOfferMixin, AcademyTestCase):
+    def test_default_access_has_explicitly_no_expiry(self):
+        self.assertEqual(self.complete.access_mode, AccessMode.PERMANENT)
+        _, enrollment = self.buy(self.complete)
+        self.assertEqual((enrollment.access_mode, enrollment.access_until), (AccessMode.PERMANENT, None))
+        self.assertTrue(enrollment.is_access_valid())
+        self.publish()
+        login(self.client, self.buyer, self.org)
+        page = self.client.get(reverse("academy:offer_detail", args=[self.complete.pk]))
+        self.assertContains(page, "sans date d'expiration")
+        self.assertContains(page, "ne sont pas inclus")
+
+    def test_limited_offer_sets_an_end_date(self):
+        ProgramOffer.objects.filter(pk=self.guided.pk).update(access_mode=AccessMode.LIMITED, access_days=28)
+        self.guided.refresh_from_db()
+        before = timezone.now()
+        _, enrollment = self.buy(self.guided)
+        self.assertEqual(enrollment.access_mode, AccessMode.LIMITED)
+        self.assertTrue(before + timedelta(days=28) <= enrollment.access_until <= timezone.now() + timedelta(days=28))
+        Enrollment.objects.filter(pk=enrollment.pk).update(access_until=timezone.now() - timedelta(seconds=1))
+        self.assertFalse(can_access_resource(self.buyer, self.guided_res))
+
+    def test_access_mode_must_be_consistent(self):
+        for fields in ({"access_mode": AccessMode.LIMITED, "access_days": None},
+                       {"access_mode": AccessMode.PERMANENT, "access_days": 30},
+                       {"access_mode": AccessMode.LIMITED, "access_days": 0}):
+            with self.subTest(fields=fields), self.assertRaises(IntegrityError), transaction.atomic():
+                ProgramOffer.objects.filter(pk=self.complete.pk).update(**fields)
+        _, enrollment = self.buy(self.complete)
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Enrollment.objects.filter(pk=enrollment.pk).update(access_until=timezone.now())
+
+
+class PartialRefundAndRevocationTests(PublishedOfferMixin, AcademyTestCase):
+    def setUp(self):
+        super().setUp()
+        self.publish()
+        self.request = fake_request(self.admin, self.org)
+        self.order, self.enrollment = self.buy(self.complete)
+
+    def test_cumulative_refunds_never_exceed_the_amount_paid(self):
+        services.refund(request=self.request, order=self.order, amount="10.00", reason="Premier geste")
+        services.refund(request=self.request, order=self.order, amount="10.00", reason="Second geste")
+        with self.assertRaises(ValidationError):
+            services.refund(request=self.request, order=self.order, amount="9.01", reason="Trop")
+        self.order.refresh_from_db()
+        self.assertEqual((self.order.refunded_amount, self.order.status), (Decimal("20.00"), Order.Status.PAID))
+        form = RefundForm({"refund-amount": "9.01", "refund-reason": "x"}, order=self.order)
+        self.assertFalse(form.is_valid())
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Order.objects.filter(pk=self.order.pk).update(refunded_amount=Decimal("29.01"))
+
+    def test_partial_refund_alone_keeps_access(self):
+        services.refund(request=self.request, order=self.order, amount="5.00", reason="Geste")
+        self.assertTrue(can_access_resource(self.buyer, self.complete_res))
+
+    def test_revocation_is_separate_authorised_motivated_and_audited(self):
+        with self.assertRaises(ValidationError):
+            services.revoke_access(request=self.request, order=self.order, reason="Sans remboursement partiel")
+        services.refund(request=self.request, order=self.order, amount="5.00", reason="Geste")
+        student = make_user(self.org, R.ACADEMY_STUDENT)
+        crm_admin = make_user(self.org, R.CRM_ADMIN)
+        for user in (student, crm_admin):
+            with self.subTest(role=user), self.assertRaises(PermissionDenied):
+                services.revoke_access(request=fake_request(user, self.org), order=self.order, reason="x")
+        with self.assertRaises(ValidationError):
+            services.revoke_access(request=self.request, order=self.order, reason=" ")
+        login(self.client, self.admin, self.org)
+        response = self.client.post(reverse("academy:order_revoke", args=[self.order.pk]), {"revoke-reason": "Décision après réclamation"})
+        self.assertRedirects(response, reverse("academy:order_detail", args=[self.order.pk]))
+        self.enrollment.refresh_from_db()
+        self.order.refresh_from_db()
+        self.assertEqual((self.enrollment.status, self.order.status), (Enrollment.Status.REVOKED, Order.Status.PAID))
+        self.assertFalse(can_access_resource(self.buyer, self.complete_res))
+        entry = self.order.audit_log.get(action=OrderAudit.Action.ACCESS_REVOKED)
+        self.assertEqual((entry.actor, entry.notes), (self.admin, "Décision après réclamation"))
+        self.assertTrue(AuditLog.objects.filter(action="academy_access_revoked", target_id=str(self.order.pk)).exists())
+        # Répéter ne crée rien ; l'accès ne peut pas être rouvert.
+        services.revoke_access(request=self.request, order=self.order, reason="encore")
+        self.assertEqual(self.order.audit_log.filter(action=OrderAudit.Action.ACCESS_REVOKED).count(), 1)
+        with self.assertRaises(DatabaseError), transaction.atomic():
+            Enrollment.objects.filter(pk=self.enrollment.pk).update(status=Enrollment.Status.ACTIVE)
+
+    def test_revocation_is_refused_from_another_organization(self):
+        services.refund(request=self.request, order=self.order, amount="5.00", reason="Geste")
+        other = make_org()
+        foreign_admin = make_user(other, R.ORG_ADMIN)
+        with self.assertRaises(PermissionDenied):
+            services.revoke_access(request=fake_request(foreign_admin, other), order=self.order, reason="x")
+        login(self.client, foreign_admin, other)
+        self.assertEqual(self.client.post(reverse("academy:order_revoke", args=[self.order.pk]), {"revoke-reason": "x"}).status_code, 404)

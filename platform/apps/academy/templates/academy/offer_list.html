@@ -14,7 +14,7 @@
   <div class="col-md-6 col-xl-4">
     <article class="sc-card h-100 d-flex flex-column">
       <div class="sc-card-body d-flex flex-column gap-2 flex-grow-1">
-        <p class="small text-body-secondary mb-0">{{ offer.program.title }}</p>
+        <p class="small text-body-secondary mb-0">{{ offer.program.title }}{% if offer.program.is_demo %} <span class="sc-badge sc-badge-demo">{% translate "Demonstration" %}</span>{% endif %}</p>
         <h2 class="h5 mb-0"><a href="{% url 'academy:offer_detail' offer.pk %}">{{ offer.name }}</a></h2>
         <p class="sc-num sc-serif fs-4 mb-0">{{ offer.price|floatformat:"2g" }}&nbsp;{{ offer.currency }}</p>
         {% if offer.description %}<p class="small mb-0">{{ offer.description }}</p>{% endif %}

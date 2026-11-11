@@ -16,6 +16,7 @@ commandés et l'historique en ajout seul sont aussi garantis en base de données
 """
 
 import uuid
+from datetime import timedelta
 from decimal import Decimal
 
 from django.conf import settings
@@ -57,6 +58,16 @@ class PublicationStatus(models.TextChoices):
     ARCHIVED = "archived", _("Archived")
 
 
+class AccessMode(models.TextChoices):
+    """Durée de l'accès au contenu acheté. « Sans date d'expiration » est la règle par défaut."""
+
+    PERMANENT = "permanent", _("No expiry date")
+    LIMITED = "limited", _("Limited duration")
+
+
+DEMO_PREFIX = "[Démo]"
+
+
 class BilingualTitleMixin(models.Model):
     title_fr = models.CharField(_("title (French)"), max_length=200)
     title_en = models.CharField(_("title (English)"), max_length=200)
@@ -75,10 +86,20 @@ class Program(BilingualTitleMixin):
     description_fr = models.TextField(blank=True)
     description_en = models.TextField(blank=True)
     is_published = models.BooleanField(default=False)
+    # Données de démonstration : commandables seulement quand DEBUG est actif (voir services).
+    is_demo = models.BooleanField(_("demonstration data"), default=False)
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ["title_fr"]
+        constraints = [
+            models.CheckConstraint(
+                # Un programme est de démonstration si et seulement si son titre commence par « [Démo] ».
+                condition=(Q(is_demo=True) & Q(title_fr__startswith=DEMO_PREFIX))
+                | (Q(is_demo=False) & ~Q(title_fr__startswith=DEMO_PREFIX)),
+                name="academy_program_demo_is_labelled",
+            ),
+        ]
 
     def __str__(self) -> str:
         return self.title
@@ -149,6 +170,12 @@ class ProgramOffer(models.Model):
     )
     currency = models.CharField(_("currency"), max_length=3, default="USD", validators=[currency_validator])
     status = models.CharField(_("status"), max_length=16, choices=Status.choices, default=Status.DRAFT)
+    # Accès au contenu de l'offre : sans date d'expiration par défaut. Une durée en jours
+    # est réservée aux offres dont l'accompagnement est limité dans le temps.
+    access_mode = models.CharField(
+        _("access duration"), max_length=10, choices=AccessMode.choices, default=AccessMode.PERMANENT
+    )
+    access_days = models.PositiveIntegerField(_("access length in days"), null=True, blank=True)
     position = models.PositiveSmallIntegerField(default=1)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -158,7 +185,19 @@ class ProgramOffer(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["program", "slug"], name="unique_program_offer_slug"),
             models.CheckConstraint(condition=Q(price__gte=0), name="academy_offer_price_not_negative"),
+            models.CheckConstraint(
+                condition=(Q(access_mode="permanent") & Q(access_days__isnull=True))
+                # isnull explicite : en SQL, « NULL >= 1 » vaut NULL et passerait la contrainte.
+                | (Q(access_mode="limited") & Q(access_days__isnull=False) & Q(access_days__gte=1)),
+                name="academy_offer_access_mode_consistent",
+            ),
         ]
+
+    def access_until_from(self, start):
+        """Fin d'accès pour une inscription ouverte à ``start`` ; None : sans date d'expiration."""
+        if self.access_mode == AccessMode.PERMANENT:
+            return None
+        return start + timedelta(days=self.access_days)
 
     def __str__(self) -> str:
         return f"{self.program.title}, {self.name_fr}"
@@ -336,6 +375,7 @@ class OrderAudit(AppendOnlyModel):
         REFUNDED = "refunded", _("Full refund")
         PARTIAL_REFUND = "partial_refund", _("Partial refund")
         CANCELLED = "cancelled", _("Cancelled")
+        ACCESS_REVOKED = "access_revoked", _("Access revoked")
 
     MONEY_ACTIONS = ("payment_verified", "refunded", "partial_refund")
 
@@ -363,6 +403,11 @@ class OrderAudit(AppendOnlyModel):
                 condition=~Q(action="cancelled") | Q(actor__isnull=False),
                 name="academy_orderaudit_cancel_has_actor",
             ),
+            # Une révocation d'accès est toujours attribuée et motivée.
+            models.CheckConstraint(
+                condition=~Q(action="access_revoked") | (Q(actor__isnull=False) & ~Q(notes="")),
+                name="academy_orderaudit_revocation_complete",
+            ),
         ]
 
 
@@ -380,6 +425,7 @@ class Enrollment(models.Model):
         COMPLETED = "completed", _("Enrolment completed")
         CANCELLED = "cancelled", _("Enrolment cancelled")
         SUSPENDED = "suspended", _("Enrolment suspended")
+        REVOKED = "revoked", _("Access revoked")
 
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name="+")
     program = models.ForeignKey(Program, on_delete=models.PROTECT, related_name="enrollments")
@@ -389,11 +435,21 @@ class Enrollment(models.Model):
     offer = models.ForeignKey(ProgramOffer, on_delete=models.PROTECT, null=True, blank=True, related_name="enrollments")
     order = models.ForeignKey(Order, on_delete=models.PROTECT, null=True, blank=True, related_name="enrollments")
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.REQUESTED)
+    # Représentation explicite de la durée : « sans date d'expiration » n'a pas de date de fin,
+    # « durée limitée » en a toujours une.
+    access_mode = models.CharField(
+        _("access duration"), max_length=10, choices=AccessMode.choices, default=AccessMode.PERMANENT
+    )
     access_until = models.DateTimeField(_("access expires"), null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         constraints = [
+            models.CheckConstraint(
+                condition=(Q(access_mode="permanent") & Q(access_until__isnull=True))
+                | (Q(access_mode="limited") & Q(access_until__isnull=False)),
+                name="academy_enrollment_access_mode_consistent",
+            ),
             models.CheckConstraint(
                 condition=models.Q(affiliate__isnull=False) | models.Q(user__isnull=False),
                 name="academy_enrollment_has_person",

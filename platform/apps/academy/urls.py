@@ -19,4 +19,5 @@ urlpatterns = [
     path("orders/<int:pk>/confirm/", views.OrderConfirmView.as_view(), name="order_confirm"),
     path("orders/<int:pk>/cancel/", views.OrderCancelView.as_view(), name="order_cancel"),
     path("orders/<int:pk>/refund/", views.OrderRefundView.as_view(), name="order_refund"),
+    path("orders/<int:pk>/revoke/", views.OrderRevokeView.as_view(), name="order_revoke"),
 ]

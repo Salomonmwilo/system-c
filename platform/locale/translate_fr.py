@@ -189,6 +189,43 @@ T = {
     "%(n)s step": ("%(n)s étape", "%(n)s étapes"),
     "Programme published": "Programme publié",
     "Programme not published": "Programme non publié",
+    # academy : propre commande, durée d'accès, révocation, démonstration
+    "Reason for revoking access": "Motif de la révocation",
+    "No expiry date": "Sans date d'expiration",
+    "Limited duration": "Durée limitée",
+    "demonstration data": "données de démonstration",
+    "access duration": "durée d'accès",
+    "access length in days": "durée d'accès en jours",
+    "Access revoked": "Accès révoqué",
+    "A demonstration order can only be confirmed in a local test environment.":
+        "Une commande de démonstration ne peut être confirmée que dans un environnement de test local.",
+    "You cannot confirm the payment of your own order. Another authorised person must do it.":
+        "Vous ne pouvez pas confirmer le paiement de votre propre commande. Une autre personne autorisée doit le faire.",
+    "Access can only be revoked here after a partial refund of a paid order.":
+        "L'accès ne peut être révoqué ici qu'après un remboursement partiel d'une commande payée.",
+    "This order has no enrolment.": "Cette commande n'a pas d'inscription.",
+    "Until %(date)s": "Jusqu'au %(date)s",
+    "%(n)s day after the payment is confirmed": ("%(n)s jour après la confirmation du paiement", "%(n)s jours après la confirmation du paiement"),
+    "Access to the content of this offer for %(n)s day from the confirmation of the payment.": (
+        "Accès au contenu de cette offre pendant %(n)s jour à partir de la confirmation du paiement.",
+        "Accès au contenu de cette offre pendant %(n)s jours à partir de la confirmation du paiement.",
+    ),
+    "Access to the content of this offer, with no expiry date.": "Accès au contenu de cette offre, sans date d'expiration.",
+    "Future updates, other programmes and coaching are not included unless stated.":
+        "Les mises à jour futures, les autres programmes et les accompagnements ne sont pas inclus, sauf mention contraire.",
+    "Demonstration data, for a local test environment only. No real payment must be made.":
+        "Données de démonstration, pour un environnement de test local uniquement. Aucun paiement réel ne doit être effectué.",
+    "Access to this order has been revoked after a partial refund. The order and its history are kept.":
+        "L'accès lié à cette commande a été révoqué après un remboursement partiel. La commande et son historique sont conservés.",
+    "Access duration": "Durée d'accès",
+    "Partial refund recorded: %(amount)s %(currency)s. Access was then revoked by a separate decision.":
+        "Remboursement partiel enregistré : %(amount)s %(currency)s. L'accès a ensuite été révoqué par une décision distincte.",
+    "Demonstration": "Démonstration",
+    "Revoke access": "Révoquer l'accès",
+    "A partial refund does not remove access. Revoke it only if this is the decision taken; the reason is recorded and access cannot be reopened.":
+        "Un remboursement partiel ne retire pas l'accès. Révoquez-le seulement si c'est la décision prise ; le motif est enregistré et l'accès ne pourra pas être rouvert.",
+    "Revoke access to this order? This cannot be undone.": "Révoquer l'accès lié à cette commande ? Cette action est définitive.",
+    "Access revoked. The order and its history are kept.": "Accès révoqué. La commande et son historique sont conservés.",
     # valeurs absentes (remplacent l'ancien tiret)
     "Not provided": "Non renseigné",
     "Never declared": "Jamais déclarée",

@@ -86,6 +86,12 @@ class RefundForm(BootstrapFormMixin, forms.Form):
         return amount
 
 
+class RevokeAccessForm(BootstrapFormMixin, forms.Form):
+    prefix = "revoke"
+
+    reason = forms.CharField(label=_("Reason for revoking access"), max_length=500, widget=forms.Textarea(attrs={"rows": 3}))
+
+
 class OrderFilterForm(forms.Form):
     status = forms.ChoiceField(label=_("Status"), required=False)
 

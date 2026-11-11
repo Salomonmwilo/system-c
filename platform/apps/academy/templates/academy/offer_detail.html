@@ -9,6 +9,7 @@
   <h1 class="h3 mb-1">{{ offer.name }}</h1>
   <p class="sc-num sc-serif fs-3 mb-0">{{ offer.price|floatformat:"2g" }}&nbsp;{{ offer.currency }}</p>
 </div>
+{% if offer.program.is_demo %}{% include "academy/includes/demo_banner.html" %}{% endif %}
 {% include "academy/includes/risk_notice.html" %}
 <div class="row g-3">
   <div class="col-lg-7">
@@ -19,6 +20,7 @@
   </div>
   <div class="col-lg-5">
     <div class="sc-card"><div class="sc-card-header"><h2>{% translate "Order" %}</h2></div><div class="sc-card-body">
+      {% include "academy/includes/access_terms.html" %}
       {% if has_access %}
         <p class="mb-0"><span class="sc-badge sc-badge-ok"><i class="bi bi-unlock" aria-hidden="true"></i>{% translate "Access open" %}</span></p>
       {% elif open_order %}

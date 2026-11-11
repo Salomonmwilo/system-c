@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SYSTEM-C Platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-11 02:10+0000\n"
+"POT-Creation-Date: 2026-11-11 02:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: SYSTEM-C\n"
@@ -70,6 +70,9 @@ msgstr "Rembourser %(remaining)s %(currency)s au total constitue un remboursemen
 msgid "At most %(remaining)s %(currency)s can still be refunded."
 msgstr "Il reste au plus %(remaining)s %(currency)s à rembourser."
 
+msgid "Reason for revoking access"
+msgstr "Motif de la révocation"
+
 msgid "Status"
 msgstr "Statut"
 
@@ -88,11 +91,20 @@ msgstr "Publiée"
 msgid "Archived"
 msgstr "Archivé"
 
+msgid "No expiry date"
+msgstr "Sans date d'expiration"
+
+msgid "Limited duration"
+msgstr "Durée limitée"
+
 msgid "title (French)"
 msgstr "titre (français)"
 
 msgid "title (English)"
 msgstr "titre (anglais)"
+
+msgid "demonstration data"
+msgstr "données de démonstration"
 
 msgid "summary (French)"
 msgstr "résumé (français)"
@@ -129,6 +141,12 @@ msgstr "devise"
 
 msgid "status"
 msgstr "statut"
+
+msgid "access duration"
+msgstr "durée d'accès"
+
+msgid "access length in days"
+msgstr "durée d'accès en jours"
 
 msgid "Guide"
 msgstr "Guide"
@@ -236,6 +254,9 @@ msgstr "Remboursement intégral"
 msgid "Partial refund"
 msgstr "Remboursement partiel"
 
+msgid "Access revoked"
+msgstr "Accès révoqué"
+
 msgid "amount"
 msgstr "montant"
 
@@ -262,6 +283,15 @@ msgstr "Cette offre n'est pas disponible."
 
 msgid "You already have access to this offer."
 msgstr "Vous avez déjà accès à cette offre."
+
+msgid ""
+"A demonstration order can only be confirmed in a local test environment."
+msgstr "Une commande de démonstration ne peut être confirmée que dans un environnement de test local."
+
+msgid ""
+"You cannot confirm the payment of your own order. Another authorised person "
+"must do it."
+msgstr "Vous ne pouvez pas confirmer le paiement de votre propre commande. Une autre personne autorisée doit le faire."
 
 msgid "A verification note is required."
 msgstr "Une note de vérification est obligatoire."
@@ -292,6 +322,12 @@ msgid ""
 "The amount must be greater than zero and at most %(remaining)s %(currency)s."
 msgstr "Le montant doit être supérieur à zéro et au plus égal à %(remaining)s %(currency)s."
 
+msgid "Access can only be revoked here after a partial refund of a paid order."
+msgstr "L'accès ne peut être révoqué ici qu'après un remboursement partiel d'une commande payée."
+
+msgid "This order has no enrolment."
+msgstr "Cette commande n'a pas d'inscription."
+
 msgid "Programmes"
 msgstr "Programmes"
 
@@ -317,6 +353,38 @@ msgstr "Programme non publié"
 
 msgid "No programme yet."
 msgstr "Aucun programme pour l'instant."
+
+#, python-format
+msgid "Until %(date)s"
+msgstr "Jusqu'au %(date)s"
+
+#, python-format
+msgid "%(n)s day after the payment is confirmed"
+msgid_plural "%(n)s days after the payment is confirmed"
+msgstr[0] "%(n)s jour après la confirmation du paiement"
+msgstr[1] "%(n)s jours après la confirmation du paiement"
+
+#, python-format
+msgid ""
+"Access to the content of this offer for %(n)s day from the confirmation of "
+"the payment."
+msgid_plural ""
+"Access to the content of this offer for %(n)s days from the confirmation of "
+"the payment."
+msgstr[0] "Accès au contenu de cette offre pendant %(n)s jour à partir de la confirmation du paiement."
+msgstr[1] "Accès au contenu de cette offre pendant %(n)s jours à partir de la confirmation du paiement."
+
+msgid "Access to the content of this offer, with no expiry date."
+msgstr "Accès au contenu de cette offre, sans date d'expiration."
+
+msgid ""
+"Future updates, other programmes and coaching are not included unless stated."
+msgstr "Les mises à jour futures, les autres programmes et les accompagnements ne sont pas inclus, sauf mention contraire."
+
+msgid ""
+"Demonstration data, for a local test environment only. No real payment must "
+"be made."
+msgstr "Données de démonstration, pour un environnement de test local uniquement. Aucun paiement réel ne doit être effectué."
 
 #, python-format
 msgid "%(date)s, by %(person)s"
@@ -358,6 +426,11 @@ msgid "Breadcrumb"
 msgstr "Fil d'Ariane"
 
 msgid ""
+"Access to this order has been revoked after a partial refund. The order and "
+"its history are kept."
+msgstr "L'accès lié à cette commande a été révoqué après un remboursement partiel. La commande et son historique sont conservés."
+
+msgid ""
 "No online payment is available yet. Access opens only after an administrator "
 "confirms the payment. Never send a card number, bank details or a password."
 msgstr "Aucun paiement en ligne n'est encore proposé. L'accès s'ouvre seulement après la confirmation du paiement par un administrateur. N'envoyez jamais de numéro de carte, de coordonnées bancaires ni de mot de passe."
@@ -390,6 +463,9 @@ msgstr "Ouvert"
 
 msgid "Closed"
 msgstr "Fermé"
+
+msgid "Access duration"
+msgstr "Durée d'accès"
 
 msgid "Terms of sale"
 msgstr "Conditions générales de vente"
@@ -451,6 +527,9 @@ msgstr "Passer la commande"
 msgid "Your role does not allow ordering."
 msgstr "Votre rôle ne permet pas de commander."
 
+msgid "Demonstration"
+msgstr "Démonstration"
+
 msgid "Order in progress: see its status"
 msgstr "Commande en cours : voir son statut"
 
@@ -469,6 +548,11 @@ msgstr "N° %(n)s"
 
 msgid "Payment confirmed by hand by an administrator, no provider connected"
 msgstr "Paiement confirmé manuellement par un administrateur, aucun prestataire connecté"
+
+msgid ""
+"Partial refund recorded: %(amount)s %(currency)s. Access was then revoked by "
+"a separate decision."
+msgstr "Remboursement partiel enregistré : %(amount)s %(currency)s. L'accès a ensuite été révoqué par une décision distincte."
 
 #, python-format
 msgid ""
@@ -512,6 +596,17 @@ msgstr "Enregistrer ce remboursement ? Un remboursement intégral retire l'accè
 
 msgid "Record the refund"
 msgstr "Enregistrer le remboursement"
+
+msgid "Revoke access"
+msgstr "Révoquer l'accès"
+
+msgid ""
+"A partial refund does not remove access. Revoke it only if this is the "
+"decision taken; the reason is recorded and access cannot be reopened."
+msgstr "Un remboursement partiel ne retire pas l'accès. Révoquez-le seulement si c'est la décision prise ; le motif est enregistré et l'accès ne pourra pas être rouvert."
+
+msgid "Revoke access to this order? This cannot be undone."
+msgstr "Révoquer l'accès lié à cette commande ? Cette action est définitive."
 
 #, python-format
 msgid "%(n)s payment to check"
@@ -561,6 +656,9 @@ msgstr "Remboursement intégral enregistré. L'accès a été retiré."
 
 msgid "Partial refund recorded. Access is unchanged."
 msgstr "Remboursement partiel enregistré. L'accès est inchangé."
+
+msgid "Access revoked. The order and its history are kept."
+msgstr "Accès révoqué. La commande et son historique sont conservés."
 
 msgid "Robot management"
 msgstr "Gestion des robots"

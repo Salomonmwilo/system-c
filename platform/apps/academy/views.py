@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
@@ -10,7 +11,15 @@ from apps.core.permissions import OrgPermissionRequiredMixin, get_for_org, reque
 
 from . import services
 from .access import can_access_resource
-from .forms import AdminCancelForm, BuyerCancelForm, ConfirmPaymentForm, OrderFilterForm, OrderForm, RefundForm
+from .forms import (
+    AdminCancelForm,
+    BuyerCancelForm,
+    ConfirmPaymentForm,
+    OrderFilterForm,
+    OrderForm,
+    RefundForm,
+    RevokeAccessForm,
+)
 from .models import Order, Program, Resource
 
 
@@ -185,9 +194,13 @@ class OrderDetailView(OrgPermissionRequiredMixin, View):
             "confirm_form": forms.get("confirm") or ConfirmPaymentForm(order=order),
             "cancel_form": forms.get("cancel") or AdminCancelForm(),
             "refund_form": forms.get("refund") or RefundForm(order=order),
+            "revoke_form": forms.get("revoke") or RevokeAccessForm(),
             "can_confirm": request_has_perm(request, "payments.confirm_order"),
             "can_cancel": request_has_perm(request, "payments.cancel_order"),
             "can_refund": request_has_perm(request, "payments.refund_order"),
+            "can_revoke": request_has_perm(request, "payments.revoke_access"),
+            "own_order_blocked": order.user_id == request.user.pk and not services.self_confirmation_allowed(order),
+            "demo_blocked": services.is_demo_order(order) and not settings.DEBUG,
         }, status=400 if forms else 200)
 
 
@@ -253,4 +266,21 @@ class OrderRefundView(OrgPermissionRequiredMixin, View):
                 messages.success(request, _("Full refund recorded. Access has been removed."))
             else:
                 messages.success(request, _("Partial refund recorded. Access is unchanged."))
+        return redirect("academy:order_detail", pk=pk)
+
+
+class OrderRevokeView(OrgPermissionRequiredMixin, View):
+    permission_required = "payments.revoke_access"
+
+    def post(self, request, pk):
+        order = _org_order(request, pk)
+        form = RevokeAccessForm(request.POST)
+        if not form.is_valid():
+            return OrderDetailView().get(request, pk, forms={"revoke": form})
+        try:
+            services.revoke_access(request=request, order=order, reason=form.cleaned_data["reason"])
+        except (ValidationError, PermissionDenied) as exc:
+            _report(request, exc)
+        else:
+            messages.success(request, _("Access revoked. The order and its history are kept."))
         return redirect("academy:order_detail", pk=pk)
