@@ -123,3 +123,17 @@ Vérification dans Chromium :
 - le résumé d'erreurs reçoit le focus et ses liens mènent aux champs ;
 - aucune erreur de console ;
 - aucun débordement horizontal sur mobile.
+
+## Troisième passe : `web-interface-guidelines` et `accessibility` (2026-11-11)
+
+Audit des 23 pages rendues avec axe-core 4.10.2 (WCAG 2.2 A et AA, bonnes pratiques), sur ordinateur et à 390 px, puis revue des gabarits selon les règles de Vercel.
+- **Corrections :**
+  - défilement horizontal sur trois tableaux (WCAG 1.4.10) ;
+  - rôle ARIA du sélecteur de langue ;
+  - titre de niveau 1 de la page « mot de passe » ;
+  - remplissage automatique coupé sur les formulaires saisis pour un tiers ;
+  - titres équilibrés ;
+  - suppression du délai de double tape.
+- **Résultat :** 0 violation, 0 défilement horizontal, 0 erreur de console ni de CSP.
+
+Détails : `SYSTEM_C_METHOD_REPORT.md`, §6.
