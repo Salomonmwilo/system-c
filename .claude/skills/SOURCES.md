@@ -10,8 +10,22 @@ Chaque skill a été lue intégralement avant installation. Elle est figée à u
 | `frontend-design-audit` | [mistyhx/frontend-design-audit](https://github.com/mistyhx/frontend-design-audit/tree/c0fae73d6a4911d59f4658cb13103e9e6f51eeb3) | `c0fae73d6a4911d59f4658cb13103e9e6f51eeb3` | MIT (`frontend-design-audit/LICENSE`) | Audit d'ergonomie selon 15 principes, puis corrections |
 | `ui-ux-pro-max` | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/4f2dbb67e64969a9a30ab00742f2d55d66ddec2b/.claude/skills/ui-ux-pro-max) | `4f2dbb67e64969a9a30ab00742f2d55d66ddec2b` | MIT (`ui-ux-pro-max/LICENSE`) | Base de connaissances consultable : 192 profils produits, 74 typographies, 120 règles d'ergonomie, styles, palettes |
 | `unslop` | [heydamir/unslop](https://github.com/heydamir/unslop/tree/97daa3eb365670ea3f87ed85356cbfcee18105a5/skills/unslop) | `97daa3eb365670ea3f87ed85356cbfcee18105a5` | CC BY 4.0 (`unslop/LICENSE`), auteur : Damir Sokolovsky ([@heydamir](https://x.com/heydamir)) | Méthode en neuf passes pour retirer l'aspect « généré » et donner du caractère |
+| `web-interface-guidelines` | Règles : [vercel-labs/web-interface-guidelines](https://github.com/vercel-labs/web-interface-guidelines/tree/434b7f91364665f2f733b310ec54809bf8f37937) ; enveloppe d'origine : [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills/tree/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/skills/web-design-guidelines) | `434b7f91364665f2f733b310ec54809bf8f37937` (2026-10-05) et `1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62` (2026-10-27) | MIT (`web-interface-guidelines/LICENSE` ; MIT déclaré dans le README de agent-skills) | Revue du code d'interface selon les règles de Vercel : accessibilité, focus, formulaires, typographie, contenus, navigation, tactile |
+| `accessibility` | [addyosmani/web-quality-skills](https://github.com/addyosmani/web-quality-skills/tree/afa8da942115f2961fdbfa80807ea0b232ff6c00/skills/accessibility) | `afa8da942115f2961fdbfa80807ea0b232ff6c00` (2026-08-24) | MIT (`accessibility/LICENSE`), auteur : Addy Osmani | Audit WCAG 2.2 fondé sur les pages rendues (Lighthouse ou axe), puis corrections |
 
 ## Empreintes SHA-256 des fichiers téléchargés
+
+Troisième lot (2026-11-11) :
+
+```
+f4647ca866a3accf763777f83e7682954f0187cd6bea7eea0399796652414e8f  agent-skills/skills/web-design-guidelines/SKILL.md   (non copié : remplacé par une enveloppe locale)
+d246b026f4f29b5823a9cc857f9edf3d2507002e055e32040cadeaf3b38e0234  web-interface-guidelines/command.md
+6cd1609c9c12233507cdd2ce0d32e9a721e3c27494951be06b90090deeeb7af2  web-interface-guidelines/LICENSE
+267fb2a0707d6142f2871f22688203a42ba21291a2aa200fb740936e41362b5d  accessibility/SKILL.md   (avant modification)
+f10e238dd4dd3c4f51134c2056bc02d3dd4f8fb6ccc9145c2c1ba7aab4d58140  accessibility/references/A11Y-PATTERNS.md
+16683e025e3833d931c9d880645d98a448827f97e10189b6c8f12c832e7a2361  accessibility/references/WCAG.md
+c122223ac43e86421958e18623979942c21b642951e2e3736dcb63eff13587c3  accessibility/LICENSE
+```
 
 Deuxième lot (2026-11-09) :
 
@@ -38,6 +52,8 @@ f2e3ccf4ec24d3418b731e6e8045403ab6bcd4bfcd9afa032e6ded12d45f9437  frontend-desig
 - `frontend-design-audit/SKILL.md` : les chemins `../../../references/` (structure du dépôt d'origine) ont été remplacés par `references/`, où les fichiers sont installés ici.
 - `ui-ux-pro-max/SKILL.md` : `${CLAUDE_PLUGIN_ROOT}/.claude/skills/ui-ux-pro-max` remplacé par `.claude/skills/ui-ux-pro-max` (chemin depuis la racine du dépôt), la skill n'étant pas installée comme extension.
 - `ui-ux-pro-max` : seule la skill principale est copiée, sans `scripts/tests/` ni les sous-skills `banner-design`, `brand`, `design`, `design-system`, `slides` et `ui-styling` du même dépôt.
+- `web-interface-guidelines/SKILL.md` : enveloppe écrite pour ce projet. L'original télécharge les règles depuis la branche `main` à chaque utilisation ; ici, elles sont lues dans `command.md`, figé au commit indiqué. Elle ajoute les exceptions du projet : casse de phrase en français, guillemets français, pas de règles React, pas de style ni de script en ligne.
+- `accessibility/SKILL.md` : le lien vers la skill voisine `web-quality-audit`, non installée, est remplacé par une mention.
 
 Aucun autre changement.
 
@@ -46,6 +62,11 @@ Aucun autre changement.
 - `Leonxlnx/taste-skill` (MIT) : conçu pour des sites vitrines d'entreprise (accroches, photographies, effets 3D, composants animés) ; 41 Mo. Hors sujet pour un CRM d'administration.
 - `superdesigndev/superdesign-skill` : non examinée en détail ; sa description la dit « propulsée par superdesign.dev », un service externe, ce que le projet exclut.
 - Recueils géants (centaines de skills non vérifiables une à une) : écartés par prudence.
+
+## Revue de sécurité (2026-11-11)
+
+- `web-interface-guidelines` : liste de règles en Markdown. Aucune commande. L'instruction d'origine de télécharger les règles à chaque usage est retirée, pour qu'elles ne changent pas sans relecture.
+- `accessibility` et ses deux références : Markdown et exemples de code. Les seules commandes citées (`npx lighthouse`, `axe`) sont facultatives et visent une page fournie par l'utilisateur. Aucune instruction relative aux secrets, aux identifiants ou à l'envoi de données.
 
 ## Revue de sécurité (2026-11-09)
 
