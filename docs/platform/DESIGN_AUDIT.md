@@ -137,3 +137,34 @@ Audit des 23 pages rendues avec axe-core 4.10.2 (WCAG 2.2 A et AA, bonnes pratiq
 - **Résultat :** 0 violation, 0 défilement horizontal, 0 erreur de console ni de CSP.
 
 Détails : `SYSTEM_C_METHOD_REPORT.md`, §6.
+
+## Quatrième passe : `unslop`, `taste-skill`, `image-to-code`, `design-md` (2026-11-11)
+
+Demandée par le responsable. Revue des 21 écrans rendus (ordinateur et 390 px) selon `unslop/references/signs.md`, puis des règles de `taste-skill` (rédaction, formulaires, accès) et de `image-to-code` (§16 boîtes imbriquées, §17 micro-étiquettes). Diagnostic `unslop` : slop léger, donc polissage seulement.
+
+| Constat | Skill | Correction |
+|---|---|---|
+| Capitales espacées sur les tuiles de suivi Deriv (« INSCRIPTION DERIV ») | unslop (Type) | Casse de phrase, titre en sans 500 |
+| Trois niveaux de cadres dans « Inscription et vérification Deriv » | image-to-code §16 | Colonnes séparées par un filet, ouverture « Enregistrer une étape » sans cadre |
+| « Non renseigné » dans la couleur des données | unslop (Couleur) | Filtre `or_absent` : absence en texte atténué, partout |
+| Badges « DÉMO » / « RÉEL » en capitales | unslop (Composants) | « Démo » / « Réel » ; le badge réel garde son fond rouge et son icône |
+| L'or sur cinq boutons du registre « À traiter » | unslop (un accent) | Or seulement sur l'action la plus urgente, les autres en contour neutre |
+| « Échéance le … · Admin Audit » : relation non dite | unslop (Texte) | « Échéance le …, attribuée à … » ; la note sur sa propre ligne |
+| Champs de 14 px sur téléphone : iOS agrandit la page à la saisie | taste-skill (Forms) | Champs en 16 px sous 768 px |
+| Boutons et champs « sm » de 31 px sur écran tactile | taste-skill (tap-size), WCAG 2.5.8 | 44 px au moins quand le pointeur est tactile |
+| Filtres en demi-largeur sur téléphone : « Tous les statuts » coupé | unslop (Layout) | Pleine largeur sous 576 px |
+| Champs des seuils mal alignés (libellés de hauteurs différentes) | unslop (Spacing) | Alignement en bas de ligne |
+| **Anneau de focus or sur fond clair : 2,2:1** (axe ne le teste pas) | accessibility (WCAG 1.4.11) | Jeton `--sc-focus` : or profond sur fond clair (7,6:1), or sur noir (8,9:1) |
+
+Gardés volontairement :
+- **Écrits du responsable :** le slogan « Penser juste. Agir avec discipline. » et la devise latine en italique, repris de l'ancien site.
+- **Noir franc de la navigation :** imposé par l'identité.
+
+`DESIGN.md` (racine du dépôt) décrit désormais le système au format de VoltAgent/awesome-design-md. Un test vérifie que ses couleurs sont celles de `systemc.css`.
+
+Vérification :
+- **Tests :** 189 tests (6 nouveaux).
+- **axe-core :** 0 violation sur 23 pages.
+- **Mise en page :** 0 défilement horizontal à 390 px.
+- **Navigateur :** 0 erreur de console ni de CSP.
+- **iPhone émulé :** boutons et champs de 44 px au moins, texte des champs en 16 px.
