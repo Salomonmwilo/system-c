@@ -12,7 +12,7 @@
     <div class="d-flex flex-wrap gap-2 align-items-center">
       <span class="sc-badge sc-badge-neutral">{{ affiliate.get_status_display }}</span>
       {% if affiliate.archived_at %}<span class="sc-badge sc-badge-stop">{% translate "Archived" %}</span>{% endif %}
-      <span class="small text-body-secondary">{% translate "Last contact" %} : {{ affiliate.last_contact_at|date:"SHORT_DATETIME_FORMAT"|default:_("none recorded") }}</span>
+      <span class="small text-body-secondary">{% translate "Last contact" %} : {{ affiliate.last_contact_at|date:"SHORT_DATETIME_FORMAT"|or_absent:_("none recorded") }}</span>
     </div>
   </div>
   <div class="d-flex gap-2 flex-wrap">
@@ -32,12 +32,12 @@
       <div class="sc-card-header"><h2>{% translate "Contact details" %}</h2></div>
       <div class="sc-card-body">
         <dl class="sc-dl">
-          <dt>{% translate "Email address" %}</dt><dd>{% if can_pii %}{{ affiliate.email|default:_("Not provided") }}{% else %}{{ affiliate.email|mask_email|default:_("Not provided") }}{% endif %}</dd>
-          <dt>{% translate "Phone" %}</dt><dd>{% if can_pii %}{{ affiliate.phone|default:_("Not provided") }}{% else %}{{ affiliate.phone|mask_text|default:_("Not provided") }}{% endif %}</dd>
-          <dt>{% translate "Country" %}</dt><dd>{{ affiliate.country|default:_("Not provided") }}</dd>
+          <dt>{% translate "Email address" %}</dt><dd>{% if can_pii %}{{ affiliate.email|or_absent }}{% else %}{{ affiliate.email|mask_email|or_absent }}{% endif %}</dd>
+          <dt>{% translate "Phone" %}</dt><dd>{% if can_pii %}{{ affiliate.phone|or_absent }}{% else %}{{ affiliate.phone|mask_text|or_absent }}{% endif %}</dd>
+          <dt>{% translate "Country" %}</dt><dd>{{ affiliate.country|or_absent }}</dd>
           <dt>{% translate "Language" %}</dt><dd>{{ affiliate.get_preferred_language_display }}</dd>
-          <dt>{% translate "Referral link" %}</dt><dd>{{ affiliate.referral_link|default:_("Not provided") }}</dd>
-          <dt>{% translate "Assigned to" %}</dt><dd>{{ affiliate.assigned_to|default:_("Not provided") }}</dd>
+          <dt>{% translate "Referral link" %}</dt><dd>{{ affiliate.referral_link|or_absent }}</dd>
+          <dt>{% translate "Assigned to" %}</dt><dd>{{ affiliate.assigned_to|or_absent }}</dd>
           <dt>{% translate "Created" %}</dt><dd>{{ affiliate.created_at|date:"SHORT_DATE_FORMAT" }}</dd>
         </dl>
       </div>
@@ -49,15 +49,15 @@
     <div class="sc-card mb-3">
       <div class="sc-card-header"><h2>{% translate "Deriv registration and verification" %}</h2><span class="sc-declared">{% translate "Declared statuses, never checked automatically with Deriv" %}</span></div>
       <div class="sc-card-body">
-        <div class="row g-3">
+        <div class="row g-0 sc-tracks">
           {% for t in tracks %}
-          <div class="col-md-4">
-            <div class="border rounded-3 p-3 h-100">
-              <div class="small text-body-secondary text-uppercase fw-semibold">{{ t.label }}</div>
+          <div class="col-md-4 sc-track">
+            <div>
+              <h3 class="sc-track-title">{{ t.label }}</h3>
               <div class="my-2">{% include "partners/track_badge.html" with value=t.raw label=t.value %}</div>
               <div class="small text-body-secondary">{% if t.date %}{% blocktranslate with date=t.date|date:"SHORT_DATE_FORMAT" %}Since {{ date }}{% endblocktranslate %}{% else %}{% translate "No date recorded" %}{% endif %}</div>
               {% if can_track and not affiliate.archived_at %}
-              <details class="sc-details mt-2">
+              <details class="sc-details sc-details-inline mt-2">
                 <summary>{% translate "Record a step" %}</summary>
                 <form method="post" action="{% url 'partners:affiliate_track' affiliate.pk t.key %}" class="mt-2" novalidate>{% csrf_token %}
                   {% include "includes/field.html" with f=t.form.value %}
@@ -79,7 +79,7 @@
           <tbody>{% for e in track_events %}<tr>
             <td class="text-nowrap">{{ e.declared_on|date:"SHORT_DATE_FORMAT" }}</td><td>{{ e.get_track_display }}</td>
             <td class="small">{{ e.previous_label }} <i class="bi bi-arrow-right" aria-hidden="true"></i><span class="visually-hidden">→</span> <strong>{{ e.value_label }}</strong></td>
-            <td class="small">{{ e.get_source_display }}</td><td class="small">{{ e.note|default:_("Not provided") }}</td><td class="small">{{ e.recorded_by }}</td>
+            <td class="small">{{ e.get_source_display }}</td><td class="small">{{ e.note|or_absent }}</td><td class="small">{{ e.recorded_by }}</td>
           </tr>{% endfor %}</tbody>
         </table></div>
         {% endif %}
@@ -96,7 +96,7 @@
             <div>
               <span class="fw-semibold">{{ fu.title }}</span>
               {% if fu.status == "open" %}{% if fu.is_overdue %}<span class="sc-badge sc-badge-stop ms-1">{% translate "Overdue" %}</span>{% else %}<span class="sc-badge sc-badge-wait ms-1">{{ fu.get_status_display }}</span>{% endif %}{% else %}<span class="sc-badge sc-badge-neutral ms-1">{{ fu.get_status_display }}</span>{% endif %}
-              <div class="small text-body-secondary">{% blocktranslate with date=fu.due_on|date:"SHORT_DATE_FORMAT" %}Due {{ date }}{% endblocktranslate %}{% if fu.assigned_to %} · {{ fu.assigned_to }}{% endif %}{% if fu.note %} · {{ fu.note }}{% endif %}</div>
+              <div class="small text-body-secondary">{% if fu.assigned_to %}{% blocktranslate with date=fu.due_on|date:"SHORT_DATE_FORMAT" person=fu.assigned_to %}Due {{ date }}, assigned to {{ person }}{% endblocktranslate %}{% else %}{% blocktranslate with date=fu.due_on|date:"SHORT_DATE_FORMAT" %}Due {{ date }}{% endblocktranslate %}{% endif %}</div>{% if fu.note %}<div class="small">{{ fu.note }}</div>{% endif %}
             </div>
             {% if can_followup and fu.status == "open" %}
             <form method="post" action="{% url 'partners:followup_close' fu.pk %}" class="d-flex gap-1">{% csrf_token %}

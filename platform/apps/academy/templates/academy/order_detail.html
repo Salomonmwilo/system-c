@@ -28,10 +28,10 @@
         <dt>{% translate "Price at order time" %}</dt><dd class="sc-num">{{ order.price|floatformat:"2g" }}&nbsp;{{ order.currency }}</dd>
         <dt>{% translate "Amount refunded" %}</dt><dd class="sc-num">{{ order.refunded_amount|floatformat:"2g" }}&nbsp;{{ order.currency }}</dd>
         <dt>{% translate "Ordered on" %}</dt><dd>{{ order.created_at|date:"SHORT_DATETIME_FORMAT" }}</dd>
-        <dt>{% translate "Transaction reference" %}</dt><dd>{% if order.transaction_ref %}<code translate="no">{{ order.transaction_ref }}</code>{% else %}{% translate "Not provided" %}{% endif %}</dd>
+        <dt>{% translate "Transaction reference" %}</dt><dd>{% if order.transaction_ref %}<code translate="no">{{ order.transaction_ref }}</code>{% else %}<span class="sc-absent">{% translate "Not provided" %}</span>{% endif %}</dd>
         <dt>{% translate "Access" %}</dt><dd>{% if has_access %}<span class="sc-badge sc-badge-ok"><i class="bi bi-unlock" aria-hidden="true"></i>{% translate "Open" %}</span>{% else %}<span class="sc-badge sc-badge-neutral"><i class="bi bi-lock" aria-hidden="true"></i>{% translate "Closed" %}</span>{% endif %}{% if enrollment %}<div class="small text-body-secondary">{{ enrollment.get_status_display }}</div>{% endif %}</dd>
         <dt>{% translate "Access duration" %}</dt><dd>{% include "academy/includes/access_duration.html" with offer=order.offer enrollment=enrollment %}</dd>
-        <dt>{% translate "Notice accepted" %}</dt><dd>{% if order.risk_notice_version %}{% blocktranslate with v=order.risk_notice_version %}Risk notice, version {{ v }}{% endblocktranslate %}{% else %}{% translate "Not provided" %}{% endif %}</dd>
+        <dt>{% translate "Notice accepted" %}</dt><dd>{% if order.risk_notice_version %}{% blocktranslate with v=order.risk_notice_version %}Risk notice, version {{ v }}{% endblocktranslate %}{% else %}<span class="sc-absent">{% translate "Not provided" %}</span>{% endif %}</dd>
         <dt>{% translate "Terms of sale" %}</dt><dd>{% if order.terms_version %}{% blocktranslate with v=order.terms_version %}Version {{ v }}{% endblocktranslate %}{% else %}{% translate "Not published yet" %}{% endif %}</dd>
       </dl>
     </div></div>

@@ -11,10 +11,10 @@
 <form method="get" class="sc-card sc-filter mb-3" role="search" aria-label="{% translate 'Filter affiliates' %}">
   <div class="sc-card-body row g-2 align-items-end">
     <div class="col-12 col-md-4 col-xl-3"><label class="form-label small" for="{{ filter_form.q.id_for_label }}">{{ filter_form.q.label }}</label>{{ filter_form.q }}</div>
-    <div class="col-6 col-md-4 col-xl-2"><label class="form-label small" for="{{ filter_form.status.id_for_label }}">{{ filter_form.status.label }}</label>{{ filter_form.status }}</div>
-    <div class="col-6 col-md-4 col-xl-2"><label class="form-label small" for="{{ filter_form.registration.id_for_label }}">{{ filter_form.registration.label }}</label>{{ filter_form.registration }}</div>
-    <div class="col-6 col-md-4 col-xl-2"><label class="form-label small" for="{{ filter_form.verification.id_for_label }}">{{ filter_form.verification.label }}</label>{{ filter_form.verification }}</div>
-    <div class="col-6 col-md-4 col-xl-2"><label class="form-label small" for="{{ filter_form.alert.id_for_label }}">{{ filter_form.alert.label }}</label>{{ filter_form.alert }}</div>
+    <div class="col-12 col-sm-6 col-md-4 col-xl-2"><label class="form-label small" for="{{ filter_form.status.id_for_label }}">{{ filter_form.status.label }}</label>{{ filter_form.status }}</div>
+    <div class="col-12 col-sm-6 col-md-4 col-xl-2"><label class="form-label small" for="{{ filter_form.registration.id_for_label }}">{{ filter_form.registration.label }}</label>{{ filter_form.registration }}</div>
+    <div class="col-12 col-sm-6 col-md-4 col-xl-2"><label class="form-label small" for="{{ filter_form.verification.id_for_label }}">{{ filter_form.verification.label }}</label>{{ filter_form.verification }}</div>
+    <div class="col-12 col-sm-6 col-md-4 col-xl-2"><label class="form-label small" for="{{ filter_form.alert.id_for_label }}">{{ filter_form.alert.label }}</label>{{ filter_form.alert }}</div>
     <div class="col-12 d-flex gap-3 align-items-center flex-wrap">
       <div class="form-check">{{ filter_form.archived }}<label class="form-check-label small" for="{{ filter_form.archived.id_for_label }}">{{ filter_form.archived.label }}</label></div><button class="btn btn-sm btn-dark" type="submit"><i class="bi bi-funnel me-1" aria-hidden="true"></i>{% translate "Filter" %}</button><a class="btn btn-sm btn-link" href="{% url 'partners:affiliate_list' %}">{% translate "Reset" %}</a>
     </div>
@@ -35,12 +35,12 @@
   {% for a in page %}
     <tr>
       <td><a class="fw-semibold" href="{% url 'partners:affiliate_detail' a.pk %}">{{ a.display_name }}</a>{% if a.archived_at %} <span class="sc-badge sc-badge-neutral">{% translate "Archived" %}</span>{% endif %}</td>
-      <td class="d-none d-md-table-cell small">{% if can_pii %}{{ a.email|default:_("Not provided") }}{% else %}{{ a.email|mask_email|default:_("Not provided") }}{% endif %}</td>
+      <td class="d-none d-md-table-cell small">{% if can_pii %}{{ a.email|or_absent }}{% else %}{{ a.email|mask_email|or_absent }}{% endif %}</td>
       <td>{{ a.get_status_display }}</td>
       <td>{% include "partners/track_badge.html" with value=a.registration_status label=a.get_registration_status_display %}</td>
       <td>{% include "partners/track_badge.html" with value=a.verification_status label=a.get_verification_status_display %}</td>
-      <td class="d-none d-lg-table-cell small">{{ a.last_contact_at|date:"SHORT_DATE_FORMAT"|default:_("Not provided") }}</td>
-      <td class="d-none d-xl-table-cell small">{{ a.assigned_to|default:_("Not provided") }}</td>
+      <td class="d-none d-lg-table-cell small">{{ a.last_contact_at|date:"SHORT_DATE_FORMAT"|or_absent }}</td>
+      <td class="d-none d-xl-table-cell small">{{ a.assigned_to|or_absent }}</td>
     </tr>
   {% empty %}
     <tr><td colspan="7"><div class="sc-empty"><i class="bi bi-people" aria-hidden="true"></i>{% translate "No affiliate matches these criteria." %}{% if can_add %}<br><a class="btn btn-sm btn-primary" href="{% url 'partners:affiliate_create' %}">{% translate "Add an affiliate" %}</a>{% endif %}</div></td></tr>

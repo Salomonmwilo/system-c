@@ -31,11 +31,11 @@
       <div class="sc-card-header"><h2>{% translate "Administrative record" %}</h2></div>
       <div class="sc-card-body"><dl class="sc-dl">
         <dt>{% translate "Wants a robot" %}</dt><dd>{% if bot_user.wants_bot %}{% translate "Yes" %}{% else %}{% translate "No" %}{% endif %}</dd>
-        <dt>{% translate "Robot" %}</dt><dd>{{ bot_user.get_robot_type_display|default:_("Not chosen yet") }}</dd>
-        <dt>{% translate "VPS user label" %}</dt><dd>{% if bot_user.vps_label %}<code>{{ bot_user.vps_label }}</code>{% else %}{% translate "Not provided" %}{% endif %}</dd>
-        <dt>{% translate "Last declared application" %}</dt><dd>{{ bot_user.last_applied_on|date:"SHORT_DATE_FORMAT"|default:_("Never declared") }}</dd>
-        <dt>{% translate "Waiting since" %}</dt><dd>{{ bot_user.pending_since|date:"SHORT_DATE_FORMAT"|default:_("Nothing pending") }}</dd>
-        <dt>{% translate "Note" %}</dt><dd>{{ bot_user.admin_note|linebreaksbr|default:_("Not provided") }}</dd>
+        <dt>{% translate "Robot" %}</dt><dd>{{ bot_user.get_robot_type_display|or_absent:_("Not chosen yet") }}</dd>
+        <dt>{% translate "VPS user label" %}</dt><dd>{% if bot_user.vps_label %}<code>{{ bot_user.vps_label }}</code>{% else %}<span class="sc-absent">{% translate "Not provided" %}</span>{% endif %}</dd>
+        <dt>{% translate "Last declared application" %}</dt><dd>{{ bot_user.last_applied_on|date:"SHORT_DATE_FORMAT"|or_absent:_("Never declared") }}</dd>
+        <dt>{% translate "Waiting since" %}</dt><dd>{{ bot_user.pending_since|date:"SHORT_DATE_FORMAT"|or_absent:_("Nothing pending") }}</dd>
+        <dt>{% translate "Note" %}</dt><dd>{{ bot_user.admin_note|linebreaksbr|or_absent }}</dd>
       </dl></div>
     </div>
 
@@ -139,9 +139,9 @@
             <td><a class="fw-semibold" href="{% url 'bots:version_detail' v.pk %}">v{{ v.number }}</a></td>
             <td>{% if v.state == "draft" %}<span class="sc-badge sc-badge-neutral">{% translate "Draft" %}</span>{% else %}<span class="sc-badge sc-badge-ok"><i class="bi bi-lock" aria-hidden="true"></i>{% translate "Validated" %}</span>{% endif %}</td>
             <td>{% include "includes/account_type.html" with account_type=v.account_type %}</td>
-            <td class="text-nowrap">{% if v.reference_capital is not None %}{{ v.reference_capital|floatformat:"2g" }} {{ v.currency }}{% else %}{% translate "Not provided" %}{% endif %}</td>
+            <td class="text-nowrap">{% if v.reference_capital is not None %}{{ v.reference_capital|floatformat:"2g" }} {{ v.currency }}{% else %}<span class="sc-absent">{% translate "Not provided" %}</span>{% endif %}</td>
             <td class="d-none d-md-table-cell small">{% blocktranslate with date=v.created_at|date:"SHORT_DATE_FORMAT" person=v.created_by %}{{ date }}, by {{ person }}{% endblocktranslate %}</td>
-            <td class="small">{% for d in v.declarations.all %}{% if d.kind == "applied" %}<div>{{ d.applied_on|date:"SHORT_DATE_FORMAT" }}{% if d.correction %} <span class="sc-badge sc-badge-stop">{% translate "corrected" %}</span>{% endif %}</div>{% endif %}{% empty %}{% translate "None" %}{% endfor %}</td>
+            <td class="small">{% for d in v.declarations.all %}{% if d.kind == "applied" %}<div>{{ d.applied_on|date:"SHORT_DATE_FORMAT" }}{% if d.correction %} <span class="sc-badge sc-badge-stop">{% translate "corrected" %}</span>{% endif %}</div>{% endif %}{% empty %}<span class="sc-absent">{% translate "None" %}</span>{% endfor %}</td>
           </tr>
         {% empty %}
           <tr><td colspan="6"><div class="sc-empty py-3">{% translate "No version yet." %}</div></td></tr>

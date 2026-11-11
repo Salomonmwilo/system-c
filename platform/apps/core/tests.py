@@ -419,3 +419,51 @@ class SkillPolishTests(TestCase):
         bot_services.validate_version(request=request, version=version)
         response = self.client.get(reverse("bots:botuser_detail", args=[bot.pk]))
         self.assertContains(response, "12 500,00 USD")
+
+
+class FourthDesignPassTests(TestCase):
+    """unslop, taste-skill, image-to-code et design-md (2026-11-11)."""
+
+    css = (Path(settings.BASE_DIR) / "static" / "css" / "systemc.css").read_text()
+
+    def test_design_md_colours_match_the_stylesheet(self):
+        design = (Path(settings.BASE_DIR).parent / "DESIGN.md").read_text()
+        front = design.split("---")[1]
+        colours = dict(re.findall(r'^  ([a-z-]+): "(#[0-9a-f]{6})"$', front, re.M))
+        self.assertGreaterEqual(len(colours), 20)
+        for name, value in colours.items():
+            with self.subTest(name=name):
+                self.assertIn(f"--sc-{name}: {value};", self.css)
+
+    def test_focus_ring_keeps_three_to_one_on_light_surfaces(self):
+        self.assertIn("--sc-focus: var(--sc-gold-deep);", self.css)
+        self.assertIn(".sc-sidebar, .sc-offcanvas, .sc-auth-aside { --sc-focus: var(--sc-gold); }", self.css)
+        self.assertNotRegex(self.css, r":focus-visible \{ outline: 3px solid var\(--sc-gold\)")
+
+    def test_phone_fields_and_touch_targets(self):
+        self.assertRegex(self.css, r"max-width: 767\.98px\) \{\s*\.form-control, \.form-select, \.form-control-sm, \.form-select-sm \{ font-size: 1rem; \}")
+        self.assertRegex(self.css, r"pointer: coarse\) \{\s*\.btn, \.page-link \{ min-height: 44px;")
+
+    def test_no_spaced_capitals_in_templates(self):
+        roots = [Path(settings.BASE_DIR) / "templates", *Path(settings.BASE_DIR, "apps").glob("*/templates")]
+        offenders = [str(p) for root in roots for p in root.rglob("*.html") if "text-uppercase" in p.read_text()]
+        self.assertEqual(offenders, [])
+
+    def test_absent_values_are_muted(self):
+        from django.template import Context, Template
+
+        template = Template('{% load systemc %}{{ empty|or_absent }}|{{ value|or_absent }}|{{ empty|or_absent:"Jamais" }}')
+        with translation.override("fr"):
+            html = template.render(Context({"empty": "", "value": "CD"}))
+        self.assertEqual(html, '<span class="sc-absent">Non renseigné</span>|CD|<span class="sc-absent">Jamais</span>')
+
+    def test_account_badges_use_sentence_case(self):
+        from django.template.loader import render_to_string
+
+        with translation.override("fr"):
+            real = render_to_string("includes/account_type.html", {"account_type": "real"})
+            demo = render_to_string("includes/account_type.html", {"account_type": "demo"})
+        self.assertIn("Réel", real)
+        self.assertIn("bi-exclamation-octagon", real)
+        self.assertIn("Démo", demo)
+        self.assertNotIn("RÉEL", real + demo)

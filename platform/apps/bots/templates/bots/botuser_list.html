@@ -11,7 +11,7 @@
 <div class="sc-banner sc-banner-info mb-3"><i class="bi bi-info-circle" aria-hidden="true"></i><div>{% translate "Administrative register only. The platform never connects to the VPS: statuses are what an administrator declared." %}</div></div>
 <form method="get" class="sc-card sc-filter mb-3" role="search" aria-label="{% translate 'Filter robot users' %}">
   <div class="sc-card-body row g-2 align-items-end">
-    {% for f in filter_form %}<div class="col-6 col-md-4 col-xl"><label class="form-label small" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</div>{% endfor %}
+    {% for f in filter_form %}<div class="col-12 col-sm-6 col-md-4 col-xl"><label class="form-label small" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</div>{% endfor %}
     <div class="col-12 d-flex gap-2"><button class="btn btn-sm btn-dark" type="submit"><i class="bi bi-funnel me-1" aria-hidden="true"></i>{% translate "Filter" %}</button><a class="btn btn-sm btn-link" href="{% url 'bots:botuser_list' %}">{% translate "Reset" %}</a></div>
   </div>
 </form>
@@ -26,10 +26,10 @@
   {% for b in page %}
     <tr>
       <td><a class="fw-semibold" href="{% url 'bots:botuser_detail' b.pk %}">{{ b.affiliate.display_name }}</a>{% if b.vps_label %}<div class="small text-body-secondary"><code>{{ b.vps_label }}</code></div>{% endif %}</td>
-      <td>{{ b.get_robot_type_display|default:_("Not chosen yet") }}</td>
+      <td>{{ b.get_robot_type_display|or_absent:_("Not chosen yet") }}</td>
       <td>{% include "includes/account_type.html" with account_type=b.current_account_type %}</td>
       <td>{% include "includes/bot_status.html" with status=b.status label=b.get_status_display %}</td>
-      <td class="d-none d-md-table-cell small">{{ b.last_applied_on|date:"SHORT_DATE_FORMAT"|default:_("Never declared") }}</td>
+      <td class="d-none d-md-table-cell small">{{ b.last_applied_on|date:"SHORT_DATE_FORMAT"|or_absent:_("Never declared") }}</td>
       <td class="d-none d-lg-table-cell small">{% if b.wants_bot %}{% translate "Yes" %}{% else %}{% translate "No" %}{% endif %}</td>
     </tr>
   {% empty %}

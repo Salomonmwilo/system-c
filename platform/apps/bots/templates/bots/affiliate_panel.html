@@ -1,10 +1,10 @@
-{% load i18n %}
+{% load i18n systemc %}
 <div class="sc-card mb-3">
   <div class="sc-card-header"><h2>{% translate "Robot" %}</h2></div>
   <div class="sc-card-body">
     {% if data.bot_user %}
       <dl class="sc-dl mb-3">
-        <dt>{% translate "Robot" %}</dt><dd>{{ data.bot_user.get_robot_type_display|default:_("Not chosen yet") }}</dd>
+        <dt>{% translate "Robot" %}</dt><dd>{{ data.bot_user.get_robot_type_display|or_absent:_("Not chosen yet") }}</dd>
         <dt>{% translate "Status" %}</dt><dd>{% include "includes/bot_status.html" with status=data.bot_user.status label=data.bot_user.get_status_display %}</dd>
         <dt>{% translate "Account" %}</dt><dd>{% include "includes/account_type.html" with account_type=data.bot_user.current_account_type %}</dd>
       </dl>

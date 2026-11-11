@@ -20,7 +20,7 @@
       <td class="text-nowrap">{{ fu.due_on|date:"SHORT_DATE_FORMAT" }} {% if fu.is_overdue %}<span class="sc-badge sc-badge-stop">{% translate "Overdue" %}</span>{% endif %}</td>
       <td>{{ fu.title }}</td>
       <td><a href="{% url 'partners:affiliate_detail' fu.affiliate_id %}">{{ fu.affiliate.display_name }}</a></td>
-      <td class="d-none d-md-table-cell">{{ fu.assigned_to|default:_("Not provided") }}</td>
+      <td class="d-none d-md-table-cell">{{ fu.assigned_to|or_absent }}</td>
       <td class="text-end">{% if can_followup %}
         <form method="post" action="{% url 'partners:followup_close' fu.pk %}" class="d-inline-flex gap-1">{% csrf_token %}<input type="hidden" name="return_to" value="list">
           <button class="btn btn-sm btn-outline-primary" name="status" value="done">{% translate "Mark done" %}</button>

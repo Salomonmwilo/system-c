@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SYSTEM-C Platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-11 02:47+0000\n"
+"POT-Creation-Date: 2026-11-11 04:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: SYSTEM-C\n"
@@ -549,6 +549,7 @@ msgstr "N° %(n)s"
 msgid "Payment confirmed by hand by an administrator, no provider connected"
 msgstr "Paiement confirmé manuellement par un administrateur, aucun prestataire connecté"
 
+#, python-format
 msgid ""
 "Partial refund recorded: %(amount)s %(currency)s. Access was then revoked by "
 "a separate decision."
@@ -1947,6 +1948,9 @@ msgstr "Relances"
 msgid "Overdue"
 msgstr "En retard"
 
+msgid "Due %(date)s, assigned to %(person)s"
+msgstr "Échéance le %(date)s, attribuée à %(person)s"
+
 #, python-format
 msgid "Due %(date)s"
 msgstr "Échéance le %(date)s"
@@ -2116,12 +2120,6 @@ msgstr "Ouvrir le menu"
 msgid "Sign out"
 msgstr "Se déconnecter"
 
-msgid "REAL"
-msgstr "RÉEL"
-
-msgid "DEMO"
-msgstr "DÉMO"
-
 msgid "Please correct the errors below."
 msgstr "Veuillez corriger les erreurs ci-dessous."
 
@@ -2154,6 +2152,12 @@ msgstr "Administration"
 
 msgid "Administrative records only. No connection to the VPS."
 msgstr "Fiches administratives uniquement. Aucune connexion au VPS."
+
+#~ msgid "REAL"
+#~ msgstr "RÉEL"
+
+#~ msgid "DEMO"
+#~ msgstr "DÉMO"
 
 #~ msgid "Completed"
 #~ msgstr "Terminée"

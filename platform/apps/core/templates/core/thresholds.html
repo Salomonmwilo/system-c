@@ -9,7 +9,7 @@
   <p class="text-body-secondary">{% translate "Thresholds are in days. They only produce alerts on the dashboard; they never change a record." %}</p>
   {% include "includes/form_errors.html" %}
   <form method="post" novalidate>{% csrf_token %}
-    <div class="row">
+    <div class="row align-items-end">
       {% for f in form %}<div class="col-md-6">{% include "includes/field.html" %}</div>{% endfor %}
     </div>
     <p class="small text-body-secondary">{% translate "Allowed ranges, in days: no contact 7 to 180, change request 1 to 60, configuration review 7 to 365, registration 1 to 60, verification 1 to 90." %}</p>

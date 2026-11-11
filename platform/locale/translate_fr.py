@@ -226,6 +226,7 @@ T = {
         "Un remboursement partiel ne retire pas l'accès. Révoquez-le seulement si c'est la décision prise ; le motif est enregistré et l'accès ne pourra pas être rouvert.",
     "Revoke access to this order? This cannot be undone.": "Révoquer l'accès lié à cette commande ? Cette action est définitive.",
     "Access revoked. The order and its history are kept.": "Accès révoqué. La commande et son historique sont conservés.",
+    "Due %(date)s, assigned to %(person)s": "Échéance le %(date)s, attribuée à %(person)s",
     # valeurs absentes (remplacent l'ancien tiret)
     "Not provided": "Non renseigné",
     "Never declared": "Jamais déclarée",
@@ -719,8 +720,6 @@ T = {
     "Close": "Fermer",
     "Open menu": "Ouvrir le menu",
     "Sign out": "Se déconnecter",
-    "REAL": "RÉEL",
-    "DEMO": "DÉMO",
     "Please correct the errors below.": "Veuillez corriger les erreurs ci-dessous.",
     "Pagination": "Pagination",
     "Page %(number)s of %(total)s · %(results)s result": (

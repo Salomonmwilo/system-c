@@ -1,4 +1,6 @@
 from django import template
+from django.utils.html import format_html
+from django.utils.translation import gettext
 from django.forms import CheckboxInput, CheckboxSelectMultiple, RadioSelect, Select, SelectMultiple
 
 from ..permissions import request_has_perm
@@ -78,3 +80,11 @@ def decimal_display(value) -> str:
 
     text = plain_decimal(value)
     return text.replace(".", get_format("DECIMAL_SEPARATOR")) if text else text
+
+
+@register.filter
+def or_absent(value, label=None):
+    """Valeur, ou mention d'absence en texte atténué : une absence ne doit pas ressembler à une donnée."""
+    if value not in (None, ""):
+        return value
+    return format_html('<span class="sc-absent">{}</span>', label or gettext("Not provided"))

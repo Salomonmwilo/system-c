@@ -24,7 +24,7 @@
         <span class="sc-what"><span class="visually-hidden">{{ item.count }} </span>{{ item.label }}</span>
         <span class="sc-why">{% if item.count == 0 %}{% translate "Nothing pending" %}{% else %}{{ item.hint }}{% endif %}</span>
       </span>
-      {% if item.count %}<a class="btn btn-sm {% if item.urgent %}btn-primary{% else %}btn-outline-primary{% endif %} sc-act" href="{{ item.url }}">{{ item.action }}</a>{% else %}<span class="sc-act"></span>{% endif %}
+      {% if item.count %}<a class="btn btn-sm {% if item.urgent %}btn-primary{% else %}btn-outline-secondary{% endif %} sc-act" href="{{ item.url }}">{{ item.action }}</a>{% else %}<span class="sc-act"></span>{% endif %}
     </li>
     {% endfor %}
   </ol>
