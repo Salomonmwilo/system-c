@@ -443,8 +443,9 @@ class FullFlowViewTests(BotsTestCase):
         self.validate(self.draft(params={"STAKE": "2"}))
         login(self.client, self.admin, self.org)
         response = self.client.get(reverse("core:dashboard"))
-        section = next(s for s in response.context["sections"] if s["template"] == "bots/dashboard_section.html")
+        section = next(s for s in response.context["sections"] if s.get("card", {}).get("key") == "bots")
         self.assertEqual(section["context"]["total"], 2)
+        self.assertEqual(section["card"]["total"], 2)
         self.assertEqual(section["context"]["to_apply"], 1)
         self.assertEqual(section["context"]["modification_requested"], 1)
 

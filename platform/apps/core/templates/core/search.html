@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Search" %}{% endblock %}
+{% block page_title %}{% translate "Search" %}{% endblock %}
+{% block content %}
+<div class="sc-page-head">
+  <div>
+    <h1>{% translate "Search" %}</h1>
+    {% if query and not too_short %}<p class="sc-lead">{% blocktranslate %}Results for “{{ query }}”, limited to what your roles allow you to see.{% endblocktranslate %}</p>{% endif %}
+  </div>
+</div>
+<form class="sc-card sc-filter mb-4" role="search" method="get" aria-label="{% translate 'Search the platform' %}">
+  <div class="sc-card-body d-flex gap-2 flex-wrap align-items-end">
+    <div class="flex-grow-1">
+      <label class="form-label" for="search-page-q">{% translate "Name, email, order number…" %}</label>
+      <input class="form-control" id="search-page-q" type="search" name="q" value="{{ query }}" maxlength="100" {% if too_short %}aria-invalid="true" aria-describedby="search-too-short"{% endif %}>
+      {% if too_short %}<p class="invalid-feedback d-block" id="search-too-short">{% blocktranslate count n=min_length %}Type at least {{ n }} character.{% plural %}Type at least {{ n }} characters.{% endblocktranslate %}</p>{% endif %}
+    </div>
+    <button class="btn btn-primary" type="submit"><i class="bi bi-search me-1" aria-hidden="true"></i>{% translate "Search" %}</button>
+  </div>
+</form>
+{% if query and not too_short %}
+  {% for group in groups %}
+  <section class="sc-panel mb-4" aria-labelledby="group-{{ forloop.counter }}">
+    <header class="sc-panel-head">
+      <h2 id="group-{{ forloop.counter }}" class="sc-panel-title"><i class="bi bi-{{ group.icon }}" aria-hidden="true"></i>{{ group.title }}<span class="sc-pill">{{ group.total }}</span></h2>
+      {% if group.total > group.results|length %}<a class="sc-more" href="{{ group.more_url }}">{% translate "See all" %}<span class="visually-hidden"> : {{ group.title }}</span><i class="bi bi-arrow-right" aria-hidden="true"></i></a>{% endif %}
+    </header>
+    <ul class="sc-todo">
+      {% for result in group.results %}
+      <li><a href="{{ result.url }}"><span class="sc-todo-text"><span class="sc-what">{{ result.title }}</span><span class="sc-why">{{ result.meta }}</span></span><i class="bi bi-chevron-right sc-todo-go" aria-hidden="true"></i></a></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% empty %}
+  <div class="sc-panel"><div class="sc-empty"><i class="bi bi-search" aria-hidden="true"></i>{% blocktranslate %}Nothing found for “{{ query }}”.{% endblocktranslate %}</div></div>
+  {% endfor %}
+{% endif %}
+{% endblock %}

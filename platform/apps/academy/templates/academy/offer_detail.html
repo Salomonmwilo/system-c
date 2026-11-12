@@ -2,8 +2,8 @@
 {% load i18n %}
 {% block title %}{{ offer.name }} · {{ offer.program.title }}{% endblock %}
 {% block page_title %}{% translate "Offers" %}{% endblock %}
+{% block breadcrumb %}<nav aria-label="{% translate 'Breadcrumb' %}" class="sc-crumbs"><ol class="breadcrumb">{% if nav.dashboard %}<li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">{% translate "Dashboard" %}</a></li>{% endif %}<li class="breadcrumb-item"><a href="{% url 'academy:offer_list' %}">{% translate "Offers" %}</a></li><li class="breadcrumb-item active" aria-current="page">{{ offer.name }}</li></ol></nav>{% endblock %}
 {% block content %}
-<nav aria-label="{% translate 'Breadcrumb' %}"><ol class="breadcrumb small"><li class="breadcrumb-item"><a href="{% url 'academy:offer_list' %}">{% translate "Offers" %}</a></li><li class="breadcrumb-item active" aria-current="page">{{ offer.name }}</li></ol></nav>
 <div class="mb-3">
   <p class="small text-body-secondary mb-1">{{ offer.program.title }}</p>
   <h1 class="h3 mb-1">{{ offer.name }}</h1>

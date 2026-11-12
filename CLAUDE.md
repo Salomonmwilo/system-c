@@ -24,5 +24,6 @@
 - Le système de design lisible par les agents est `DESIGN.md` (racine du dépôt, skill `design-md`) : le mettre à jour avec `systemc.css`.
 - Direction retenue (passe `unslop`) : exact, posé, solennel ; univers du registre et du sceau. La signature est le filet d'or de `.sc-declared` : il ne sert qu'aux informations déclarées, non vérifiées.
 - Identité imposée par le responsable : **noir et or, sobre et institutionnel**. Les jetons de design sont en tête de `platform/static/css/systemc.css`.
-- Matériau : **verre fumé sombre** sur toute la plateforme (2026-11-12). Une seule recette de verre ; contrastes vérifiés au pire cas (`#3e311a`), pas de verre plus transparent que `--sc-glass`.
+- Matériau : **verre fumé sombre** sur toute la plateforme (2026-11-12). Une seule recette de verre ; contrastes vérifiés au pire cas (`#372e1c`), pas de verre plus transparent que `--sc-glass`.
+- Modèle d'interface : **maquette choisie par le responsable** (2026-11-12, décrite dans `DESIGN.md`). Les blocs du tableau de bord viennent des modules par le registre (`apps/core/registry.py` : indicateurs, cartes, raccourcis, séries, cloche, recherche, libellés du journal) ; chaque fournisseur vérifie ses permissions et filtre par organisation. Jamais de chiffre d'exemple.
 - Provenance et revue des skills : `.claude/skills/SOURCES.md`.

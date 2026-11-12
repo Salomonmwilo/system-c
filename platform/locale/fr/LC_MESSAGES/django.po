@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SYSTEM-C Platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-11 04:32+0000\n"
+"POT-Creation-Date: 2026-11-12 03:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: SYSTEM-C\n"
@@ -20,6 +20,54 @@ msgstr ""
 
 msgid "Academy"
 msgstr "Academy"
+
+msgid "See the offers"
+msgstr "Voir les offres"
+
+msgid "Payment to check"
+msgid_plural "Payments to check"
+msgstr[0] "Paiement à vérifier"
+msgstr[1] "Paiements à vérifier"
+
+msgid "Orders waiting for a manual confirmation"
+msgstr "Commandes en attente d'une confirmation manuelle"
+
+msgid "Open the orders"
+msgstr "Ouvrir les commandes"
+
+msgid "Orders (7 days)"
+msgstr "Commandes (7 jours)"
+
+#, python-format
+msgid "%(n)s payment to check"
+msgid_plural "%(n)s payments to check"
+msgstr[0] "%(n)s paiement à vérifier"
+msgstr[1] "%(n)s paiements à vérifier"
+
+msgid "Orders"
+msgstr "Commandes"
+
+#, python-format
+msgid "Order no. %(n)s"
+msgstr "Commande n° %(n)s"
+
+msgid "Offers"
+msgstr "Offres"
+
+msgid "Order created"
+msgstr "Commande créée"
+
+msgid "Payment confirmed by hand"
+msgstr "Paiement confirmé à la main"
+
+msgid "Order cancelled"
+msgstr "Commande annulée"
+
+msgid "Order refunded"
+msgstr "Commande remboursée"
+
+msgid "Access revoked"
+msgstr "Accès révoqué"
 
 msgid "Never enter a card number, bank details, password or access key."
 msgstr "N'indiquez jamais de numéro de carte, de coordonnées bancaires, de mot de passe ni de clé d'accès."
@@ -254,9 +302,6 @@ msgstr "Remboursement intégral"
 msgid "Partial refund"
 msgstr "Remboursement partiel"
 
-msgid "Access revoked"
-msgstr "Accès révoqué"
-
 msgid "amount"
 msgstr "montant"
 
@@ -330,9 +375,6 @@ msgstr "Cette commande n'a pas d'inscription."
 
 msgid "Programmes"
 msgstr "Programmes"
-
-msgid "Offers"
-msgstr "Offres"
 
 msgid ""
 "Published offers can be ordered from the Offers page. Reading lessons and "
@@ -425,6 +467,9 @@ msgstr "Mes commandes"
 msgid "Breadcrumb"
 msgstr "Fil d'Ariane"
 
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
 msgid ""
 "Access to this order has been revoked after a partial refund. The order and "
 "its history are kept."
@@ -498,9 +543,6 @@ msgstr "Prix"
 msgid "You have not placed any order."
 msgstr "Vous n'avez passé aucune commande."
 
-msgid "See the offers"
-msgstr "Voir les offres"
-
 msgid "What the offer includes"
 msgstr "Contenu de l'offre"
 
@@ -538,9 +580,6 @@ msgstr "Voir l'offre"
 
 msgid "No offer is open for ordering yet."
 msgstr "Aucune offre n'est encore ouverte à la commande."
-
-msgid "Orders"
-msgstr "Commandes"
 
 #, python-format
 msgid "No. %(n)s"
@@ -608,12 +647,6 @@ msgstr "Un remboursement partiel ne retire pas l'accès. Révoquez-le seulement 
 
 msgid "Revoke access to this order? This cannot be undone."
 msgstr "Révoquer l'accès lié à cette commande ? Cette action est définitive."
-
-#, python-format
-msgid "%(n)s payment to check"
-msgid_plural "%(n)s payments to check"
-msgstr[0] "%(n)s paiement à vérifier"
-msgstr[1] "%(n)s paiements à vérifier"
 
 msgid ""
 "No payment provider is connected. An order is paid only when an "
@@ -697,6 +730,72 @@ msgstr[1] "Configurations à revalider"
 #, python-format
 msgid "Declared applied more than %(days)s days ago"
 msgstr "Déclarées appliquées il y a plus de %(days)s jours"
+
+msgid "Robot users"
+msgstr "Utilisateurs de robots"
+
+msgid "Declared robot users"
+msgstr "Utilisateurs déclarés"
+
+msgctxt "count"
+msgid "Applied"
+msgid_plural "Applied"
+msgstr[0] "Appliquée"
+msgstr[1] "Appliquées"
+
+msgctxt "count"
+msgid "Disabled"
+msgid_plural "Disabled"
+msgstr[0] "Désactivé"
+msgstr[1] "Désactivés"
+
+msgid "statuses declared, not checked on the VPS"
+msgstr "statuts déclarés, non vérifiés sur le VPS"
+
+msgid "Apply a configuration"
+msgstr "Appliquer une config"
+
+msgid "Configurations applied"
+msgstr "Configurations appliquées"
+
+#, python-format
+msgid "%(n)s configuration to apply"
+msgid_plural "%(n)s configurations to apply"
+msgstr[0] "%(n)s configuration à appliquer"
+msgstr[1] "%(n)s configurations à appliquer"
+
+msgid "Robot record created"
+msgstr "Fiche robot créée"
+
+msgid "Robot record updated"
+msgstr "Fiche robot modifiée"
+
+msgid "Robot status changed"
+msgstr "Statut du robot modifié"
+
+msgid "Configuration declared applied"
+msgstr "Configuration déclarée appliquée"
+
+msgid "Declaration corrected"
+msgstr "Déclaration corrigée"
+
+msgid "Real account declared"
+msgstr "Compte réel déclaré"
+
+msgid "Allowed parameters changed"
+msgstr "Paramètres autorisés modifiés"
+
+msgid "Configuration draft created"
+msgstr "Brouillon de configuration créé"
+
+msgid "Configuration draft updated"
+msgstr "Brouillon de configuration modifié"
+
+msgid "Configuration draft deleted"
+msgstr "Brouillon de configuration supprimé"
+
+msgid "Configuration version validated"
+msgstr "Version de configuration validée"
 
 msgid "Never write a Deriv token, password or API key here."
 msgstr "N'écrivez jamais ici de token Deriv, de mot de passe ni de clé API."
@@ -985,9 +1084,6 @@ msgstr "Associer un robot"
 msgid "Robot record"
 msgstr "Fiche robot"
 
-msgid "Robot users"
-msgstr "Utilisateurs de robots"
-
 msgid "Declared by an administrator, not checked on the VPS"
 msgstr "Déclaré par un administrateur, non vérifié sur le VPS"
 
@@ -1175,15 +1271,6 @@ msgstr "Statut déclaré"
 
 msgid "No robot user matches these criteria."
 msgstr "Aucun utilisateur de robot ne correspond à ces critères."
-
-msgid "declared statuses, not checked on the VPS"
-msgstr "statuts déclarés, non vérifiés sur le VPS"
-
-msgid "excluding disabled records"
-msgstr "hors fiches désactivées"
-
-msgid "Declared on a real account"
-msgstr "Déclarés sur un compte réel"
 
 msgid "Allowed parameters"
 msgstr "Paramètres autorisés"
@@ -1375,6 +1462,21 @@ msgstr "La liste des paramètres a été enregistrée."
 msgid "Core"
 msgstr "Socle"
 
+msgid "Member added"
+msgstr "Membre ajouté"
+
+msgid "Member roles changed"
+msgstr "Rôles d'un membre modifiés"
+
+msgid "Alert thresholds changed"
+msgstr "Seuils d'alerte modifiés"
+
+msgid "Password changed"
+msgstr "Mot de passe modifié"
+
+msgid "Platform initialised"
+msgstr "Plateforme initialisée"
+
 msgid "Email address"
 msgstr "Adresse électronique"
 
@@ -1550,21 +1652,96 @@ msgstr "Non identifié"
 msgid "No entry yet."
 msgstr "Aucune entrée pour l'instant."
 
-msgid "Dashboard"
-msgstr "Tableau de bord"
+#, python-format
+msgid "Hello, %(name)s"
+msgstr "Bonjour, %(name)s"
 
-msgid "Figures taken from the platform records"
-msgstr "Chiffres issus des fiches de la plateforme"
+msgid "Situation"
+msgstr "Situation"
+
+#, python-format
+msgid "on %(date)s"
+msgstr "au %(date)s"
+
+#, python-format
+msgid "%(n)s item to handle"
+msgid_plural "%(n)s items to handle"
+msgstr[0] "%(n)s élément à traiter"
+msgstr[1] "%(n)s éléments à traiter"
+
+msgid "Nothing to handle"
+msgstr "Rien à traiter"
+
+msgid "Key figures"
+msgstr "Chiffres clés"
+
+msgctxt "kpi"
+msgid "declared"
+msgstr "déclarées"
 
 msgid "To handle"
 msgstr "À traiter"
 
 #, python-format
-msgid "Situation on %(date)s"
-msgstr "Situation au %(date)s"
+msgid "%(n)s item"
+msgid_plural "%(n)s items"
+msgstr[0] "%(n)s élément"
+msgstr[1] "%(n)s éléments"
+
+msgid "Nothing to handle today."
+msgstr "Rien à traiter aujourd'hui."
+
+msgid "Overview"
+msgstr "Aperçu global"
+
+msgid "Period"
+msgstr "Période"
+
+#, python-format
+msgid "%(n)s day"
+msgid_plural "%(n)s days"
+msgstr[0] "%(n)s jour"
+msgstr[1] "%(n)s jours"
+
+msgid "See all"
+msgstr "Voir tous"
+
+msgid "Change over 30 days"
+msgstr "Évolution sur 30 jours"
+
+msgid "over 30 days"
+msgstr "sur 30 jours"
+
+msgid "Quick shortcuts"
+msgstr "Raccourcis rapides"
+
+msgid "Recent activity"
+msgstr "Activité récente"
+
+msgid "See everything"
+msgstr "Voir tout"
+
+#, python-format
+msgid "by %(who)s"
+msgstr "par %(who)s"
+
+msgid "No activity recorded yet."
+msgstr "Aucune activité enregistrée pour l'instant."
 
 msgid "No module is available for your roles yet."
 msgstr "Aucun module n'est disponible pour vos rôles pour l'instant."
+
+#, python-format
+msgid "Change over the last %(n)s day"
+msgid_plural "Change over the last %(n)s days"
+msgstr[0] "Évolution sur le dernier jour"
+msgstr[1] "Évolution sur les %(n)s derniers jours"
+
+msgid "Use the left and right arrow keys to read each day."
+msgstr "Utilisez les flèches gauche et droite pour lire chaque jour."
+
+msgid "See the data"
+msgstr "Voir les données"
 
 msgid "Think clearly."
 msgstr "Penser juste."
@@ -1620,6 +1797,26 @@ msgstr "Demandez à un administrateur de l'organisation de vous attribuer un rô
 msgid "Change password"
 msgstr "Changer le mot de passe"
 
+#, python-format
+msgid "Results for “%(query)s”, limited to what your roles allow you to see."
+msgstr "Résultats pour « %(query)s », limités à ce que vos rôles permettent de voir."
+
+msgid "Search the platform"
+msgstr "Rechercher dans la plateforme"
+
+msgid "Name, email, order number…"
+msgstr "Nom, adresse électronique, numéro de commande…"
+
+#, python-format
+msgid "Type at least %(n)s character."
+msgid_plural "Type at least %(n)s characters."
+msgstr[0] "Saisissez au moins %(n)s caractère."
+msgstr[1] "Saisissez au moins %(n)s caractères."
+
+#, python-format
+msgid "Nothing found for “%(query)s”."
+msgstr "Aucun résultat pour « %(query)s »."
+
 msgid "Alert thresholds"
 msgstr "Seuils d'alerte"
 
@@ -1632,6 +1829,33 @@ msgid ""
 "Allowed ranges, in days: no contact 7 to 180, change request 1 to 60, "
 "configuration review 7 to 365, registration 1 to 60, verification 1 to 90."
 msgstr "Plages autorisées, en jours : sans contact de 7 à 180, demande de modification de 1 à 60, revalidation de configuration de 7 à 365, inscription de 1 à 60, vérification de 1 à 90."
+
+msgctxt "activity"
+msgid "New"
+msgstr "Nouveau"
+
+msgctxt "activity"
+msgid "Done"
+msgstr "Fait"
+
+msgctxt "activity"
+msgid "Config"
+msgstr "Config"
+
+msgctxt "activity"
+msgid "Changed"
+msgstr "Modifié"
+
+msgctxt "activity"
+msgid "Payment"
+msgstr "Paiement"
+
+msgctxt "activity"
+msgid "Access"
+msgstr "Accès"
+
+msgid "See the audit log"
+msgstr "Consulter le journal"
 
 msgid "Your password has been changed."
 msgstr "Votre mot de passe a été modifié."
@@ -1697,6 +1921,66 @@ msgstr[1] "Affiliés sans contact récent"
 #, python-format
 msgid "No contact for %(days)s days or more"
 msgstr "Aucun contact depuis %(days)s jours ou plus"
+
+msgid "Affiliates"
+msgstr "Affiliés"
+
+msgid "Total affiliates"
+msgstr "Total des affiliés"
+
+msgctxt "count"
+msgid "Active"
+msgid_plural "Active"
+msgstr[0] "Actif"
+msgstr[1] "Actifs"
+
+msgctxt "count"
+msgid "Not active"
+msgid_plural "Not active"
+msgstr[0] "Non actif"
+msgstr[1] "Non actifs"
+
+msgid "Add an affiliate"
+msgstr "Ajouter un affilié"
+
+msgid "See the follow-ups"
+msgstr "Voir les relances"
+
+msgid "Affiliates (total)"
+msgstr "Affiliés (total)"
+
+#, python-format
+msgid "%(n)s follow-up to do"
+msgid_plural "%(n)s follow-ups to do"
+msgstr[0] "%(n)s relance à effectuer"
+msgstr[1] "%(n)s relances à effectuer"
+
+msgid "Affiliate record created"
+msgstr "Fiche affilié créée"
+
+msgid "Affiliate record updated"
+msgstr "Fiche affilié modifiée"
+
+msgid "Affiliate record archived"
+msgstr "Fiche affilié archivée"
+
+msgid "Deriv step recorded"
+msgstr "Étape Deriv enregistrée"
+
+msgid "Interaction recorded"
+msgstr "Interaction enregistrée"
+
+msgid "Follow-up planned"
+msgstr "Relance planifiée"
+
+msgid "Follow-up closed"
+msgstr "Relance clôturée"
+
+msgid "Referral link created"
+msgstr "Lien de parrainage créé"
+
+msgid "Referral link switched on or off"
+msgstr "Lien de parrainage activé ou désactivé"
 
 msgid "Two-letter ISO code, for example CD, FR or BE."
 msgstr "Code ISO à deux lettres, par exemple CD, FR ou BE."
@@ -1876,9 +2160,6 @@ msgstr "Ce statut n'est pas valable pour cette étape."
 msgid "This follow-up is already closed."
 msgstr "Cette relance est déjà clôturée."
 
-msgid "Affiliates"
-msgstr "Affiliés"
-
 msgid "Last contact"
 msgstr "Dernier contact"
 
@@ -1948,6 +2229,7 @@ msgstr "Relances"
 msgid "Overdue"
 msgstr "En retard"
 
+#, python-format
 msgid "Due %(date)s, assigned to %(person)s"
 msgstr "Échéance le %(date)s, attribuée à %(person)s"
 
@@ -1988,9 +2270,6 @@ msgstr "Aucune interaction enregistrée pour l'instant."
 msgid "Edit affiliate"
 msgstr "Modifier l'affilié"
 
-msgid "Add an affiliate"
-msgstr "Ajouter un affilié"
-
 #, python-format
 msgid "Edit %(name)s"
 msgstr "Modifier %(name)s"
@@ -2005,33 +2284,6 @@ msgstr "Filtrer les affiliés"
 
 msgid "No affiliate matches these criteria."
 msgstr "Aucun affilié ne correspond à ces critères."
-
-msgid "Total affiliates"
-msgstr "Total des affiliés"
-
-#, python-format
-msgid "including %(n)s prospect"
-msgid_plural "including %(n)s prospects"
-msgstr[0] "dont %(n)s prospect"
-msgstr[1] "dont %(n)s prospects"
-
-msgid "Active affiliates"
-msgstr "Affiliés actifs"
-
-msgid "Pending registrations"
-msgstr "Inscriptions en attente"
-
-msgid "Deriv account not yet created"
-msgstr "Compte Deriv pas encore créé"
-
-msgid "Pending verifications"
-msgstr "Vérifications en attente"
-
-msgid "Account created, verification not finished"
-msgstr "Compte créé, vérification non terminée"
-
-msgid "Open follow-ups"
-msgstr "Relances ouvertes"
 
 msgid "Follow-ups to do"
 msgstr "Relances à effectuer"
@@ -2117,6 +2369,22 @@ msgstr "Fermer"
 msgid "Open menu"
 msgstr "Ouvrir le menu"
 
+msgid "Search for an affiliate, robot, order…"
+msgstr "Rechercher un affilié, robot, commande…"
+
+#, python-format
+msgid "Notifications: %(n)s item to handle"
+msgid_plural "Notifications: %(n)s items to handle"
+msgstr[0] "Notifications : %(n)s élément à traiter"
+msgstr[1] "Notifications : %(n)s éléments à traiter"
+
+msgid "Nothing to report"
+msgstr "Rien à signaler"
+
+#, python-format
+msgid "Language: %(name)s"
+msgstr "Langue : %(name)s"
+
 msgid "Sign out"
 msgstr "Se déconnecter"
 
@@ -2152,6 +2420,49 @@ msgstr "Administration"
 
 msgid "Administrative records only. No connection to the VPS."
 msgstr "Fiches administratives uniquement. Aucune connexion au VPS."
+
+msgid "My account"
+msgstr "Mon compte"
+
+#~ msgid "declared, not checked"
+#~ msgstr "déclarées, non vérifiées"
+
+#~ msgid "excluding disabled records"
+#~ msgstr "hors fiches désactivées"
+
+#~ msgid "Declared on a real account"
+#~ msgstr "Déclarés sur un compte réel"
+
+#~ msgid "Figures taken from the platform records"
+#~ msgstr "Chiffres issus des fiches de la plateforme"
+
+#, python-format
+#~ msgid "Situation on %(date)s"
+#~ msgstr "Situation au %(date)s"
+
+#, python-format
+#~ msgid "including %(n)s prospect"
+#~ msgid_plural "including %(n)s prospects"
+#~ msgstr[0] "dont %(n)s prospect"
+#~ msgstr[1] "dont %(n)s prospects"
+
+#~ msgid "Active affiliates"
+#~ msgstr "Affiliés actifs"
+
+#~ msgid "Pending registrations"
+#~ msgstr "Inscriptions en attente"
+
+#~ msgid "Deriv account not yet created"
+#~ msgstr "Compte Deriv pas encore créé"
+
+#~ msgid "Pending verifications"
+#~ msgstr "Vérifications en attente"
+
+#~ msgid "Account created, verification not finished"
+#~ msgstr "Compte créé, vérification non terminée"
+
+#~ msgid "Open follow-ups"
+#~ msgstr "Relances ouvertes"
 
 #~ msgid "REAL"
 #~ msgstr "RÉEL"

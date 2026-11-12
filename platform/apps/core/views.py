@@ -10,9 +10,10 @@ from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
-from django.utils import timezone
+from django.utils import dateformat, timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy, pgettext_lazy
 from django.views import View
 from django.views.decorators.http import require_POST
 from django.views.generic import FormView, TemplateView
@@ -21,8 +22,10 @@ from . import audit
 from .forms import LoginForm, MemberCreateForm, MemberRolesForm, ThresholdsForm
 from .middleware import SESSION_KEY
 from .models import AuditLog, Membership, OrganizationSettings, Role, User
-from .permissions import OrgPermissionRequiredMixin
-from .registry import dashboard_sections
+from .charts import line_chart
+from .dashboard import PERIODS, cumulative, period_days
+from .permissions import OrgPermissionRequiredMixin, request_has_perm
+from .registry import audit_action, dashboard_sections, search
 
 def _safe_next(request, fallback: str) -> str:
     target = request.POST.get("next") or request.GET.get("next")
@@ -124,22 +127,101 @@ def page_not_found(request, exception=None):
     return render(request, "core/404.html", status=404)
 
 
+# Journal : les connexions et déconnexions ne sont pas de l'« activité » à montrer.
+QUIET_ACTIONS = frozenset({"login", "logout", "login_throttled", "test_action"})
+ACTIVITY_TAGS = {
+    "new": pgettext_lazy("activity", "New"),
+    "done": pgettext_lazy("activity", "Done"),
+    "config": pgettext_lazy("activity", "Config"),
+    "change": pgettext_lazy("activity", "Changed"),
+    "payment": pgettext_lazy("activity", "Payment"),
+    "access": pgettext_lazy("activity", "Access"),
+}
+
+
+def recent_activity(request, limit: int = 5) -> list[dict]:
+    entries = (
+        AuditLog.objects.filter(organization=request.organization)
+        .exclude(action__in=QUIET_ACTIONS)
+        .select_related("actor")[:limit]
+    )
+    activity = []
+    for entry in entries:
+        label, tag = audit_action(entry.action)
+        activity.append({
+            "when": entry.created_at,
+            "label": label or entry.action,
+            "actor": entry.actor,
+            "tag": tag,
+            "tag_label": ACTIVITY_TAGS.get(tag, ACTIVITY_TAGS["change"]),
+        })
+    return activity
+
+
+def overview_chart(sections, period: int):
+    series = sorted((s for section in sections for s in section.get("series", [])), key=lambda s: s["rank"])
+    if not series:
+        return None
+    days = period_days(timezone.localdate(), period)
+    return line_chart(
+        labels=[dateformat.format(day, "j b") for day in days],
+        tips=[dateformat.format(day, "j F Y") for day in days],
+        series=[{"label": s["label"], "values": cumulative(s["dates"], days)} for s in series],
+    )
+
+
 class DashboardView(OrgPermissionRequiredMixin, TemplateView):
     permission_required = "core.view_dashboard"
     template_name = "core/dashboard.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        sections = dashboard_sections(self.request)
+        request = self.request
+        sections = dashboard_sections(request)
         priorities = [item for section in sections for item in section.get("priorities", [])]
-        # Registre « À traiter » : d'abord ce qui demande une action, par ordre d'urgence.
-        priorities.sort(key=lambda item: (item["count"] == 0, not item.get("urgent"), item["rank"]))
-        context["sections"] = sections
-        context["priorities"] = priorities
-        context["pending_total"] = sum(item["count"] for item in priorities)
-        context["today"] = timezone.localdate()
-        context["thresholds"] = OrganizationSettings.for_organization(self.request.organization)
+        # Registre « À traiter » : seulement ce qui demande une action, par ordre d'urgence.
+        priorities.sort(key=lambda item: (not item.get("urgent"), item["rank"]))
+        try:
+            period = int(request.GET.get("period", PERIODS[0]))
+        except ValueError:
+            period = PERIODS[0]
+        if period not in PERIODS:
+            period = PERIODS[0]
+        context.update({
+            "sections": sections,
+            "priorities": [item for item in priorities if item["count"]],
+            "pending_total": sum(item["count"] for item in priorities),
+            "kpis": sorted((k for s in sections for k in s.get("kpis", [])), key=lambda k: k["rank"]),
+            "cards": sorted((s["card"] for s in sections if s.get("card")), key=lambda c: c["order"]),
+            "shortcuts": sorted((c for s in sections for c in s.get("shortcuts", [])), key=lambda c: c["order"]),
+            "chart": overview_chart(sections, period),
+            "period": period,
+            "periods": PERIODS,
+            "activity": recent_activity(request) if request_has_perm(request, "core.view_audit") else None,
+            "today": timezone.localdate(),
+        })
+        if request_has_perm(request, "core.view_audit"):
+            context["shortcuts"].append({"order": 90, "icon": "bar-chart", "label": _("See the audit log"),
+                                         "url": reverse("core:audit")})
+        context["shortcuts"] = context["shortcuts"][:4]
         return context
+
+
+class SearchView(OrgPermissionRequiredMixin, View):
+    """Recherche globale : chaque module filtre par organisation et par ses propres permissions."""
+
+    permission_required = "core.search"
+    MIN_LENGTH = 2
+
+    def get(self, request):
+        query = request.GET.get("q", "").strip()[:100]
+        groups = search(request, query) if len(query) >= self.MIN_LENGTH else []
+        return render(request, "core/search.html", {
+            "query": query,
+            "too_short": 0 < len(query) < self.MIN_LENGTH,
+            "groups": [g for g in groups if g["results"]],
+            "min_length": self.MIN_LENGTH,
+        })
 
 
 class ProfilePasswordView(PasswordChangeView):

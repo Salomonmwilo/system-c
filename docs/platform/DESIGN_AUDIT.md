@@ -203,3 +203,54 @@ Vérification :
 - **Mise en page :** 0 défilement horizontal à 390 px.
 - **Navigateur :** 0 erreur de console ni de CSP.
 - **Captures relues :** ordinateur, téléphone, menu mobile, menu du compte, connexion.
+
+## Sixième passe : modèle d'interface du responsable (2026-11-12)
+
+Le responsable a fourni deux maquettes. Il retient la première et demande d'y ajouter les deux illustrations encerclées sur la seconde (groupe de personnes et robot dorés), puis d'appliquer ce modèle à toute la plateforme. Skills : `image-to-code` (la maquette sert de référence, aucun outil de génération d'image n'est disponible), `dataviz`, `accessibility`.
+
+Ce qui est appliqué partout :
+- **Coque commune** : barre latérale avec bloc organisation, titres de groupe en petites capitales et profil en bas ; barre du haut avec recherche globale (Ctrl K ou ⌘ K), cloche, langue et compte ; fil d'Ariane sur chaque page privée ; titres en IBM Plex Sans.
+- **Fond** : image SVG floue (`backdrop.svg`) à la place de la photo de la maquette, qui n'est pas réutilisable.
+- **Panneaux** : verre à 72 %, plus couvrant que la passe précédente, comme sur la maquette, avec un halo doré discret sur les panneaux principaux.
+
+Tableau de bord, bloc par bloc :
+
+| Bloc de la maquette | Données réelles |
+|---|---|
+| Bonjour, prénom ; fil d'Ariane | Prénom du compte connecté ; organisation › Tableau de bord |
+| Pastilles Situation et Statut | Date du jour ; total des points à traiter |
+| Quatre indicateurs | Affiliés (hors archivés), utilisateurs de robots (hors désactivés), configurations appliquées (déclarées), commandes des 7 derniers jours (administrateur de l'organisation seulement) |
+| À traiter | Points non nuls des modules, du plus urgent au moins urgent |
+| Aperçu global, 7, 30 ou 90 jours | Cumul des fiches affiliés et robots par jour de création |
+| Cartes Affiliés et Utilisateurs de robots, avec « +20 % » | Total, évolution sur 30 jours seulement si une base existait il y a 30 jours, deux sous-totaux |
+| Illustrations encerclées sur la seconde maquette | Dessinées en SVG (dégradés, sans image externe), décoratives (`alt=""`) |
+| Raccourcis rapides | Selon les permissions : ajouter un affilié, appliquer une configuration, voir les relances, consulter le journal (ou voir les offres) |
+| Activité récente | Cinq dernières entrées du journal d'audit, sans connexions ni déconnexions ; visible seulement avec `core.view_audit` |
+| Cloche | Relances échues, configurations à appliquer, paiements à vérifier, selon les permissions |
+| Recherche | Affiliés (nom ; adresse électronique et téléphone seulement avec `partners.view_pii` ; un conseiller ne voit que ses affiliés), utilisateurs de robots, commandes (administrateur de l'organisation), offres publiées |
+
+Écarts volontaires avec la maquette :
+- **Chiffres** : pas d'exemple inventé (« +20 % », « Jean Dupont ») ; seulement les fiches de l'organisation.
+- **Second sélecteur de langue** : retiré (« FR/EN » doublait « FR »).
+- **Photo de profil** : remplacée par les initiales. La plateforme ne stocke pas de photo.
+- **Pastilles de chiffre « À traiter »** : rouges seulement pour un retard, or sinon. La maquette colorait une ligne sans raison.
+- **Recherche sur téléphone** : la barre devient un bouton loupe. Le champ y serait illisible.
+- **Fil d'Ariane** : sur les pages autres que le tableau de bord, il précède le titre, pour garder l'ordre de lecture.
+
+Accessibilité :
+- **Contrastes** : pire cas mesuré sur l'image de fond rendue à 390, 1440 et 1920 px, sous le verre le plus transparent (barre du haut) : `#372e1c`. Résultats :
+  - texte : 11,6:1 ;
+  - secondaire : 7,4:1 ;
+  - atténué : 5,2:1 ;
+  - or : 5,7:1.
+- **Graphique** : chaque valeur est aussi dans la légende et dans le tableau « Voir les données ». L'infobulle suit la souris et les flèches du clavier.
+- **Clavier** : chaque bloc est un vrai lien ; la cloche et les menus sont des boutons Bootstrap accessibles.
+
+Vérification :
+- **Tests :** 208 tests (18 nouveaux).
+- **axe-core :** 0 violation sur 25 pages, au pire cas.
+- **Mise en page :** 0 défilement horizontal à 390 px.
+- **Navigateur :** 0 erreur de console ni de CSP.
+- **Clavier :** Ctrl K et l'infobulle vérifiés.
+
+Limite connue : la recherche distingue les accents (« demo » ne trouve pas « Démo »). L'extension PostgreSQL `unaccent` corrigerait ce point, mais elle demande des droits d'administrateur sur la base.

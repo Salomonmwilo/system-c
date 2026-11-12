@@ -2,8 +2,8 @@
 {% load i18n systemc %}
 {% block title %}{% translate "Validate the version" %}{% endblock %}
 {% block page_title %}{% translate "Validate the version" %}{% endblock %}
+{% block breadcrumb %}<nav aria-label="{% translate 'Breadcrumb' %}" class="sc-crumbs"><ol class="breadcrumb">{% if nav.dashboard %}<li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">{% translate "Dashboard" %}</a></li>{% endif %}<li class="breadcrumb-item"><a href="{% url 'bots:botuser_detail' bot_user.pk %}">{{ bot_user.affiliate.display_name }}</a></li><li class="breadcrumb-item active" aria-current="page">{% translate "Validation" %}</li></ol></nav>{% endblock %}
 {% block content %}
-<nav aria-label="{% translate 'Breadcrumb' %}"><ol class="breadcrumb small"><li class="breadcrumb-item"><a href="{% url 'bots:botuser_detail' bot_user.pk %}">{{ bot_user.affiliate.display_name }}</a></li><li class="breadcrumb-item active" aria-current="page">{% translate "Validation" %}</li></ol></nav>
 <div class="row"><div class="col-lg-8">
 <div class="sc-card"><div class="sc-card-body">
   <h1 class="h4">{% blocktranslate with n=version.number robot=version.get_robot_type_display %}Validate version v{{ n }} · {{ robot }}{% endblocktranslate %}</h1>

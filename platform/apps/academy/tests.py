@@ -697,7 +697,7 @@ class BuyerJourneyTests(PublishedOfferMixin, AcademyTestCase):
         stranger = make_user(other, R.ACADEMY_STUDENT)
         login(self.client, stranger, other)
         self.assertEqual(self.client.get(reverse("academy:offer_detail", args=[self.complete.pk])).status_code, 404)
-        self.assertNotContains(self.client.get(reverse("academy:offer_list")), "complete")
+        self.assertNotContains(self.client.get(reverse("academy:offer_list")), f'href="{reverse("academy:offer_detail", args=[self.complete.pk])}"')
 
 
 class OrderAdminPageTests(PublishedOfferMixin, AcademyTestCase):
@@ -950,3 +950,39 @@ class PartialRefundAndRevocationTests(PublishedOfferMixin, AcademyTestCase):
             services.revoke_access(request=fake_request(foreign_admin, other), order=self.order, reason="x")
         login(self.client, foreign_admin, other)
         self.assertEqual(self.client.post(reverse("academy:order_revoke", args=[self.order.pk]), {"revoke-reason": "x"}).status_code, 404)
+
+
+class MockupDashboardAcademyTests(PublishedOfferMixin, AcademyTestCase):
+    """Commandes sur le tableau de bord, la cloche et la recherche : réservées à payments.view_orders."""
+
+    def setUp(self):
+        super().setUp()
+        self.publish()
+        self.order = Order.objects.create(organization=self.org, user=self.buyer, offer=self.complete, status=Order.Status.AWAITING_PAYMENT)
+
+    def test_org_admin_sees_orders_kpi_priority_and_bell(self):
+        login(self.client, self.admin, self.org)
+        context = self.client.get(reverse("core:dashboard")).context
+        self.assertEqual(next(k for k in context["kpis"] if k["rank"] == 40)["value"], 1)
+        self.assertEqual(next(p for p in context["priorities"] if p["rank"] == 15)["count"], 1)
+        self.assertIn(1, [item["count"] for item in context["notifications"] if item["rank"] == 15])
+        groups = self.client.get(reverse("core:search"), {"q": f"#{self.order.pk}"}).context["groups"]
+        self.assertIn(reverse("academy:order_detail", args=[self.order.pk]), [r["url"] for g in groups for r in g["results"]])
+
+    def test_other_roles_see_no_order(self):
+        for role in (R.CRM_ADMIN, R.ACADEMY_STUDENT):
+            with self.subTest(role=role):
+                user = make_user(self.org, role)
+                login(self.client, user, self.org)
+                response = self.client.get(reverse("core:search"), {"q": self.buyer.email})
+                self.assertNotIn("Commandes", [g["title"] for g in response.context["groups"]])
+                self.assertEqual(response.context["notifications_total"], 0)
+
+    def test_orders_of_another_organization_are_not_counted(self):
+        other = make_org()
+        program = Program.objects.create(organization=other, title_fr="Autre", title_en="Other")
+        Order.objects.create(organization=other, user=make_user(other, R.ACADEMY_STUDENT),
+                             offer=self.offer("x", "1.00", program=program), status=Order.Status.AWAITING_PAYMENT)
+        login(self.client, self.admin, self.org)
+        context = self.client.get(reverse("core:dashboard")).context
+        self.assertEqual(next(k for k in context["kpis"] if k["rank"] == 40)["value"], 1)

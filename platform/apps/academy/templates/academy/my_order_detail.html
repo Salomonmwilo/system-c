@@ -2,8 +2,8 @@
 {% load i18n %}
 {% block title %}{% blocktranslate with n=order.pk %}Order {{ n }}{% endblocktranslate %}{% endblock %}
 {% block page_title %}{% translate "My orders" %}{% endblock %}
+{% block breadcrumb %}<nav aria-label="{% translate 'Breadcrumb' %}" class="sc-crumbs"><ol class="breadcrumb">{% if nav.dashboard %}<li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">{% translate "Dashboard" %}</a></li>{% endif %}<li class="breadcrumb-item"><a href="{% url 'academy:my_order_list' %}">{% translate "My orders" %}</a></li><li class="breadcrumb-item active" aria-current="page">{% blocktranslate with n=order.pk %}Order {{ n }}{% endblocktranslate %}</li></ol></nav>{% endblock %}
 {% block content %}
-<nav aria-label="{% translate 'Breadcrumb' %}"><ol class="breadcrumb small"><li class="breadcrumb-item"><a href="{% url 'academy:my_order_list' %}">{% translate "My orders" %}</a></li><li class="breadcrumb-item active" aria-current="page">{% blocktranslate with n=order.pk %}Order {{ n }}{% endblocktranslate %}</li></ol></nav>
 <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
   <div>
     <h1 class="h3 mb-1">{{ order.offer.name }}</h1>

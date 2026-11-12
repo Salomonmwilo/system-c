@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 230" width="200" height="230">
+<defs>
+  <radialGradient id="glow" cx="50%" cy="45%" r="50%"><stop offset="0" stop-color="#e5c97f" stop-opacity=".42"/><stop offset=".6" stop-color="#c9a44c" stop-opacity=".1"/><stop offset="1" stop-color="#c9a44c" stop-opacity="0"/></radialGradient>
+  <radialGradient id="shell" cx="38%" cy="28%" r="80%"><stop offset="0" stop-color="#4a4134"/><stop offset=".45" stop-color="#211d17"/><stop offset="1" stop-color="#0b0a08"/></radialGradient>
+  <linearGradient id="goldRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbe3a0"/><stop offset=".45" stop-color="#d9a844"/><stop offset="1" stop-color="#7c5518"/></linearGradient>
+  <radialGradient id="goldBall" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff0c0"/><stop offset=".4" stop-color="#e2b453"/><stop offset=".85" stop-color="#8f611e"/><stop offset="1" stop-color="#5a3c10"/></radialGradient>
+  <linearGradient id="visor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1814"/><stop offset=".5" stop-color="#050505"/><stop offset="1" stop-color="#0d0c0a"/></linearGradient>
+  <radialGradient id="eye" cx="45%" cy="40%" r="60%"><stop offset="0" stop-color="#fffbe6"/><stop offset=".35" stop-color="#ffd76a"/><stop offset="1" stop-color="#d79a22"/></radialGradient>
+  <linearGradient id="torso" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a332a"/><stop offset=".5" stop-color="#1a1713"/><stop offset="1" stop-color="#0a0907"/></linearGradient>
+  <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>
+</defs>
+<ellipse cx="100" cy="112" rx="98" ry="104" fill="url(#glow)"/>
+<!-- épaules et torse -->
+<path d="M28,230 C28,196 52,178 100,178 C148,178 172,196 172,230 Z" fill="url(#torso)"/>
+<path d="M28,230 C28,196 52,178 100,178 C148,178 172,196 172,230" fill="none" stroke="url(#goldRim)" stroke-width="2.5"/>
+<ellipse cx="40" cy="206" rx="16" ry="20" fill="url(#goldBall)"/>
+<ellipse cx="160" cy="206" rx="16" ry="20" fill="url(#goldBall)"/>
+<ellipse cx="40" cy="206" rx="9" ry="12" fill="#14110d" opacity=".7"/>
+<ellipse cx="160" cy="206" rx="9" ry="12" fill="#14110d" opacity=".7"/>
+<path d="M88,198 h24 v12 c0,8 -12,14 -12,14 c0,0 -12,-6 -12,-14 Z" fill="#14110d" stroke="url(#goldRim)" stroke-width="2"/>
+<circle cx="100" cy="207" r="4" fill="none" stroke="#e5c97f" stroke-width="1.5"/>
+<!-- cou -->
+<rect x="84" y="160" width="32" height="22" rx="6" fill="#16130f"/>
+<rect x="84" y="166" width="32" height="3" fill="#b8892f"/>
+<rect x="84" y="173" width="32" height="3" fill="#8f6a24"/>
+<!-- oreilles -->
+<circle cx="38" cy="104" r="17" fill="url(#goldBall)"/>
+<circle cx="162" cy="104" r="17" fill="url(#goldBall)"/>
+<circle cx="38" cy="104" r="8" fill="#16130f"/>
+<circle cx="162" cy="104" r="8" fill="#16130f"/>
+<!-- tête -->
+<path d="M100,40 C148,40 162,70 162,102 C162,140 138,162 100,162 C62,162 38,140 38,102 C38,70 52,40 100,40 Z" fill="url(#shell)"/>
+<path d="M100,40 C148,40 162,70 162,102 C162,140 138,162 100,162 C62,162 38,140 38,102 C38,70 52,40 100,40 Z" fill="none" stroke="url(#goldRim)" stroke-width="3"/>
+<path d="M62,58 C76,46 96,44 114,46" fill="none" stroke="#fff6d8" stroke-width="3" stroke-linecap="round" opacity=".35"/>
+<!-- visière -->
+<rect x="54" y="78" width="92" height="62" rx="30" fill="url(#visor)" stroke="url(#goldRim)" stroke-width="3"/>
+<path d="M68,88 C84,82 112,82 128,86" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity=".12"/>
+<!-- yeux -->
+<circle cx="81" cy="110" r="14" fill="#ffc44d" opacity=".55" filter="url(#blur)"/>
+<circle cx="119" cy="110" r="14" fill="#ffc44d" opacity=".55" filter="url(#blur)"/>
+<circle cx="81" cy="110" r="9.5" fill="url(#eye)"/>
+<circle cx="119" cy="110" r="9.5" fill="url(#eye)"/>
+<!-- antenne -->
+<rect x="97" y="26" width="6" height="16" rx="3" fill="#1c1813" stroke="url(#goldRim)" stroke-width="1.5"/>
+<circle cx="100" cy="24" r="6" fill="url(#goldBall)"/>
+</svg>

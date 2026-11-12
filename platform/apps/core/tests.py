@@ -6,7 +6,7 @@ from pathlib import Path
 from django.conf import settings
 from django.core.cache import cache
 from django.db import DatabaseError, connection, transaction
-from django.test import TestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import URLPattern, URLResolver, get_resolver, reverse
 from django.utils import translation
 
@@ -164,7 +164,8 @@ class PermissionPolicyTests(TestCase):
         self.assertEqual(allowed, [Role.CRM_ADMIN])
 
     def test_viewer_is_read_only(self):
-        write_perms = [p for p in PERMISSIONS if not p.split(".")[1].startswith("view")]
+        # core.search ne modifie rien : chaque module ne renvoie que ce que le rôle voit déjà.
+        write_perms = [p for p in PERMISSIONS if not p.split(".")[1].startswith("view") and p != "core.search"]
         granted = [p for p in write_perms if roles_have_perm({Role.CRM_VIEWER}, p)]
         self.assertEqual(granted, [])
 
@@ -172,7 +173,7 @@ class PermissionPolicyTests(TestCase):
         for role in (Role.ACADEMY_STUDENT, Role.ACADEMY_INSTRUCTOR):
             granted = sorted(p for p in PERMISSIONS if roles_have_perm({role}, p))
             # Consulter Academy et commander une offre ; aucun accès au CRM ni aux paiements.
-            self.assertEqual(granted, ["academy.buy", "academy.view"])
+            self.assertEqual(granted, ["academy.buy", "academy.view", "core.search"])
 
     def test_student_gets_403_on_crm_pages(self):
         org = make_org()
@@ -399,10 +400,10 @@ class SkillPolishTests(TestCase):
         self.assertContains(response, 'href="#id_roles_0"')  # groupe de cases : première case
         self.assertNotContains(response, 'href="#"')
 
-    def test_dashboard_has_no_greeting_headline(self):
+    def test_dashboard_greets_the_signed_in_user(self):
+        # Maquette retenue par le responsable (2026-11-12) : salutation avec le prénom.
         response = self.client.get(reverse("core:dashboard"))
-        self.assertNotContains(response, "Bonjour")
-        self.assertContains(response, "Chiffres issus des fiches de la plateforme")
+        self.assertContains(response, f"Bonjour, {response.wsgi_request.user.get_short_name()}")
 
     def test_reference_capital_uses_thousand_separators(self):
         from decimal import Decimal
@@ -472,3 +473,113 @@ class FourthDesignPassTests(TestCase):
         self.assertIn("bi-exclamation-octagon", real)
         self.assertIn("Démo", demo)
         self.assertNotIn("RÉEL", real + demo)
+
+
+class ChartGeometryTests(SimpleTestCase):
+    """Géométrie SVG du graphique « Aperçu global » (skill dataviz)."""
+
+    def test_nice_ceiling_and_ticks(self):
+        from apps.core.charts import nice_ceiling, ticks
+
+        for value, expected in [(0, 1), (1, 1), (2, 2), (3, 5), (7, 10), (11, 20), (43, 50)]:
+            with self.subTest(value=value):
+                self.assertEqual(nice_ceiling(value), expected)
+        self.assertEqual(ticks(10), [0, 2, 4, 6, 8, 10])
+        self.assertEqual(ticks(20), [0, 5, 10, 15, 20])
+        self.assertEqual(ticks(1), [0, 1])
+
+    def test_series_share_one_scale_and_never_overshoot(self):
+        from apps.core.charts import HEIGHT, line_chart
+
+        chart = line_chart(
+            labels=[str(i) for i in range(7)], tips=[f"jour {i}" for i in range(7)],
+            series=[{"label": "A", "values": [0, 0, 4, 0, 0, 4, 6]}, {"label": "B", "values": [1, 1, 1, 2, 2, 3, 3]}],
+        )
+        self.assertEqual(chart.ymax, 10)
+        for serie in chart.series:
+            ys = [float(y) for _x, y in re.findall(r"(-?\d+\.\d),(-?\d+\.\d)", serie["line"])]
+            self.assertGreaterEqual(min(ys), 0)
+            self.assertLessEqual(max(ys), HEIGHT)
+        self.assertTrue(chart.series[0]["area"], "aire sous la première série seulement")
+        self.assertEqual(chart.series[1]["area"], "")
+        self.assertEqual(chart.points[-1]["tip"], "jour 6 · A 6 · B 3")
+        self.assertEqual([row["values"] for row in chart.rows][-1], [6, 3])
+
+    def test_long_periods_keep_seven_axis_labels_and_one_dot(self):
+        from apps.core.charts import line_chart
+
+        chart = line_chart(labels=[str(i) for i in range(90)], tips=[str(i) for i in range(90)],
+                           series=[{"label": "A", "values": list(range(90))}])
+        self.assertEqual(len(chart.axis), 7)
+        self.assertEqual(chart.axis[0], "0")
+        self.assertEqual(chart.axis[-1], "89")
+        self.assertEqual(len(chart.series[0]["dots"]), 1)
+
+    def test_coordinates_survive_french_localisation(self):
+        from django.template import Context, Template
+
+        from apps.core.charts import line_chart
+
+        chart = line_chart(labels=["a", "b"], tips=["a", "b"], series=[{"label": "A", "values": [1, 3]}])
+        with translation.override("fr"):
+            html = Template("{{ c.ticks.0.y }} {{ c.points.1.x }} {{ c.points.0.hit_width }}").render(Context({"c": chart}))
+        self.assertNotIn(",", html)
+
+    def test_cumulative_counts_by_end_of_day(self):
+        import datetime as dt
+
+        from apps.core.dashboard import cumulative, growth, period_days
+
+        days = period_days(dt.date(2026, 11, 12), 3)
+        self.assertEqual(days, [dt.date(2026, 11, 10), dt.date(2026, 11, 11), dt.date(2026, 11, 12)])
+        self.assertEqual(cumulative([dt.date(2026, 11, 1), dt.date(2026, 11, 11), dt.date(2026, 11, 11)], days), [1, 3, 3])
+        self.assertIsNone(growth(5, 0))
+        self.assertEqual(growth(6, 5), 20)
+        self.assertEqual(growth(4, 5), -20)
+
+
+class ShellTests(TestCase):
+    """Barre du haut, barre latérale et journal d'activité du modèle d'interface."""
+
+    def setUp(self):
+        self.org = make_org()
+        self.admin = make_user(self.org, Role.ORG_ADMIN, Role.CRM_ADMIN)
+        login(self.client, self.admin, self.org)
+
+    def test_topbar_has_search_bell_language_and_profile(self):
+        response = self.client.get(reverse("core:dashboard"))
+        self.assertContains(response, f'action="{reverse("core:search")}"')
+        self.assertContains(response, "data-search-shortcut")
+        self.assertContains(response, "Notifications\u00a0: 0 élément à traiter")
+        self.assertContains(response, "Rien à signaler")
+        self.assertContains(response, 'class="sc-profile"')
+        self.assertEqual(response.context["main_role"], "Administrateur de l'organisation")
+
+    def test_every_private_page_gets_a_breadcrumb(self):
+        response = self.client.get(reverse("core:members"))
+        self.assertContains(response, 'class="sc-crumbs"')
+        self.assertContains(response, f'<a href="{reverse("core:dashboard")}">Tableau de bord</a>')
+
+    def test_recent_activity_hides_sign_ins_and_needs_the_audit_permission(self):
+        audit.record("login", actor=self.admin, organization=self.org, target=self.admin)
+        audit.record("member_created", actor=self.admin, organization=self.org, target=self.admin)
+        other = make_org()
+        audit.record("member_created", actor=self.admin, organization=other, target=self.admin)
+        activity = self.client.get(reverse("core:dashboard")).context["activity"]
+        self.assertEqual([entry["label"] for entry in activity], ["Membre ajouté"])
+        self.assertEqual(activity[0]["tag"], "new")
+
+        viewer = make_user(self.org, Role.CRM_VIEWER)
+        login(self.client, viewer, self.org)
+        self.assertIsNone(self.client.get(reverse("core:dashboard")).context["activity"])
+
+    def test_invalid_period_falls_back_to_seven_days(self):
+        for value in ("abc", "365", ""):
+            with self.subTest(value=value):
+                self.assertEqual(self.client.get(reverse("core:dashboard"), {"period": value}).context["period"], 7)
+        self.assertEqual(self.client.get(reverse("core:dashboard"), {"period": "90"}).context["period"], 90)
+
+    def test_search_requires_two_characters(self):
+        response = self.client.get(reverse("core:search"), {"q": "a"})
+        self.assertTrue(response.context["too_short"])
+        self.assertEqual(response.context["groups"], [])

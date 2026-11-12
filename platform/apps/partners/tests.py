@@ -231,7 +231,7 @@ class AlertTests(TestCase):
         services.set_archived(affiliate=archived, actor=self.user, archived=True)
         login(self.client, self.user, self.org)
         response = self.client.get(reverse("core:dashboard"))
-        section = next(s for s in response.context["sections"] if s["template"] == "partners/dashboard_section.html")
+        section = next(s for s in response.context["sections"] if s.get("card", {}).get("key") == "affiliates")
         self.assertEqual(section["context"]["total"], 2)
         self.assertEqual(section["context"]["active"], 1)
         self.assertEqual(section["context"]["prospects"], 1)
@@ -289,3 +289,64 @@ class ModuleBoundaryTests(TestCase):
                     if name.startswith(("apps.bots", "apps.academy")):
                         offenders.append(f"{path.name}: {name}")
         self.assertEqual(offenders, [])
+
+
+class MockupDashboardTests(TestCase):
+    """Tableau de bord du modèle retenu : chiffres réels, organisation courante seulement."""
+
+    def setUp(self):
+        self.org = make_org()
+        self.manager = make_user(self.org, Role.PARTNER_MANAGER)
+        login(self.client, self.manager, self.org)
+
+    def test_kpi_card_and_chart_use_real_records(self):
+        make_affiliate(self.org, self.manager, status="active")
+        make_affiliate(self.org, self.manager, status="prospect")
+        other = make_org()
+        make_affiliate(other, make_user(other, Role.PARTNER_MANAGER), status="active")
+        context = self.client.get(reverse("core:dashboard")).context
+        kpi = next(k for k in context["kpis"] if k["rank"] == 10)
+        self.assertEqual(kpi["value"], 2)
+        card = next(c for c in context["cards"] if c["key"] == "affiliates")
+        self.assertEqual((card["total"], card["split"][0]["value"], card["split"][1]["value"]), (2, 1, 1))
+        self.assertIsNone(card["growth"], "aucune base il y a 30 jours : pas de pourcentage inventé")
+        self.assertEqual(context["chart"].rows[-1]["values"][0], 2)
+
+    def test_growth_compares_with_thirty_days_ago(self):
+        old = make_affiliate(self.org, self.manager)
+        Affiliate.objects.filter(pk=old.pk).update(created_at=timezone.now() - dt.timedelta(days=40))
+        make_affiliate(self.org, self.manager)
+        card = next(c for c in self.client.get(reverse("core:dashboard")).context["cards"] if c["key"] == "affiliates")
+        self.assertEqual(card["growth"], 100)
+
+    def test_to_handle_lists_only_what_needs_action(self):
+        affiliate = make_affiliate(self.org, self.manager)
+        services.create_followup(affiliate=affiliate, actor=self.manager, title="Appel", due_on=timezone.localdate())
+        response = self.client.get(reverse("core:dashboard"))
+        priorities = response.context["priorities"]
+        self.assertTrue(priorities)
+        self.assertTrue(all(item["count"] > 0 for item in priorities))
+        self.assertEqual(priorities[0]["rank"], 10)
+        self.assertEqual(response.context["notifications_total"], 1)
+
+    def test_search_is_scoped_to_the_organization_and_to_pii_rights(self):
+        mine = make_affiliate(self.org, self.manager, display_name="Grace Kabila", email="grace@example.org")
+        other = make_org()
+        make_affiliate(other, make_user(other, Role.PARTNER_MANAGER), display_name="Grace Ailleurs")
+        groups = self.client.get(reverse("core:search"), {"q": "grace"}).context["groups"]
+        affiliates = next(g for g in groups if g["title"] == "Affiliés")
+        self.assertEqual([r["title"] for r in affiliates["results"]], ["Grace Kabila"])
+        self.assertEqual(affiliates["results"][0]["url"], reverse("partners:affiliate_detail", args=[mine.pk]))
+        # Un lecteur ne voit pas les coordonnées : pas de recherche par adresse électronique.
+        viewer = make_user(self.org, Role.CRM_VIEWER)
+        login(self.client, viewer, self.org)
+        self.assertEqual(self.client.get(reverse("core:search"), {"q": "grace@"}).context["groups"], [])
+        self.assertEqual(len(self.client.get(reverse("core:search"), {"q": "Kabila"}).context["groups"]), 1)
+
+    def test_advisor_searches_only_assigned_affiliates(self):
+        advisor = make_user(self.org, Role.PARTNER_ADVISOR)
+        make_affiliate(self.org, self.manager, display_name="Jean Assigné", assigned_to=advisor)
+        make_affiliate(self.org, self.manager, display_name="Jean Autre")
+        login(self.client, advisor, self.org)
+        groups = self.client.get(reverse("core:search"), {"q": "jean"}).context["groups"]
+        self.assertEqual([r["title"] for r in groups[0]["results"]], ["Jean Assigné"])

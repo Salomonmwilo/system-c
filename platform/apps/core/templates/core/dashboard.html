@@ -1,41 +1,149 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 {% block title %}{% translate "Dashboard" %}{% endblock %}
-{% block page_title %}{{ current_organization.name }}{% endblock %}
+{% block breadcrumb %}{% endblock %}
 {% block content %}
-<div class="sc-page-head">
+<div class="sc-hero">
   <div>
-    <h1>{% translate "Dashboard" %}</h1>
-    <p class="sc-meta-line">{% translate "Figures taken from the platform records" %}</p>
+    <h1>{% blocktranslate with name=user.get_short_name %}Hello, {{ name }}{% endblocktranslate %}</h1>
+    <nav aria-label="{% translate 'Breadcrumb' %}" class="sc-crumbs sc-crumbs-under">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">{{ current_organization.name }}</li>
+        <li class="breadcrumb-item active" aria-current="page">{% translate "Dashboard" %}</li>
+      </ol>
+    </nav>
   </div>
+  <ul class="sc-chips">
+    <li class="sc-chip">
+      <i class="bi bi-calendar-event" aria-hidden="true"></i>
+      <span><strong>{% translate "Situation" %}</strong><span>{% blocktranslate with date=today|date:"DATE_FORMAT" %}on {{ date }}{% endblocktranslate %}</span></span>
+    </li>
+    <li class="sc-chip">
+      {% if pending_total %}<i class="bi bi-exclamation-circle-fill is-wait" aria-hidden="true"></i>{% else %}<i class="bi bi-check-circle-fill" aria-hidden="true"></i>{% endif %}
+      <span><strong>{% translate "Status" %}</strong><span>{% if pending_total %}{% blocktranslate count n=pending_total %}{{ n }} item to handle{% plural %}{{ n }} items to handle{% endblocktranslate %}{% else %}{% translate "Nothing to handle" %}{% endif %}</span></span>
+    </li>
+  </ul>
 </div>
 
-{% if priorities %}
-<section class="sc-ledger" aria-labelledby="todo-title">
-  <div class="sc-ledger-head">
-    <h2 id="todo-title">{% translate "To handle" %}</h2>
-    <span class="sc-meta-line m-0">{% blocktranslate with date=today|date:"DATE_FORMAT" %}Situation on {{ date }}{% endblocktranslate %}</span>
-  </div>
-  <ol>
-    {% for item in priorities %}
-    <li class="{% if item.count == 0 %}is-clear{% elif item.urgent %}is-urgent{% endif %}">
-      <span class="sc-count" aria-hidden="true">{{ item.count }}</span>
-      <span>
-        <span class="sc-what"><span class="visually-hidden">{{ item.count }} </span>{{ item.label }}</span>
-        <span class="sc-why">{% if item.count == 0 %}{% translate "Nothing pending" %}{% else %}{{ item.hint }}{% endif %}</span>
+{% if kpis %}
+<ul class="sc-kpis" aria-label="{% translate 'Key figures' %}">
+  {% for kpi in kpis %}
+  <li>
+    <a class="sc-kpi" href="{{ kpi.url }}">
+      <span class="sc-kpi-icon" aria-hidden="true"><i class="bi bi-{{ kpi.icon }}"></i></span>
+      <span class="sc-kpi-text">
+        <strong>{{ kpi.value }}</strong>
+        <span>{{ kpi.label }}</span>
+        {% if kpi.declared %}<span class="sc-declared">{% translate "declared" context "kpi" %}</span>{% endif %}
       </span>
-      {% if item.count %}<a class="btn btn-sm {% if item.urgent %}btn-primary{% else %}btn-outline-secondary{% endif %} sc-act" href="{{ item.url }}">{{ item.action }}</a>{% else %}<span class="sc-act"></span>{% endif %}
-    </li>
-    {% endfor %}
-  </ol>
-</section>
+    </a>
+  </li>
+  {% endfor %}
+</ul>
 {% endif %}
 
-<div class="sc-summaries">
-{% for section in sections %}
-  {% include section.template with data=section.context %}
-{% empty %}
-  <div class="sc-card"><div class="sc-empty"><i class="bi bi-grid" aria-hidden="true"></i>{% translate "No module is available for your roles yet." %}</div></div>
-{% endfor %}
+<div class="sc-dash-grid">
+  <section class="sc-panel sc-glow" aria-labelledby="todo-title">
+    <header class="sc-panel-head">
+      <h2 id="todo-title" class="sc-panel-title sc-title-bar">{% translate "To handle" %}</h2>
+      {% if pending_total %}<span class="sc-pill">{% blocktranslate count n=pending_total %}{{ n }} item{% plural %}{{ n }} items{% endblocktranslate %}</span>{% endif %}
+    </header>
+    {% if priorities %}
+    <ul class="sc-todo">
+      {% for item in priorities %}
+      <li>
+        <a href="{{ item.url }}">
+          <i class="bi bi-{{ item.icon|default:'dot' }} sc-todo-icon" aria-hidden="true"></i>
+          <span class="sc-count-chip{% if item.urgent %} is-urgent{% endif %}">{{ item.count }}</span>
+          <span class="sc-todo-text"><span class="sc-what">{{ item.label }}</span><span class="sc-why">{{ item.hint }}</span></span>
+          <i class="bi bi-chevron-right sc-todo-go" aria-hidden="true"></i>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="sc-panel-empty"><i class="bi bi-check-circle" aria-hidden="true"></i>{% translate "Nothing to handle today." %}</p>
+    {% endif %}
+  </section>
+
+  {% if chart %}
+  <section class="sc-panel sc-glow" aria-labelledby="overview-title">
+    <header class="sc-panel-head">
+      <h2 id="overview-title" class="sc-panel-title"><i class="bi bi-bar-chart-fill" aria-hidden="true"></i>{% translate "Overview" %}</h2>
+      <nav class="sc-seg" aria-label="{% translate 'Period' %}">
+        {% for p in periods %}<a href="?period={{ p }}" {% if p == period %}aria-current="true"{% endif %}>{% blocktranslate count n=p %}{{ n }} day{% plural %}{{ n }} days{% endblocktranslate %}</a>{% endfor %}
+      </nav>
+    </header>
+    {% include "core/includes/chart_lines.html" with chart=chart chart_id="overview" %}
+  </section>
+  {% endif %}
+
+  {% for card in cards %}
+  <section class="sc-panel sc-glow sc-stat-card" aria-labelledby="card-{{ card.key }}">
+    <header class="sc-panel-head">
+      <h2 id="card-{{ card.key }}" class="sc-panel-title"><i class="bi bi-{{ card.icon }}" aria-hidden="true"></i>{{ card.title }}</h2>
+      <a class="sc-more" href="{{ card.url }}">{% translate "See all" %}<span class="visually-hidden"> : {{ card.title }}</span><i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+    </header>
+    <div class="sc-stat-body">
+      <div class="sc-stat-main">
+        <span class="sc-stat-big">{{ card.total }}</span>
+        <span class="sc-stat-side">
+          {% if card.growth is not None %}
+          <span class="sc-delta{% if card.growth > 0 %} is-up{% elif card.growth < 0 %} is-down{% endif %}" title="{% translate 'Change over 30 days' %}">
+            <i class="bi bi-{% if card.growth > 0 %}arrow-up{% elif card.growth < 0 %}arrow-down{% else %}dash{% endif %}" aria-hidden="true"></i>{% if card.growth > 0 %}+{% endif %}{{ card.growth }} %<span class="visually-hidden"> {% translate "over 30 days" %}</span>
+          </span>
+          {% endif %}
+          <span class="sc-stat-label">{{ card.total_label }}</span>
+        </span>
+      </div>
+      {% if card.declared %}<span class="sc-declared">{{ card.declared }}</span>{% endif %}
+      <ul class="sc-split">
+        {% for part in card.split %}
+        <li><a href="{{ part.url }}"><span class="sc-split-n is-{{ part.tone }}">{{ part.value }}</span><span>{{ part.label }}</span></a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <img class="sc-illus sc-illus-{{ card.key }}" src="{% static card.illustration %}" alt="" width="200" height="170" loading="lazy" decoding="async">
+  </section>
+  {% endfor %}
+
+  {% if shortcuts %}
+  <section class="sc-panel" aria-labelledby="shortcuts-title">
+    <header class="sc-panel-head">
+      <h2 id="shortcuts-title" class="sc-panel-title"><i class="bi bi-lightning-charge-fill sc-gold" aria-hidden="true"></i>{% translate "Quick shortcuts" %}</h2>
+    </header>
+    <ul class="sc-shortcuts">
+      {% for shortcut in shortcuts %}
+      <li><a class="sc-shortcut is-tone-{{ forloop.counter }}" href="{{ shortcut.url }}"><i class="bi bi-{{ shortcut.icon }}" aria-hidden="true"></i><span>{{ shortcut.label }}</span></a></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if activity is not None %}
+  <section class="sc-panel" aria-labelledby="activity-title">
+    <header class="sc-panel-head">
+      <h2 id="activity-title" class="sc-panel-title"><i class="bi bi-activity" aria-hidden="true"></i>{% translate "Recent activity" %}</h2>
+      <a class="sc-more" href="{% url 'core:audit' %}">{% translate "See everything" %}<span class="visually-hidden"> : {% translate "Audit log" %}</span><i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+    </header>
+    {% if activity %}
+    <ol class="sc-activity">
+      {% for entry in activity %}
+      <li class="is-{{ entry.tag }}">
+        <time datetime="{{ entry.when|date:'c' }}">{{ entry.when|date:"j b Y, H:i" }}</time>
+        <span class="sc-activity-what">{{ entry.label }}{% if entry.actor %}<span class="sc-activity-who">{% blocktranslate with who=entry.actor %}by {{ who }}{% endblocktranslate %}</span>{% endif %}</span>
+        <span class="sc-tag is-{{ entry.tag }}">{{ entry.tag_label }}</span>
+      </li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    <p class="sc-panel-empty">{% translate "No activity recorded yet." %}</p>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  {% if not kpis and not cards and not shortcuts %}
+  <div class="sc-panel"><div class="sc-empty"><i class="bi bi-grid" aria-hidden="true"></i>{% translate "No module is available for your roles yet." %}</div></div>
+  {% endif %}
 </div>
 {% endblock %}

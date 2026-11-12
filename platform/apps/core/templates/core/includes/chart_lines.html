@@ -1,0 +1,35 @@
+{% load i18n %}
+<figure class="sc-chart" data-chart tabindex="0" aria-label="{% blocktranslate count n=chart.points|length %}Change over the last {{ n }} day{% plural %}Change over the last {{ n }} days{% endblocktranslate %}" aria-describedby="{{ chart_id }}-hint">
+  <div class="sc-chart-plot">
+    <div class="sc-chart-y" aria-hidden="true">{% for tick in chart.ticks %}<span>{{ tick.value }}</span>{% endfor %}</div>
+    <div class="sc-chart-canvas">
+      <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}" aria-hidden="true" focusable="false">
+        {% for tick in chart.ticks %}<line class="sc-grid" x1="0" x2="{{ chart.width }}" y1="{{ tick.y }}" y2="{{ tick.y }}"/>{% endfor %}
+        {% if chart.points|length <= 14 %}{% for point in chart.points %}<line class="sc-grid" x1="{{ point.x }}" x2="{{ point.x }}" y1="0" y2="{{ chart.height }}"/>{% endfor %}{% endif %}
+        {% for serie in chart.series %}{% if serie.area %}<path class="sc-area sc-{{ serie.key }}" d="{{ serie.area }}"/>{% endif %}{% endfor %}
+        <line class="sc-crosshair" x1="0" x2="0" y1="0" y2="{{ chart.height }}"/>
+        {% for serie in chart.series %}
+          <path class="sc-line sc-{{ serie.key }}" d="{{ serie.line }}"/>
+          {% for dot in serie.dots %}<circle class="sc-dot sc-{{ serie.key }}" cx="{{ dot.x }}" cy="{{ dot.y }}" r="4"/>{% endfor %}
+        {% endfor %}
+        {% for point in chart.points %}<rect class="sc-hit" x="{{ point.hit_x }}" y="0" width="{{ point.hit_width }}" height="{{ chart.height }}" data-index="{{ point.index }}" data-x="{{ point.x }}" data-tip="{{ point.tip }}"/>{% endfor %}
+      </svg>
+      <div class="sc-chart-x" aria-hidden="true">{% for label in chart.axis %}<span>{{ label }}</span>{% endfor %}</div>
+    </div>
+  </div>
+  <figcaption>
+    <ul class="sc-legend">
+      {% for serie in chart.series %}<li><span class="sc-key sc-{{ serie.key }}" aria-hidden="true"></span>{{ serie.label }}<strong>{{ serie.last }}</strong></li>{% endfor %}
+    </ul>
+    <span class="visually-hidden" id="{{ chart_id }}-hint">{% translate "Use the left and right arrow keys to read each day." %}</span>
+  </figcaption>
+  <details class="sc-chart-table">
+    <summary>{% translate "See the data" %}</summary>
+    <div class="table-responsive">
+      <table class="table table-sm sc-table">
+        <thead><tr><th scope="col">{% translate "Date" %}</th>{% for serie in chart.series %}<th scope="col" class="text-end">{{ serie.label }}</th>{% endfor %}</tr></thead>
+        <tbody>{% for row in chart.rows %}<tr><th scope="row">{{ row.label }}</th>{% for value in row.values %}<td class="text-end">{{ value }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+      </table>
+    </div>
+  </details>
+</figure>

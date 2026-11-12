@@ -2,8 +2,8 @@
 {% load i18n %}
 {% block title %}{% blocktranslate with n=version.number %}Draft v{{ n }}{% endblocktranslate %}{% endblock %}
 {% block page_title %}{% translate "Configuration draft" %}{% endblock %}
+{% block breadcrumb %}<nav aria-label="{% translate 'Breadcrumb' %}" class="sc-crumbs"><ol class="breadcrumb">{% if nav.dashboard %}<li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">{% translate "Dashboard" %}</a></li>{% endif %}<li class="breadcrumb-item"><a href="{% url 'bots:botuser_list' %}">{% translate "Robot users" %}</a></li><li class="breadcrumb-item"><a href="{% url 'bots:botuser_detail' version.bot_user_id %}">{{ version.bot_user.affiliate.display_name }}</a></li><li class="breadcrumb-item active" aria-current="page">{% blocktranslate with n=version.number %}Draft v{{ n }}{% endblocktranslate %}</li></ol></nav>{% endblock %}
 {% block content %}
-<nav aria-label="{% translate 'Breadcrumb' %}"><ol class="breadcrumb small"><li class="breadcrumb-item"><a href="{% url 'bots:botuser_list' %}">{% translate "Robot users" %}</a></li><li class="breadcrumb-item"><a href="{% url 'bots:botuser_detail' version.bot_user_id %}">{{ version.bot_user.affiliate.display_name }}</a></li><li class="breadcrumb-item active" aria-current="page">{% blocktranslate with n=version.number %}Draft v{{ n }}{% endblocktranslate %}</li></ol></nav>
 <h1 class="h3">{% blocktranslate with n=version.number robot=version.get_robot_type_display %}Draft v{{ n }} · {{ robot }}{% endblocktranslate %}</h1>
 <div class="sc-banner sc-banner-info mb-3"><i class="bi bi-lock" aria-hidden="true"></i><div>{% translate "Once validated, this version can no longer be changed: any change creates a new version. Only numeric, non-secret parameters from the allowed list can be entered." %}</div></div>
 {% include "includes/form_errors.html" %}

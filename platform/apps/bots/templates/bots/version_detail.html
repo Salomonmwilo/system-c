@@ -2,10 +2,10 @@
 {% load i18n systemc %}
 {% block title %}v{{ version.number }} · {{ bot_user.affiliate.display_name }}{% endblock %}
 {% block page_title %}{% translate "Configuration version" %}{% endblock %}
+{% block breadcrumb %}<nav aria-label="{% translate 'Breadcrumb' %}" class="sc-crumbs"><ol class="breadcrumb">{% if nav.dashboard %}<li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">{% translate "Dashboard" %}</a></li>{% endif %}<li class="breadcrumb-item"><a href="{% url 'bots:botuser_list' %}">{% translate "Robot users" %}</a></li><li class="breadcrumb-item"><a href="{% url 'bots:botuser_detail' bot_user.pk %}">{{ bot_user.affiliate.display_name }}</a></li><li class="breadcrumb-item active" aria-current="page">v{{ version.number }}</li></ol></nav>{% endblock %}
 {% block content %}
 {% org_perm "bots.prepare_version" as can_prepare %}{% org_perm "bots.validate_version" as can_validate %}{% org_perm "bots.manage_real" as can_real %}
 {% org_perm "bots.declare_applied" as can_declare %}{% org_perm "bots.correct_declaration" as can_correct %}
-<nav aria-label="{% translate 'Breadcrumb' %}"><ol class="breadcrumb small"><li class="breadcrumb-item"><a href="{% url 'bots:botuser_list' %}">{% translate "Robot users" %}</a></li><li class="breadcrumb-item"><a href="{% url 'bots:botuser_detail' bot_user.pk %}">{{ bot_user.affiliate.display_name }}</a></li><li class="breadcrumb-item active" aria-current="page">v{{ version.number }}</li></ol></nav>
 <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
   <div>
     <h1 class="h3 mb-1">{% blocktranslate with n=version.number robot=version.get_robot_type_display %}Version v{{ n }} · {{ robot }}{% endblocktranslate %}</h1>

@@ -27,6 +27,8 @@ PERMISSIONS: dict[str, frozenset[str]] = {
     "core.view_dashboard": frozenset(
         {R.ORG_ADMIN, R.CRM_ADMIN, R.CRM_OPERATOR, R.CRM_VIEWER, R.PARTNER_MANAGER, R.PARTNER_ADVISOR}
     ),
+    # Recherche globale : chaque module ne renvoie que ce que le rôle peut déjà voir.
+    "core.search": frozenset(R.values),
     "core.manage_members": frozenset({R.ORG_ADMIN}),
     "core.view_audit": frozenset({R.ORG_ADMIN, R.CRM_ADMIN}),
     "core.manage_thresholds": frozenset({R.CRM_ADMIN}),

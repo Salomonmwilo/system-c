@@ -14,16 +14,16 @@
         <select class="form-select form-select-sm" name="organization" id="org-{{ nav_id }}">
           {% for org in user_organizations %}<option value="{{ org.pk }}" {% if org == current_organization %}selected{% endif %}>{{ org.name }}</option>{% endfor %}
         </select>
-        <button class="btn btn-sm btn-primary" type="submit">{% translate "OK" %}</button>
+        <button class="btn btn-sm sc-pill-btn" type="submit">{% translate "OK" %}</button>
       </form>
     {% else %}
-      <span class="text-white">{{ current_organization.name }}</span>
+      <span class="sc-org-name">{{ current_organization.name }}</span>
     {% endif %}
   </div>
 {% endif %}
 <nav class="sc-nav">
   {% if nav.dashboard %}
-    <a href="{% url 'core:dashboard' %}" {% if ns == 'core' and url_name == 'dashboard' %}aria-current="page"{% endif %}><i class="bi bi-speedometer2" aria-hidden="true"></i>{% translate "Dashboard" %}</a>
+    <a href="{% url 'core:dashboard' %}" {% if ns == 'core' and url_name == 'dashboard' %}aria-current="page"{% endif %}><i class="bi bi-house" aria-hidden="true"></i>{% translate "Dashboard" %}</a>
   {% endif %}
   {% if nav.affiliates or nav.followups or nav.referral_links %}
     <p class="sc-nav-heading">{% translate "Partners" %}</p>
@@ -50,8 +50,11 @@
     {% if nav.audit %}<a href="{% url 'core:audit' %}" {% if ns == 'core' and url_name == 'audit' %}aria-current="page"{% endif %}><i class="bi bi-journal-text" aria-hidden="true"></i>{% translate "Audit log" %}</a>{% endif %}
   {% endif %}
 </nav>
-<div class="sc-sidebar-footer">
-  <span lang="la" class="sc-motto">Solus cum plenitudine, inopi est alia</span><br>
-  {% translate "Administrative records only. No connection to the VPS." %}
-</div>
+<p class="sc-sidebar-note">{% translate "Administrative records only. No connection to the VPS." %}</p>
+<a class="sc-profile" href="{% url 'core:password_change' %}">
+  <span class="sc-avatar" aria-hidden="true">{{ user_initials }}</span>
+  <span class="sc-profile-text"><strong>{{ user.full_name|default:user.email }}</strong>{% if main_role %}<small>{{ main_role }}</small>{% endif %}</span>
+  <i class="bi bi-chevron-right" aria-hidden="true"></i>
+  <span class="visually-hidden">{% translate "My account" %}</span>
+</a>
 {% endwith %}
