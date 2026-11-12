@@ -1,7 +1,0 @@
-{% load i18n %}<section class="sc-glass-card" aria-labelledby="chart-new-affiliates">
-  <div class="sc-glass-head">
-    <h2 id="chart-new-affiliates">{% translate "New affiliates by month" %}</h2>
-    <span class="sc-glass-meta">{% blocktranslate count n=data.chart.total %}{{ n }} over 12 months{% plural %}{{ n }} over 12 months{% endblocktranslate %}</span>
-  </div>
-  {% translate "New affiliates by month" as title %}{% include "core/includes/chart_bars.html" with chart=data.chart title=title chart_id="chart-new-affiliates" %}
-</section>

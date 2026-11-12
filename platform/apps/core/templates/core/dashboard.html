@@ -2,67 +2,40 @@
 {% load i18n %}
 {% block title %}{% translate "Dashboard" %}{% endblock %}
 {% block page_title %}{{ current_organization.name }}{% endblock %}
-{% block body_class %} sc-glass-page{% endblock %}
 {% block content %}
-<div class="sc-dash">
-  <div class="sc-glass sc-dash-main">
-    <div class="sc-dash-head">
-      <h1>{% translate "Dashboard" %}</h1>
-      <p class="sc-glass-meta mb-0">{% blocktranslate with date=today|date:"DATE_FORMAT" %}Figures taken from the platform records, on {{ date }}{% endblocktranslate %}</p>
-    </div>
-
-    {% if kpis %}
-    <ul class="sc-kpis">
-      {% for kpi in kpis %}
-      <li>
-        <a class="sc-kpi" href="{{ kpi.url }}">
-          <span class="sc-kpi-label">{{ kpi.label }}</span>
-          <span class="sc-kpi-value">{{ kpi.value }}<span class="sc-kpi-total">&nbsp;/&nbsp;{{ kpi.total }}</span></span>
-          <meter class="sc-meter" min="0" max="{% if kpi.total %}{{ kpi.total }}{% else %}1{% endif %}" value="{{ kpi.value }}" aria-hidden="true"></meter>
-          <span class="{% if kpi.declared %}sc-declared{% else %}sc-glass-meta{% endif %}">{{ kpi.hint }}</span>
-        </a>
-      </li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-
-    <div class="sc-dash-grid">
-      {% if priorities %}
-      <section class="sc-ledger sc-span-all" aria-labelledby="todo-title">
-        <div class="sc-ledger-head">
-          <h2 id="todo-title">{% translate "To handle" %}</h2>
-          <span class="sc-glass-meta">{% blocktranslate with date=today|date:"DATE_FORMAT" %}Situation on {{ date }}{% endblocktranslate %}</span>
-        </div>
-        <ol>
-          {% for item in priorities %}
-          <li class="{% if item.count == 0 %}is-clear{% elif item.urgent %}is-urgent{% endif %}">
-            <span class="sc-count" aria-hidden="true">{{ item.count }}</span>
-            <span>
-              <span class="sc-what"><span class="visually-hidden">{{ item.count }} </span>{{ item.label }}</span>
-              <span class="sc-why">{% if item.count == 0 %}{% translate "Nothing pending" %}{% else %}{{ item.hint }}{% endif %}</span>
-            </span>
-            {% if item.count %}<a class="btn btn-sm {% if item.urgent %}btn-primary{% else %}btn-outline-secondary{% endif %} sc-act" href="{{ item.url }}">{{ item.action }}</a>{% else %}<span class="sc-act"></span>{% endif %}
-          </li>
-          {% endfor %}
-        </ol>
-      </section>
-      {% endif %}
-      {% for widget in main_widgets %}{% include widget.template with data=widget.context %}{% endfor %}
-    </div>
-
-    <div class="sc-summaries">
-    {% for section in sections %}
-      {% include section.template with data=section.context %}
-    {% empty %}
-      {% if not side_widgets %}<div class="sc-glass-card"><div class="sc-empty"><i class="bi bi-grid" aria-hidden="true"></i>{% translate "No module is available for your roles yet." %}</div></div>{% endif %}
-    {% endfor %}
-    </div>
+<div class="sc-page-head">
+  <div>
+    <h1>{% translate "Dashboard" %}</h1>
+    <p class="sc-meta-line">{% translate "Figures taken from the platform records" %}</p>
   </div>
+</div>
 
-  {% if side_widgets %}
-  <aside class="sc-dash-side" aria-label="{% translate 'Activity' %}">
-    {% for widget in side_widgets %}{% include widget.template with data=widget.context %}{% endfor %}
-  </aside>
-  {% endif %}
+{% if priorities %}
+<section class="sc-ledger" aria-labelledby="todo-title">
+  <div class="sc-ledger-head">
+    <h2 id="todo-title">{% translate "To handle" %}</h2>
+    <span class="sc-meta-line m-0">{% blocktranslate with date=today|date:"DATE_FORMAT" %}Situation on {{ date }}{% endblocktranslate %}</span>
+  </div>
+  <ol>
+    {% for item in priorities %}
+    <li class="{% if item.count == 0 %}is-clear{% elif item.urgent %}is-urgent{% endif %}">
+      <span class="sc-count" aria-hidden="true">{{ item.count }}</span>
+      <span>
+        <span class="sc-what"><span class="visually-hidden">{{ item.count }} </span>{{ item.label }}</span>
+        <span class="sc-why">{% if item.count == 0 %}{% translate "Nothing pending" %}{% else %}{{ item.hint }}{% endif %}</span>
+      </span>
+      {% if item.count %}<a class="btn btn-sm {% if item.urgent %}btn-primary{% else %}btn-outline-secondary{% endif %} sc-act" href="{{ item.url }}">{{ item.action }}</a>{% else %}<span class="sc-act"></span>{% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+{% endif %}
+
+<div class="sc-summaries">
+{% for section in sections %}
+  {% include section.template with data=section.context %}
+{% empty %}
+  <div class="sc-card"><div class="sc-empty"><i class="bi bi-grid" aria-hidden="true"></i>{% translate "No module is available for your roles yet." %}</div></div>
+{% endfor %}
 </div>
 {% endblock %}

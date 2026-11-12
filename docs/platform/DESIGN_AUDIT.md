@@ -169,29 +169,37 @@ Vérification :
 - **Navigateur :** 0 erreur de console ni de CSP.
 - **iPhone émulé :** boutons et champs de 44 px au moins, texte des champs en 16 px.
 
-## Cinquième passe : tableau de bord en verre fumé (2026-11-12)
+## Cinquième passe : verre fumé sur toute la plateforme (2026-11-12)
 
-Demandée par le responsable à partir d'une vidéo de maquette (barre latérale et panneaux translucides, indicateurs avec jauges, histogrammes, courbe, widgets flottants à droite). Skills : `dataviz`, `frontend-design`, `accessibility`.
+Demandée par le responsable à partir d'une vidéo de maquette en « glassmorphism ». Une première version avait repris la mise en page de la maquette sur le tableau de bord (graphiques, colonne de widgets) ; le responsable a précisé qu'il voulait **le verre, pas la mise en page**. Cette version est annulée : chaque écran garde sa structure, seul le matériau change. Choix du responsable : verre sombre, noir et or, sur toute la plateforme.
 
-| Élément de la maquette | Choix retenu | Raison |
+| Élément | Avant | Verre fumé |
 |---|---|---|
-| Photo de salon floutée en fond | Dégradés or et ambre en CSS | La photo n'est pas réutilisable ; identité noir et or imposée |
-| Palette blanche et grise | Texte crème, accent or sur la période en cours | Identité imposée |
-| Titre « Bonjour … » | « Tableau de bord » et date des chiffres | Ton institutionnel |
-| Anneau de répartition | Liste de jauges, une teinte | `dataviz` : un anneau se lit mal, une palette de statuts échoue au validateur |
-| Montants et pourcentages d'exemple | Chiffres réels de l'organisation | Aucune donnée inventée |
-| Graphiques en JavaScript | SVG rendu par Django | CSP stricte, aucune bibliothèque |
+| Fond | Papier `#f5f5f3` | Noir `#0a0907` sous trois halos fixes or et ambre |
+| Cartes, registre, résumés | Blanc, filet gris | Verre `rgba(24, 21, 16, .52)`, flou 20 px, reflet, liseré clair |
+| Navigation | Noir franc | Verre noir à 42 % : les halos passent dessous |
+| Texte | Encre foncée | Crème `#f3eee3`, secondaire `#c8c0ae`, atténué `#aaa18d` |
+| Liens | Or profond | Or clair `#e5c97f` |
+| États | Fond pâle, texte foncé | Fond sombre teinté, texte clair |
+| Menus Bootstrap | Thème clair | `data-bs-theme="dark"` et verre appuyé |
 
-Points vérifiés :
-- **Isolation :** chaque chiffre ne compte que l'organisation courante ; le widget des paiements n'apparaît qu'avec `payments.view_orders`, montants nets des remboursements.
-- **Mentions :** les comptes Deriv vérifiés et les configurations appliquées gardent le filet d'or « déclaré, non vérifié ».
-- **Clavier :** chaque graphique prend le focus, les flèches parcourent les valeurs, Échap ferme l'infobulle ; un tableau donne les mêmes chiffres sans survol.
-- **Localisation :** coordonnées SVG rendues en chaînes, pour que le français n'écrive pas « 50,0 ».
-- **Accessibilité :** le bouton du compte avait un nom vide sur téléphone ; il porte maintenant « Compte ».
+Contrastes : axe ne mesure pas un texte posé sur un flou. Chaque valeur est donc calculée au pire cas (le verre sur la zone la plus claire du fond : `#3e311a`), puis l'audit axe est relancé avec cette teinte en aplat sous chaque panneau.
+- Texte principal : 11:1.
+- Secondaire : 7:1.
+- Atténué : 4,95:1.
+- Or : 5,4:1.
+- Rouge d'erreur : 6,3:1.
+- Bordures de champs : 3,3:1.
+
+L'opacité du verre (52 %) est la plus basse qui garde le texte atténué au-dessus de 4,5:1.
+
+Accessibilité :
+- **Repli plein** si le navigateur ne sait pas flouter, ou si le système demande moins de transparence ou plus de contraste.
+- **Focus :** anneau or partout.
+- **Bouton du compte :** sur téléphone, il avait un nom vide ; il porte maintenant « Compte ».
 
 Vérification :
-- **Tests :** 198 tests (9 nouveaux).
-- **axe-core :** 0 violation sur le tableau de bord, à 1440 et 390 px. Les contrastes sur verre sont calculés à la main, axe ne sachant pas les mesurer sous un flou.
-- **Mise en page :** 0 défilement horizontal à 390 px ; captures à 1440, 1024 et 390 px relues.
+- **axe-core :** 0 violation sur 23 pages, au pire cas.
+- **Mise en page :** 0 défilement horizontal à 390 px.
 - **Navigateur :** 0 erreur de console ni de CSP.
-
+- **Captures relues :** ordinateur, téléphone, menu mobile, menu du compte, connexion.

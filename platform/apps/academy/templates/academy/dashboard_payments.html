@@ -1,6 +1,0 @@
-{% load i18n %}<section class="sc-glass-card sc-widget" aria-labelledby="widget-payments">
-  <div class="sc-glass-head"><h2 id="widget-payments">{% translate "Payments confirmed" %}</h2><a class="sc-widget-link" href="{{ data.url }}" aria-label="{% translate 'Open the orders' %}"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></div>
-  {% for currency, amount in data.totals %}<p class="sc-widget-figure">{{ amount|floatformat:"2g" }}&nbsp;<span class="sc-widget-unit">{{ currency }}</span></p>{% empty %}<p class="sc-widget-figure">0</p>{% endfor %}
-  <p class="sc-glass-meta mb-0">{% blocktranslate with month=data.month|date:"F Y" count n=data.confirmations %}{{ n }} confirmation in {{ month }}, net of refunds{% plural %}{{ n }} confirmations in {{ month }}, net of refunds{% endblocktranslate %}</p>
-  <p class="sc-declared mt-2 mb-0">{% translate "Confirmed by hand, no payment provider connected" %}</p>
-</section>

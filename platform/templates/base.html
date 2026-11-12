@@ -1,10 +1,11 @@
 {% load static i18n %}<!doctype html>
-<html lang="{{ LANGUAGE_CODE }}">
+<html lang="{{ LANGUAGE_CODE }}" data-bs-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#0a0907">
+  <meta name="color-scheme" content="dark">
   <title>{% block title %}{% translate "Platform" %}{% endblock %} · SYSTEM-C</title>
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32.png' %}">
   <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
@@ -13,7 +14,7 @@
   <link rel="preload" href="{% static 'vendor/fonts/ibm-plex-sans-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{% static 'css/systemc.css' %}">
 </head>
-<body class="sc-body{% block body_class %}{% endblock %}">
+<body class="sc-body">
   <a class="visually-hidden-focusable sc-skip" href="#main">{% translate "Skip to content" %}</a>
   {% block body %}
   <div class="sc-shell">
