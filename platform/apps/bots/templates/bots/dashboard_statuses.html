@@ -1,0 +1,18 @@
+{% load i18n %}<section class="sc-glass-card" aria-labelledby="widget-bot-statuses">
+  <div class="sc-glass-head">
+    <h2 id="widget-bot-statuses">{% translate "Robot users by status" %}</h2>
+    <span class="sc-declared">{% translate "declared, not checked on the VPS" %}</span>
+  </div>
+  <ul class="sc-meters">
+    {% for row in data.rows %}
+    <li>
+      <a href="{{ row.url }}">
+        <span class="sc-meter-label">{{ row.label }}</span>
+        <meter class="sc-meter" min="0" max="{{ data.max }}" value="{{ row.count }}" aria-hidden="true"></meter>
+        <span class="sc-meter-value">{{ row.count }}</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+  <p class="sc-glass-meta mb-0">{% blocktranslate count n=data.all %}{{ n }} robot record in total{% plural %}{{ n }} robot records in total{% endblocktranslate %}</p>
+</section>

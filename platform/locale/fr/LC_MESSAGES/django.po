@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SYSTEM-C Platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-11 04:32+0000\n"
+"POT-Creation-Date: 2026-11-12 01:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: SYSTEM-C\n"
@@ -20,6 +20,17 @@ msgstr ""
 
 msgid "Academy"
 msgstr "Academy"
+
+msgid "Payment to check"
+msgid_plural "Payments to check"
+msgstr[0] "Paiement à vérifier"
+msgstr[1] "Paiements à vérifier"
+
+msgid "Orders waiting for a manual confirmation"
+msgstr "Commandes en attente d'une confirmation manuelle"
+
+msgid "Open the orders"
+msgstr "Ouvrir les commandes"
 
 msgid "Never enter a card number, bank details, password or access key."
 msgstr "N'indiquez jamais de numéro de carte, de coordonnées bancaires, de mot de passe ni de clé d'accès."
@@ -327,6 +338,18 @@ msgstr "L'accès ne peut être révoqué ici qu'après un remboursement partiel 
 
 msgid "This order has no enrolment."
 msgstr "Cette commande n'a pas d'inscription."
+
+msgid "Payments confirmed"
+msgstr "Paiements confirmés"
+
+#, python-format
+msgid "%(n)s confirmation in %(month)s, net of refunds"
+msgid_plural "%(n)s confirmations in %(month)s, net of refunds"
+msgstr[0] "%(n)s confirmation en %(month)s, remboursements déduits"
+msgstr[1] "%(n)s confirmations en %(month)s, remboursements déduits"
+
+msgid "Confirmed by hand, no payment provider connected"
+msgstr "Confirmés à la main, aucun prestataire de paiement connecté"
 
 msgid "Programmes"
 msgstr "Programmes"
@@ -697,6 +720,12 @@ msgstr[1] "Configurations à revalider"
 #, python-format
 msgid "Declared applied more than %(days)s days ago"
 msgstr "Déclarées appliquées il y a plus de %(days)s jours"
+
+msgid "Configurations applied"
+msgstr "Configurations appliquées"
+
+msgid "declared, not checked on the VPS"
+msgstr "déclarées, non vérifiées sur le VPS"
 
 msgid "Never write a Deriv token, password or API key here."
 msgstr "N'écrivez jamais ici de token Deriv, de mot de passe ni de clé API."
@@ -1185,6 +1214,15 @@ msgstr "hors fiches désactivées"
 msgid "Declared on a real account"
 msgstr "Déclarés sur un compte réel"
 
+msgid "Robot users by status"
+msgstr "Utilisateurs de robots par statut"
+
+#, python-format
+msgid "%(n)s robot record in total"
+msgid_plural "%(n)s robot records in total"
+msgstr[0] "%(n)s fiche robot au total"
+msgstr[1] "%(n)s fiches robot au total"
+
 msgid "Allowed parameters"
 msgstr "Paramètres autorisés"
 
@@ -1553,8 +1591,8 @@ msgstr "Aucune entrée pour l'instant."
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-msgid "Figures taken from the platform records"
-msgstr "Chiffres issus des fiches de la plateforme"
+msgid "Figures taken from the platform records, on %(date)s"
+msgstr "Chiffres issus des fiches de la plateforme, au %(date)s"
 
 msgid "To handle"
 msgstr "À traiter"
@@ -1565,6 +1603,15 @@ msgstr "Situation au %(date)s"
 
 msgid "No module is available for your roles yet."
 msgstr "Aucun module n'est disponible pour vos rôles pour l'instant."
+
+msgid "Activity"
+msgstr "Activité"
+
+msgid "Use the left and right arrow keys to read each value."
+msgstr "Utilisez les flèches gauche et droite pour lire chaque valeur."
+
+msgid "See the data"
+msgstr "Voir les données"
 
 msgid "Think clearly."
 msgstr "Penser juste."
@@ -1651,6 +1698,23 @@ msgstr "Les seuils d'alerte ont été enregistrés."
 msgid "Partners"
 msgstr "Partners"
 
+#, python-format
+msgid "%(n)s new affiliate in %(month)s"
+msgid_plural "%(n)s new affiliates in %(month)s"
+msgstr[0] "%(n)s nouvel affilié en %(month)s"
+msgstr[1] "%(n)s nouveaux affiliés en %(month)s"
+
+#, python-format
+msgid "%(n)s step declared in the week of %(date)s"
+msgid_plural "%(n)s steps declared in the week of %(date)s"
+msgstr[0] "%(n)s étape déclarée la semaine du %(date)s"
+msgstr[1] "%(n)s étapes déclarées la semaine du %(date)s"
+
+msgid "%(n)s interaction on %(date)s"
+msgid_plural "%(n)s interactions on %(date)s"
+msgstr[0] "%(n)s interaction le %(date)s"
+msgstr[1] "%(n)s interactions le %(date)s"
+
 msgid "Follow-up to do today"
 msgid_plural "Follow-ups to do today"
 msgstr[0] "Relance à effectuer aujourd'hui"
@@ -1697,6 +1761,20 @@ msgstr[1] "Affiliés sans contact récent"
 #, python-format
 msgid "No contact for %(days)s days or more"
 msgstr "Aucun contact depuis %(days)s jours ou plus"
+
+msgid "Active affiliates"
+msgstr "Affiliés actifs"
+
+msgid "of %(n)s affiliate"
+msgid_plural "of %(n)s affiliates"
+msgstr[0] "sur %(n)s affilié"
+msgstr[1] "sur %(n)s affiliés"
+
+msgid "Verified Deriv accounts"
+msgstr "Comptes Deriv vérifiés"
+
+msgid "declared, not checked with Deriv"
+msgstr "déclarés, non vérifiés auprès de Deriv"
 
 msgid "Two-letter ISO code, for example CD, FR or BE."
 msgstr "Code ISO à deux lettres, par exemple CD, FR ou BE."
@@ -1948,6 +2026,7 @@ msgstr "Relances"
 msgid "Overdue"
 msgstr "En retard"
 
+#, python-format
 msgid "Due %(date)s, assigned to %(person)s"
 msgstr "Échéance le %(date)s, attribuée à %(person)s"
 
@@ -2006,6 +2085,23 @@ msgstr "Filtrer les affiliés"
 msgid "No affiliate matches these criteria."
 msgstr "Aucun affilié ne correspond à ces critères."
 
+msgid "Interactions recorded"
+msgstr "Interactions enregistrées"
+
+msgid "over the last 30 days"
+msgstr "sur les 30 derniers jours"
+
+msgid "Interactions recorded, by day"
+msgstr "Interactions enregistrées, par jour"
+
+msgid "New affiliates by month"
+msgstr "Nouveaux affiliés par mois"
+
+msgid "%(n)s over 12 months"
+msgid_plural "%(n)s over 12 months"
+msgstr[0] "%(n)s sur 12 mois"
+msgstr[1] "%(n)s sur 12 mois"
+
 msgid "Total affiliates"
 msgstr "Total des affiliés"
 
@@ -2014,9 +2110,6 @@ msgid "including %(n)s prospect"
 msgid_plural "including %(n)s prospects"
 msgstr[0] "dont %(n)s prospect"
 msgstr[1] "dont %(n)s prospects"
-
-msgid "Active affiliates"
-msgstr "Affiliés actifs"
 
 msgid "Pending registrations"
 msgstr "Inscriptions en attente"
@@ -2032,6 +2125,15 @@ msgstr "Compte créé, vérification non terminée"
 
 msgid "Open follow-ups"
 msgstr "Relances ouvertes"
+
+msgid "Deriv steps declared"
+msgstr "Étapes Deriv déclarées"
+
+msgid "over the last 8 weeks, by week"
+msgstr "sur les 8 dernières semaines, par semaine"
+
+msgid "Deriv steps declared, by week"
+msgstr "Étapes Deriv déclarées, par semaine"
 
 msgid "Follow-ups to do"
 msgstr "Relances à effectuer"

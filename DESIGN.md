@@ -211,6 +211,16 @@ Carte blanche, filet `{colors.rule}`, en-tête séparé par un filet. Une carte 
 - **Résumés** : deux registres côte à côte, libellé à gauche, chiffre en serif aligné à droite.
 - **Chronologie** : filet vertical, puce d'or, ligne de métadonnées « le … , par … », puis le contenu.
 
+### Tableau de bord en verre fumé (exception)
+Demandé par le responsable d'après une maquette « glassmorphism ». Il ne s'applique qu'au tableau de bord (classe `sc-glass-page` sur `<body>`) ; les autres écrans gardent le papier et les filets.
+- **Fond :** dégradés radiaux or et ambre sur `#0b0a08`, générés en CSS (pas de photo).
+- **Verre :** panneau `rgba(22, 19, 14, .62)`, flou `blur(24px) saturate(140%)`, filet blanc à 10 %, rayon 24px (panneau) ou 20px (widget), 16px (tuile).
+- **Texte sur verre :** `#f3eee3` (13,2:1 sur la zone la plus claire), secondaire `#c8c0ae` (8,4:1), atténué `#a59c88` (5,6:1).
+- **Graphiques (skill dataviz) :** SVG calculé sur le serveur (`apps/core/charts.py`), barres de 24 unités au plus, bout arrondi de 4 et base carrée, période en cours en or, trait de 2 et aire à 10 %, grille en filet. Infobulle au survol et au clavier (flèches), tableau « Voir les données » pour chaque graphique. Les répartitions par statut sont une liste de jauges (`<meter>`) d'une seule teinte, pas un anneau.
+- **Widget mis en avant (`is-feature`) :** voile or à 34 % ; texte secondaire à 4,6:1 au pire.
+- **Repli :** fond plein `#1b1813` sans `backdrop-filter` ou avec `prefers-reduced-transparency`.
+- Les jetons `--g-*` sont en fin de `systemc.css`, sous « Tableau de bord en verre fumé ».
+
 ## Do's and Don'ts
 
 ### Do
@@ -221,7 +231,7 @@ Carte blanche, filet `{colors.rule}`, en-tête séparé par un filet. Une carte 
 - Vérifier chaque nouvelle page à 390px, au clavier et avec axe.
 
 ### Don't
-- Pas de dégradé, de lueur, d'ombre colorée ni de verre dépoli.
+- Pas de dégradé, de lueur, d'ombre colorée ni de verre dépoli, sauf l'exception du tableau de bord ci-dessus.
 - Pas de violet ni de bleu de marque générique ; le bleu ne sert qu'au badge « Démo ».
 - Pas de capitales espacées, d'émoji, de point d'exclamation ni de mot publicitaire.
 - Pas de tiret long dans les textes.

@@ -134,8 +134,12 @@ class DashboardView(OrgPermissionRequiredMixin, TemplateView):
         priorities = [item for section in sections for item in section.get("priorities", [])]
         # Registre « À traiter » : d'abord ce qui demande une action, par ordre d'urgence.
         priorities.sort(key=lambda item: (item["count"] == 0, not item.get("urgent"), item["rank"]))
-        context["sections"] = sections
+        context["sections"] = [section for section in sections if section.get("template")]
         context["priorities"] = priorities
+        context["kpis"] = sorted((k for s in sections for k in s.get("kpis", [])), key=lambda k: k["rank"])
+        widgets = sorted((w for s in sections for w in s.get("widgets", [])), key=lambda w: w["order"])
+        context["main_widgets"] = [w for w in widgets if w["slot"] == "main"]
+        context["side_widgets"] = [w for w in widgets if w["slot"] == "side"]
         context["pending_total"] = sum(item["count"] for item in priorities)
         context["today"] = timezone.localdate()
         context["thresholds"] = OrganizationSettings.for_organization(self.request.organization)

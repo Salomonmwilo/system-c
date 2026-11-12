@@ -1,0 +1,6 @@
+{% load i18n %}<section class="sc-glass-card sc-widget is-feature" aria-labelledby="widget-steps">
+  <div class="sc-glass-head"><h2 id="widget-steps">{% translate "Deriv steps declared" %}</h2><a class="sc-widget-link" href="{% url 'partners:affiliate_list' %}" aria-label="{% translate 'See the affiliates' %}"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></div>
+  <p class="sc-widget-figure">{{ data.chart.total }}</p>
+  <p class="sc-glass-meta">{% translate "over the last 8 weeks, by week" %}</p>
+  {% translate "Deriv steps declared, by week" as title %}{% include "core/includes/chart_bars.html" with chart=data.chart title=title chart_id="chart-steps" axis="ends" %}
+</section>

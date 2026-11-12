@@ -13,7 +13,7 @@
   <link rel="preload" href="{% static 'vendor/fonts/ibm-plex-sans-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{% static 'css/systemc.css' %}">
 </head>
-<body class="sc-body">
+<body class="sc-body{% block body_class %}{% endblock %}">
   <a class="visually-hidden-focusable sc-skip" href="#main">{% translate "Skip to content" %}</a>
   {% block body %}
   <div class="sc-shell">
@@ -51,6 +51,7 @@
             <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-person-circle" aria-hidden="true"></i>
               <span class="d-none d-sm-inline">{{ user.get_short_name }}</span>
+              <span class="visually-hidden d-sm-none">{% translate "Account" %}</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><span class="dropdown-item-text small text-body-secondary">{{ user.email }}</span></li>

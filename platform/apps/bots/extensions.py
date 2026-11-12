@@ -58,10 +58,32 @@ def bots_section(request):
             "urgent": False,
         },
     ]
+    total = queryset.exclude(status=BotStatus.DISABLED).count()
+    status_rows = [
+        {"status": status, "label": label, "count": counts.get(status, 0), "url": f"{bots_url}?status={status}"}
+        for status, label in BotStatus.choices
+    ]
+    widgets = [
+        {"slot": "main", "order": 20, "template": "bots/dashboard_statuses.html",
+         "context": {"rows": status_rows, "max": max([r["count"] for r in status_rows] + [1]), "all": queryset.count()}},
+    ]
+    kpis = [
+        {
+            "rank": 30,
+            "label": _("Configurations applied"),
+            "value": counts[BotStatus.APPLIED],
+            "total": total,
+            "hint": _("declared, not checked on the VPS"),
+            "declared": True,
+            "url": f"{bots_url}?status={BotStatus.APPLIED}",
+        },
+    ]
     return {
         "order": 20,
         "template": "bots/dashboard_section.html",
         "priorities": priorities,
+        "kpis": kpis,
+        "widgets": widgets,
         "context": {
             "total": queryset.exclude(status=BotStatus.DISABLED).count(),
             "to_apply": to_apply,

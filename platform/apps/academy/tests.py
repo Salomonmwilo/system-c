@@ -950,3 +950,34 @@ class PartialRefundAndRevocationTests(PublishedOfferMixin, AcademyTestCase):
             services.revoke_access(request=fake_request(foreign_admin, other), order=self.order, reason="x")
         login(self.client, foreign_admin, other)
         self.assertEqual(self.client.post(reverse("academy:order_revoke", args=[self.order.pk]), {"revoke-reason": "x"}).status_code, 404)
+
+
+class DashboardPaymentsWidgetTests(PublishedOfferMixin, AcademyTestCase):
+    """Widget des paiements : réservé à payments.view_orders, montants nets des remboursements."""
+
+    def widgets(self, user):
+        login(self.client, user, self.org)
+        response = self.client.get(reverse("core:dashboard"))
+        self.assertEqual(response.status_code, 200)
+        return {w["template"]: w["context"] for w in response.context["side_widgets"]}
+
+    def test_hidden_from_roles_without_the_permission(self):
+        for role in (R.CRM_ADMIN, R.CRM_OPERATOR, R.PARTNER_MANAGER):
+            with self.subTest(role=role):
+                self.assertNotIn("academy/dashboard_payments.html", self.widgets(make_user(self.org, role)))
+
+    def test_net_of_refunds_and_limited_to_the_organization(self):
+        self.publish()
+        order, _ = self.buy(self.complete)
+        services.refund(request=fake_request(self.admin, self.org), order=order, amount="10.00", reason="Geste partiel")
+        other = make_org()
+        program = Program.objects.create(organization=other, title_fr="Autre", title_en="Other")
+        self.buy(self.offer("other", "50.00", program=program), user=make_user(other, R.ACADEMY_STUDENT))
+        Order.objects.create(organization=self.org, user=self.buyer, offer=self.guided, status=Order.Status.AWAITING_PAYMENT)
+
+        context = self.widgets(self.admin)["academy/dashboard_payments.html"]
+        self.assertEqual(context["totals"], [("USD", Decimal("19.00"))])
+        self.assertEqual(context["confirmations"], 1)
+        login(self.client, self.admin, self.org)
+        priorities = self.client.get(reverse("core:dashboard")).context["priorities"]
+        self.assertEqual(next(p for p in priorities if p["rank"] == 15)["count"], 1)

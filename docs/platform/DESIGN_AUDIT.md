@@ -168,3 +168,30 @@ Vérification :
 - **Mise en page :** 0 défilement horizontal à 390 px.
 - **Navigateur :** 0 erreur de console ni de CSP.
 - **iPhone émulé :** boutons et champs de 44 px au moins, texte des champs en 16 px.
+
+## Cinquième passe : tableau de bord en verre fumé (2026-11-12)
+
+Demandée par le responsable à partir d'une vidéo de maquette (barre latérale et panneaux translucides, indicateurs avec jauges, histogrammes, courbe, widgets flottants à droite). Skills : `dataviz`, `frontend-design`, `accessibility`.
+
+| Élément de la maquette | Choix retenu | Raison |
+|---|---|---|
+| Photo de salon floutée en fond | Dégradés or et ambre en CSS | La photo n'est pas réutilisable ; identité noir et or imposée |
+| Palette blanche et grise | Texte crème, accent or sur la période en cours | Identité imposée |
+| Titre « Bonjour … » | « Tableau de bord » et date des chiffres | Ton institutionnel |
+| Anneau de répartition | Liste de jauges, une teinte | `dataviz` : un anneau se lit mal, une palette de statuts échoue au validateur |
+| Montants et pourcentages d'exemple | Chiffres réels de l'organisation | Aucune donnée inventée |
+| Graphiques en JavaScript | SVG rendu par Django | CSP stricte, aucune bibliothèque |
+
+Points vérifiés :
+- **Isolation :** chaque chiffre ne compte que l'organisation courante ; le widget des paiements n'apparaît qu'avec `payments.view_orders`, montants nets des remboursements.
+- **Mentions :** les comptes Deriv vérifiés et les configurations appliquées gardent le filet d'or « déclaré, non vérifié ».
+- **Clavier :** chaque graphique prend le focus, les flèches parcourent les valeurs, Échap ferme l'infobulle ; un tableau donne les mêmes chiffres sans survol.
+- **Localisation :** coordonnées SVG rendues en chaînes, pour que le français n'écrive pas « 50,0 ».
+- **Accessibilité :** le bouton du compte avait un nom vide sur téléphone ; il porte maintenant « Compte ».
+
+Vérification :
+- **Tests :** 198 tests (9 nouveaux).
+- **axe-core :** 0 violation sur le tableau de bord, à 1440 et 390 px. Les contrastes sur verre sont calculés à la main, axe ne sachant pas les mesurer sous un flou.
+- **Mise en page :** 0 défilement horizontal à 390 px ; captures à 1440, 1024 et 390 px relues.
+- **Navigateur :** 0 erreur de console ni de CSP.
+

@@ -1,0 +1,6 @@
+{% load i18n %}<section class="sc-glass-card sc-widget" aria-labelledby="widget-interactions">
+  <div class="sc-glass-head"><h2 id="widget-interactions">{% translate "Interactions recorded" %}</h2></div>
+  <p class="sc-widget-figure">{{ data.chart.total }}</p>
+  <p class="sc-glass-meta">{% translate "over the last 30 days" %}</p>
+  {% translate "Interactions recorded, by day" as title %}{% include "core/includes/chart_area.html" with chart=data.chart title=title chart_id="chart-interactions" %}
+</section>

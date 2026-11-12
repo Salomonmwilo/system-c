@@ -6,7 +6,7 @@ from pathlib import Path
 from django.conf import settings
 from django.core.cache import cache
 from django.db import DatabaseError, connection, transaction
-from django.test import TestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import URLPattern, URLResolver, get_resolver, reverse
 from django.utils import translation
 
@@ -467,3 +467,53 @@ class FourthDesignPassTests(TestCase):
         self.assertIn("bi-exclamation-octagon", real)
         self.assertIn("Démo", demo)
         self.assertNotIn("RÉEL", real + demo)
+
+
+class ChartGeometryTests(SimpleTestCase):
+    """Géométrie SVG du tableau de bord (règles de la skill dataviz)."""
+
+    def test_nice_ceiling_rounds_up_to_1_2_5(self):
+        from apps.core.charts import nice_ceiling
+
+        for value, expected in [(0, 1), (1, 1), (2, 2), (3, 5), (7, 10), (11, 20), (43, 50), (120, 200)]:
+            with self.subTest(value=value):
+                self.assertEqual(nice_ceiling(value), expected)
+
+    def test_column_has_rounded_top_and_square_base(self):
+        from apps.core.charts import column_path
+
+        path = column_path(10, 20, 24, 140)
+        self.assertTrue(path.startswith("M10.0,140.0V24.0Q10.0,20.0 14.0,20.0"))
+        self.assertTrue(path.endswith("V140.0Z"), "la base reste carrée")
+
+    def test_bars_are_capped_and_only_the_last_is_highlighted(self):
+        from apps.core.charts import BAR_MAX, Point, bar_chart
+
+        chart = bar_chart([Point("a", 0, "a"), Point("b", 3, "b"), Point("c", 1, "c")])
+        self.assertEqual((chart.ymax, chart.total), (5, 4))
+        self.assertEqual(chart.bars[0]["path"], "", "une valeur nulle ne dessine rien")
+        self.assertEqual([bar["current"] for bar in chart.bars], [False, False, True])
+        xs = [float(x) for x in re.findall(r"(-?\d+\.\d),", chart.bars[1]["path"])]
+        self.assertLessEqual(max(xs) - min(xs), BAR_MAX)
+
+    def test_area_curve_never_overshoots_the_data(self):
+        from apps.core.charts import HEIGHT, Point, area_chart
+
+        chart = area_chart([Point(str(i), v, "") for i, v in enumerate([0, 0, 4, 0, 0, 4, 4, 0])])
+        ys = [float(y) for _x, y in re.findall(r"(-?\d+\.\d),(-?\d+\.\d)", chart.line)]
+        self.assertGreaterEqual(min(ys), 0)
+        self.assertLessEqual(max(ys), HEIGHT)
+
+    def test_coordinates_are_strings_with_a_decimal_point(self):
+        from django.template import Context, Template
+        from django.utils import translation
+
+        from apps.core.charts import Point, area_chart, bar_chart
+
+        bars = bar_chart([Point("a", 1, "a"), Point("b", 2, "b")])
+        area = area_chart([Point("a", 1, "a"), Point("b", 2, "b")])
+        for value in (bars.bars[0]["hit_x"], bars.bars[0]["hit_width"], area.end_x, area.end_y, area.points[1]["x"]):
+            self.assertIsInstance(value, str)
+        with translation.override("fr"):
+            html = Template("{{ a.end_x }} {{ b.hit_width }}").render(Context({"a": area, "b": bars.bars[0]}))
+        self.assertNotIn(",", html, "la localisation française ne doit pas toucher aux coordonnées SVG")
